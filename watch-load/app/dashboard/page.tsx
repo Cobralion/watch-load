@@ -14,6 +14,8 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 
+// TODO: remove
+
 export default function Page() {
   return (
     <SidebarProvider
