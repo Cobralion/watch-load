@@ -1,1 +1,39 @@
+# dependencies
+/watch-load/node_modules
+/watch-load/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
+# testing
+/watch-load/coverage
+
+# next.js
+/watch-load/.next/
+/watch-load/out/
+
+# production
+/watch-load/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
