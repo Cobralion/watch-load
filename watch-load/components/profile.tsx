@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { auth, signOut } from '@/auth';
+import { auth, signOut } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 
 export default async function Profile() {

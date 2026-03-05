@@ -1,4 +1,4 @@
-import { auth } from '@/auth';
+import { auth } from '@/lib/auth';
 import { NextAuthRequest } from 'next-auth';
 
 export const proxy = auth((req: NextAuthRequest) => {

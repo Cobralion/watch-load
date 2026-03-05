@@ -1,7 +1,7 @@
 'use server';
 import AuthState from '@/types/auth-state';
 import { LoginFormData, loginSchema } from '@/lib/validations/auth';
-import { signIn } from '@/auth';
+import { signIn } from '@/lib/auth';
 import { AuthError } from 'next-auth';
 
 export async function login(formData: LoginFormData): Promise<AuthState> {

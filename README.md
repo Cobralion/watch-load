@@ -6,6 +6,7 @@
 
 # Prisma migrations
 `pnpx prisma migrate dev`
+`pnpx prisma generate`
 
 # ENV FILE (watch-load)
 - DATABASE_URL
