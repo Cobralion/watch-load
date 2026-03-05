@@ -7,7 +7,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,md,json}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,md,json}\""
   },
   "dependencies": {
     "@base-ui/react": "^1.2.0",

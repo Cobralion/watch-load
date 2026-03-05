@@ -1,0 +1,9 @@
+# .prettierignore
+node_modules
+.next
+out
+build
+dist
+public
+*.min.js
+coverage
