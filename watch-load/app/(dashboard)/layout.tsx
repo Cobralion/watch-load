@@ -1,15 +1,28 @@
-import { AppSidebar } from "@/components/app-sidebar";
-import Profile from "@/components/profile";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from '@/components/app-sidebar';
+import Profile from '@/components/profile';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
+import { Separator } from '@/components/ui/separator';
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from '@/components/ui/sidebar';
+import Link from 'next/link';
 
 export default function DashboardLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (<SidebarProvider
+  return (
+    <SidebarProvider
       style={
         {
           '--sidebar-width': '19rem',
@@ -24,20 +37,14 @@ export default function DashboardLayout({
             orientation="vertical"
             className="mr-2 data-vertical:h-4 data-vertical:self-auto"
           />
+          <Link href="/dashboard" className="text-lg font-semibold tracking-tight text-primary cursor-pointer select-none" >
+            WATCH LOAD
+          </Link>
           <div className="flex-1" />
           <Profile />
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-        {children}
-        </div>
-        {/* <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-            <div className="bg-muted/50 aspect-video rounded-xl" />
-            <div className="bg-muted/50 aspect-video rounded-xl" />
-            <div className="bg-muted/50 aspect-video rounded-xl" />
-          </div>
-          <div className="bg-muted/50 min-h-screen flex-1 rounded-xl md:min-h-min" />
-        </div> */}
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">{children}</div>
       </SidebarInset>
-    </SidebarProvider>);
+    </SidebarProvider>
+  );
 }
