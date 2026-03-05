@@ -1,7 +1,10 @@
-import NextAuth, { CredentialsSignin, User } from 'next-auth';
+import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { prisma } from '@/lib/prisma';
-import { InvalidCredentialsError, ServerCredentialsError } from '@/types/auth-errors';
+import {
+  InvalidCredentialsError,
+  ServerCredentialsError,
+} from '@/types/auth-errors';
 import bcrypt from 'bcryptjs';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -13,10 +16,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: {},
       },
       authorize: async (credentials) => {
-        let user: User | null = null;
-
-        CredentialsSignin;
-
         if (!credentials) {
           console.error('[AUTH] No credentials provided');
           throw new InvalidCredentialsError();
@@ -31,7 +30,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new InvalidCredentialsError();
         }
 
-        let result: any;
+        let result: {
+          id: string;
+          name: string | null;
+          username: string;
+          password: string;
+          role: string;
+        } | null = null;
         try {
           result = await prisma.user.findUnique({
             where: {
@@ -43,20 +48,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new ServerCredentialsError();
         }
 
-        if(!result) {
+        if (!result) {
           console.error('[AUTH] User not found: ', username);
           throw new InvalidCredentialsError();
         }
 
         const isMatch = await bcrypt.compare(password, result.password);
-        if(!isMatch) {
+        if (!isMatch) {
           console.error('[AUTH] Wrong password for ', username);
           throw new InvalidCredentialsError();
         }
 
         return {
           id: result.id,
-          name: result.name
+          name: result.name,
+          role: result.role,
+          username: username,
         };
       },
     }),
@@ -66,8 +73,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id;
         token.name = user.name;
+        token.role = user.role;
+        token.username = user.username;
       }
       return token;
+    },
+    session: async ({ session, token }) => {
+      session.user.id = token.id as string;
+      session.user.name = token.name as string;
+      session.user.role = token.role as string;
+      session.user.username = token.username as string;
+
+      return session;
     },
   },
 });

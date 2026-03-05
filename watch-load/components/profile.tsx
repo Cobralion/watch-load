@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -15,7 +15,6 @@ export default async function Profile() {
   const session = await auth();
   const userName = session?.user?.name;
   const fallback = userName ? userName.slice(0, 2).toUpperCase() : 'AA';
-  console.log('Profile session: {}', session?.user?.name);
 
   return (
     <DropdownMenu>

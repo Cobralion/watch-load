@@ -1,13 +1,5 @@
 import { AppSidebar } from '@/components/app-sidebar';
 import Profile from '@/components/profile';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
 import { Separator } from '@/components/ui/separator';
 import {
   SidebarInset,
