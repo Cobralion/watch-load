@@ -15,12 +15,13 @@ import {
   FieldError,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { z } from 'zod';
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { Controller, useForm } from 'react-hook-form';
 import { LoginFormData, loginSchema } from '@/lib/validations/auth';
 import { useRouter } from 'next/navigation';
 import { login } from '@/actions/auth';
+import { useSession } from 'next-auth/react';
+import { useEffect } from 'react';
 
 export function LoginForm({
   className,
@@ -34,6 +35,13 @@ export function LoginForm({
       password: '',
     },
   });
+  const session = useSession();
+
+  useEffect(() => {
+    if (session.status === 'authenticated') {
+      router.push('/dashboard');
+    }
+  }, [session.status, router]);
 
   async function onSubmit(data: LoginFormData) {
     console.log(data); // TODO: remove

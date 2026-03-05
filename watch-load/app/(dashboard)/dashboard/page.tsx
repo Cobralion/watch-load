@@ -1,4 +1,5 @@
 import { AppSidebar } from '@/components/app-sidebar';
+import Profile from '@/components/profile';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,8 +14,6 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-
-// TODO: remove
 
 export default function Page() {
   return (
@@ -44,6 +43,8 @@ export default function Page() {
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
+          <div className="flex-1" />
+          <Profile />
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
           <div className="grid auto-rows-min gap-4 md:grid-cols-3">
