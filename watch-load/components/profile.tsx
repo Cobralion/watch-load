@@ -29,7 +29,7 @@ export default async function Profile() {
       <DropdownMenuContent className="w-32">
         <DropdownMenuGroup>
           <DropdownMenuItem
-            onClick={ async () => {
+            onClick={async () => {
               'use server';
               redirect('/profile');
             }}

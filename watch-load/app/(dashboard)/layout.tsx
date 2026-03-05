@@ -37,7 +37,10 @@ export default function DashboardLayout({
             orientation="vertical"
             className="mr-2 data-vertical:h-4 data-vertical:self-auto"
           />
-          <Link href="/dashboard" className="text-lg font-semibold tracking-tight text-primary cursor-pointer select-none" >
+          <Link
+            href="/dashboard"
+            className="text-primary cursor-pointer text-lg font-semibold tracking-tight select-none"
+          >
             WATCH LOAD
           </Link>
           <div className="flex-1" />
