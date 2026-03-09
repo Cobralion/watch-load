@@ -10,10 +10,12 @@ import {
 } from '../ui/card';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
+import { Button } from '@base-ui/react/button';
 
 export default function AccountInformation() {
   return (
     <Card>
+      {/* Header */}
       <CardHeader>
         <div className="flex items-center gap-2">
           <User className="h-4 w-4 text-neutral-400" />
@@ -53,16 +55,17 @@ export default function AccountInformation() {
         <div className="space-y-1.5">
           <Label className="text-xs font-medium text-neutral-600">Role</Label>
           <div className="flex h-9 cursor-not-allowed items-center gap-2 rounded-md border px-3">
-            <Badge
-              variant="secondary"
-              className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 select-none hover:bg-green-100"
-            >
+            <Badge className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 select-none hover:bg-green-100">
               admin
             </Badge>
           </div>
           <p className="text-[11px] text-neutral-400">
             Role is managed by your organization admin.
           </p>
+        </div>
+
+        <div className="flex justify-end pt-1">
+          <Button className="cursor-pointer">Save changes</Button>
         </div>
       </CardContent>
     </Card>

@@ -18,9 +18,10 @@ export async function login(formData: LoginFormData): Promise<AuthState> {
     if (error instanceof AuthError) {
       return {
         success: false,
-        error: error.type === 'CredentialsSignin'
-          ? 'Invalid username or password.'
-          : 'An unknown authentication error occurred.',
+        error:
+          error.type === 'CredentialsSignin'
+            ? 'Invalid username or password.'
+            : 'An unknown authentication error occurred.',
       };
     }
     throw error;

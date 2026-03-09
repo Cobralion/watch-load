@@ -12,3 +12,7 @@
 - DATABASE_URL
 - NEXTAUTH_URL -> set in production to url ??
 - AUTH_SECRET -> menditory for auth.js
+
+# Test Passwords
+- admin:Admin!123
+- user:User!123

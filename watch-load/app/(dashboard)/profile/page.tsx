@@ -1,5 +1,5 @@
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { SessionProvider } from 'next-auth/react';
 import AccountInformation from '@/components/profile/account-information';
 import ChangePassword from '@/components/profile/change-password';
 
@@ -17,13 +17,11 @@ export default function ProfilePage() {
 
         <Separator className="bg-neutral-200" />
 
-        <AccountInformation />
-        <ChangePassword />
-
-        {/* Save row */}
-        <div className="flex justify-end pt-1">
-          <Button className="cursor-pointer">Save changes</Button>
-        </div>
+        {/* Account Information */}
+        <SessionProvider>
+          <AccountInformation />
+          <ChangePassword />
+        </SessionProvider>
       </div>
     </div>
   );
