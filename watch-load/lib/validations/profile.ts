@@ -1,6 +1,5 @@
 import * as z from 'zod';
 
-
 export const accountInformationSchema = z.object({
   name: z
     .string()

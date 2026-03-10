@@ -10,7 +10,7 @@ import {
 } from '../ui/card';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import { Button } from '@base-ui/react/button';
+import { Button } from '../ui/button';
 
 export default function AccountInformation() {
   return (
@@ -35,7 +35,7 @@ export default function AccountInformation() {
           >
             Full Name
           </Label>
-          <Input id="name" defaultValue="Jane Doe" />
+          <Input id="name" defaultValue="Jane Doe" disabled/>
         </div>
 
         {/* Username */}
@@ -64,7 +64,7 @@ export default function AccountInformation() {
           </p>
         </div>
 
-        <div className="flex justify-end pt-1">
+        <div className="flex justify-start pt-1">
           <Button className="cursor-pointer">Save changes</Button>
         </div>
       </CardContent>

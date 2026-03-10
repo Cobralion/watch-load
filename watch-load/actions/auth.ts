@@ -3,7 +3,7 @@
 import { LoginFormData, loginSchema } from '@/lib/validations/auth';
 import { signIn } from '@/lib/auth';
 import { AuthError } from 'next-auth';
-import AuthState from '@/types/auth-state';
+import { AuthState } from '@/types/form-states';
 
 export async function login(formData: LoginFormData): Promise<AuthState> {
   const validation = await loginSchema.safeParseAsync(formData);

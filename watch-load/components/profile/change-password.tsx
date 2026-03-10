@@ -21,6 +21,7 @@ import {
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { useForm } from 'react-hook-form';
 import { Field, FieldError, FieldGroup, FieldLabel } from '../ui/field';
+import changePassword from '@/actions/change-password';
 
 const FIELDS = [
   {
@@ -43,12 +44,15 @@ export default function ChangePassword() {
     'confirm-password': false,
   });
 
+  const [showSuccess, setShowSuccess] = useState(false);
+
   const togglePassword = (id: string) =>
     setShowPasswords((prev) => ({ ...prev, [id]: !prev[id] }));
 
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<ChangePasswordFormData>({
     resolver: standardSchemaResolver(changePasswordSchema),
@@ -60,7 +64,15 @@ export default function ChangePassword() {
   });
 
   const onSubmit = async (data: ChangePasswordFormData) => {
-    console.log('Form Data:', data);
+    const result = await changePassword(data);
+if (result?.error) {
+      setError('root', {
+        type: 'manual',
+        message: result.error,
+      });
+      return;
+    }
+    setShowSuccess(true);
   };
 
   return (
@@ -70,9 +82,7 @@ export default function ChangePassword() {
           <Lock className="h-4 w-4 text-neutral-400" />
           <CardTitle>Change Password</CardTitle>
         </div>
-        <CardDescription>
-          Leave blank if you don&apos;t want to change your password.
-        </CardDescription>
+        <CardDescription>Change your password at any time.</CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-4 px-5 pb-5">
@@ -110,13 +120,23 @@ export default function ChangePassword() {
             ))}
 
             {errors.root && (
-                <p className="text-sm font-medium text-red-500">
-                  {errors.root.message}
-                </p>
-              )}
+              <p className="text-sm font-medium text-red-500">
+                {errors.root.message}
+              </p>
+            )}
+
+            {showSuccess && (
+              <p className="text-sm font-medium text-green-500">
+                Password has been updated.
+              </p>
+            )}
 
             <Field orientation="horizontal">
-              <Button type="submit" disabled={isSubmitting}>
+              <Button
+                className="cursor-pointer"
+                type="submit"
+                disabled={isSubmitting}
+              >
                 {isSubmitting ? 'Changing password...' : 'Change Password'}
               </Button>
             </Field>
