@@ -17,6 +17,13 @@ model User {
   id String @id @default(cuid())
   username String @unique
   password String
-  role String
+  role String           // TODO: change to enum
   name String?
+}
+
+model ECGData {
+  id String @id @default(cuid())
+  trails_id String?
+  date DateTime
+  data Json
 }

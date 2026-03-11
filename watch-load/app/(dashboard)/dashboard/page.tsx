@@ -1,13 +1,27 @@
-export default function Page() {
+import { DataTable } from "@/components/dashboard/ecg-data-table";
+import { columns, EcgTableData } from "@/components/dashboard/ecg-table-colums";
+
+async function getData(): Promise<EcgTableData[]> {
+  // Fetch data from your API here.
+  return [
+    {
+      id: "728ed52f",
+      trailsId: "trails-123",
+      date: new Date(),
+      data: "sample data",
+    },
+  ]
+}
+
+export default async function Page() {
+  const data = await getData()
+
   return (
     <>
       <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-      <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-        <div className="bg-muted/50 aspect-video rounded-xl" />
-        <div className="bg-muted/50 aspect-video rounded-xl" />
-        <div className="bg-muted/50 aspect-video rounded-xl" />
+      <div className="flex flex-col gap-6 pt-6 m-4">
+       <DataTable columns={columns} data={data} />
       </div>
-      <div className="bg-muted/50 min-h-screen flex-1 rounded-xl md:min-h-min" />
     </>
   );
 }
