@@ -1,0 +1,4 @@
+const APPLICATION_VERSION = '0.1.0-alpha';
+const APPLICATION_NAME = 'Watch Load';
+
+export { APPLICATION_VERSION, APPLICATION_NAME };
