@@ -3,17 +3,17 @@
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
 } from '@/components/ui/card';
 import {
-  Field,
-  FieldGroup,
-  FieldLabel,
-  FieldError,
+    Field,
+    FieldGroup,
+    FieldLabel,
+    FieldError,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
@@ -23,80 +23,82 @@ import { useRouter } from 'next/navigation';
 import { login } from '@/actions/auth';
 
 const FIELDS = [
-  { name: 'username', label: 'Username', type: 'text' },
-  { name: 'password', label: 'Password', type: 'password' },
+    { name: 'username', label: 'Username', type: 'text' },
+    { name: 'password', label: 'Password', type: 'password' },
 ] as const;
 
 export function LoginForm({
-  className,
-  ...props
+    className,
+    ...props
 }: React.ComponentProps<'div'>) {
-  const router = useRouter();
-  const {
-    register,
-    handleSubmit,
-    setError,
-    formState: { errors, isSubmitting },
-  } = useForm<LoginFormData>({
-    resolver: standardSchemaResolver(loginSchema),
-    defaultValues: { username: '', password: '' },
-  });
+    const router = useRouter();
+    const {
+        register,
+        handleSubmit,
+        setError,
+        formState: { errors, isSubmitting },
+    } = useForm<LoginFormData>({
+        resolver: standardSchemaResolver(loginSchema),
+        defaultValues: { username: '', password: '' },
+    });
 
-  async function onSubmit(data: LoginFormData) {
-    const result = await login(data);
-    if (result?.error) {
-      setError('root', {
-        type: 'manual',
-        message: 'Invalid username or password.',
-      });
-      return;
+    async function onSubmit(data: LoginFormData) {
+        const result = await login(data);
+        if (result?.error) {
+            setError('root', {
+                type: 'manual',
+                message: 'Invalid username or password.',
+            });
+            return;
+        }
+        router.push('/dashboard');
     }
-    router.push('/dashboard');
-  }
 
-  return (
-    <div className={cn('flex flex-col gap-6', className)} {...props}>
-      <Card>
-        <CardHeader>
-          <CardTitle>Login to your account</CardTitle>
-          <CardDescription>
-            Enter your username and password below to login.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <FieldGroup>
-              {FIELDS.map(({ name, label, type }) => (
-                <Field key={name} data-invalid={!!errors[name]}>
-                  <FieldLabel htmlFor={`form-login-${name}`}>
-                    {label}
-                  </FieldLabel>
-                  <Input
-                    {...register(name)}
-                    id={`form-login-${name}`}
-                    type={type}
-                    aria-invalid={!!errors[name]}
-                    autoComplete="off"
-                  />
-                  {errors[name] && <FieldError errors={[errors[name]]} />}
-                </Field>
-              ))}
+    return (
+        <div className={cn('flex flex-col gap-6', className)} {...props}>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Login to your account</CardTitle>
+                    <CardDescription>
+                        Enter your username and password below to login.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                        <FieldGroup>
+                            {FIELDS.map(({ name, label, type }) => (
+                                <Field key={name} data-invalid={!!errors[name]}>
+                                    <FieldLabel htmlFor={`form-login-${name}`}>
+                                        {label}
+                                    </FieldLabel>
+                                    <Input
+                                        {...register(name)}
+                                        id={`form-login-${name}`}
+                                        type={type}
+                                        aria-invalid={!!errors[name]}
+                                        autoComplete="off"
+                                    />
+                                    {errors[name] && (
+                                        <FieldError errors={[errors[name]]} />
+                                    )}
+                                </Field>
+                            ))}
 
-              {errors.root && (
-                <p className="text-sm font-medium text-red-500">
-                  {errors.root.message}
-                </p>
-              )}
+                            {errors.root && (
+                                <p className="text-sm font-medium text-red-500">
+                                    {errors.root.message}
+                                </p>
+                            )}
 
-              <Field>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Logging in...' : 'Login'}
-                </Button>
-              </Field>
-            </FieldGroup>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
-  );
+                            <Field>
+                                <Button type="submit" disabled={isSubmitting}>
+                                    {isSubmitting ? 'Logging in...' : 'Login'}
+                                </Button>
+                            </Field>
+                        </FieldGroup>
+                    </form>
+                </CardContent>
+            </Card>
+        </div>
+    );
 }
