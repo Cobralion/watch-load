@@ -31,5 +31,6 @@ async function getConnectionStatus(): Promise<boolean> {
 
 export default async function ConnectedDevicesPage() {
     const connectionStatus = await getConnectionStatus();
+    console.log('Connection status:', connectionStatus);
     return <ConectedDevicesCard initialConnectionStatus={connectionStatus} />;
 }

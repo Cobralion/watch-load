@@ -14,7 +14,7 @@ import { disconnectDevices } from '@/actions/conect-devices';
 import { useState } from 'react';
 import { ActionState } from '@/types/action-state';
 
-export default function ConnectedDevicesCard(initialConnectionStatus: boolean) {
+export default function ConnectedDevicesCard({ initialConnectionStatus }: { initialConnectionStatus: boolean }) {
     const [disconnectState, setDisconnectState] = useState<ActionState | null>(
         null
     );
@@ -86,7 +86,7 @@ export default function ConnectedDevicesCard(initialConnectionStatus: boolean) {
                     </Button>
                 ) : (
                     <Button asChild className="h-10 w-full cursor-pointer">
-                        <Link href="/api/withings/connect" target="_blank">
+                        <Link href="/api/withings/connect" rel="noreferrer" target="_self">
                             Connect Withings Device
                         </Link>
                     </Button>
