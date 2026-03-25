@@ -11,7 +11,7 @@ async function GET() {
     }
 
     const userId = session.user.id;
-    const authUrl = getWithingsAuthUrl(userId, 'demo'); // TODO: remove demo mode when ready
+    const authUrl = await getWithingsAuthUrl(userId, 'demo'); // TODO: remove demo mode when ready
 
     redirect(authUrl);
 }
