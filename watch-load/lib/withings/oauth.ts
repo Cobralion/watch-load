@@ -1,4 +1,8 @@
 import * as jose from 'jose';
+import { createSignature } from '@/lib/withings/signing';
+import { prisma } from '@/lib/prisma';
+import { WithingsDevice } from '@/generated/prisma/client';
+import { env } from '@/env/server';
 
 export async function getWithingsAuthUrl(
     userId: string,
@@ -6,8 +10,8 @@ export async function getWithingsAuthUrl(
 ) {
     const params = new URLSearchParams({
         response_type: 'code',
-        client_id: process.env.WITHINGS_CLIENT_ID!,
-        redirect_uri: process.env.WITHINGS_REDIRECT_URI!,
+        client_id: env.WITHINGS_CLIENT_ID,
+        redirect_uri: env.WITHINGS_REDIRECT_URI,
         scope: 'user.metrics,user.activity',
         state: await createStateJWT(userId),
         mode: mode,
@@ -17,35 +21,83 @@ export async function getWithingsAuthUrl(
 }
 
 export async function createStateJWT(userId: string): Promise<string> {
-    const secret = new TextEncoder().encode(process.env.APP_SECRET!);
+    const secret = new TextEncoder().encode(env.JWT_SECRET);
     const alg = 'HS256';
     const data = { userId: userId };
 
-    const jwt = await new jose.SignJWT(data)
+    return await new jose.SignJWT(data)
         .setProtectedHeader({ alg })
         .setIssuedAt()
-        .setIssuer(process.env.APP_ISSUER!)
-        .setAudience(process.env.APP_AUDIENCE!)
+        .setIssuer(env.JWT_APP_ISSUER)
+        .setAudience(env.JWT_APP_AUDIENCE)
         .setExpirationTime('5min')
         .sign(secret);
-
-    console.log('Generated JWT:', jwt);
-
-    return jwt;
 }
 
 export async function verifyStateJWT(jwt: string): Promise<string | null> {
-    const secret = new TextEncoder().encode(process.env.APP_SECRET!);
+    const secret = new TextEncoder().encode(env.JWT_SECRET!);
 
     try {
         const { payload } = await jose.jwtVerify(jwt, secret, {
-            issuer: process.env.APP_ISSUER!,
-            audience: process.env.APP_AUDIENCE!,
+            issuer: env.JWT_APP_ISSUER!,
+            audience: env.JWT_APP_AUDIENCE!,
         });
 
         return payload.userId as string;
     } catch (error) {
         console.error('JWT verification failed:', error);
         return null;
+    }
+}
+
+export async function disconnectDevice(
+    deviceConnection: WithingsDevice,
+    userId: string
+): Promise<boolean> {
+    try {
+        const sig = await createSignature('revoke');
+
+        const fetchResult = await fetch(
+            'https://wbsapi.withings.net/v2/oauth2',
+            {
+                method: 'POST',
+                body: new URLSearchParams({
+                    action: 'revoke',
+                    client_id: env.WITHINGS_CLIENT_ID!,
+                    nonce: sig.nonce,
+                    signature: sig.signature,
+                    userid: String(deviceConnection.withings_user_id),
+                }),
+            }
+        );
+
+        if (!fetchResult.ok) {
+            const errorText = await fetchResult.text();
+            throw new Error(
+                `Failed to revoke signature. HTTP status: ${fetchResult.status}, Response: ${errorText}`
+            );
+        }
+
+        const { status } = await fetchResult.json();
+        if (status !== 0) {
+            throw new Error(
+                `Failed to revoke signature. Withings API status code: ${status}`
+            );
+        }
+    } catch (e) {
+        console.error('Remote Withings API token revocation failed:', e);
+    }
+
+    try {
+        await prisma.withingsDevice.deleteMany({
+            where: { user_id: userId },
+        });
+        return true;
+    } catch (err) {
+        console.error(
+            'Failed to disconnect device locally in the database:',
+            err
+        );
+        return false;
     }
 }

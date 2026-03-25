@@ -10,7 +10,7 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { Activity, Watch } from 'lucide-react';
-import { disconnectDevices } from '@/actions/conect-devices';
+import { disconnectDevices } from '@/actions/disconnect-devices';
 import { useState } from 'react';
 import { ActionState } from '@/types/action-state';
 

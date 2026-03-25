@@ -1,4 +1,3 @@
-'use server';
 import ConectedDevicesCard from '@/components/conected-device-card';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';

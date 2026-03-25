@@ -1,8 +1,6 @@
-'use server';
-
 import { auth } from '@/lib/auth';
 import { getWithingsAuthUrl } from '@/lib/withings/oauth';
-import { redirect } from 'next/navigation';
+import { NextResponse } from 'next/server';
 
 async function GET() {
     const session = await auth();
@@ -13,7 +11,7 @@ async function GET() {
     const userId = session.user.id;
     const authUrl = await getWithingsAuthUrl(userId, 'demo'); // TODO: remove demo mode when ready
 
-    redirect(authUrl);
+    return NextResponse.redirect(authUrl);
 }
 
 export { GET };
