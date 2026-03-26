@@ -10,4 +10,15 @@ class ServerCredentialsError extends CredentialsSignin {
 
 class EncryptionError extends Error {}
 
-export { InvalidCredentialsError, ServerCredentialsError, EncryptionError };
+class RefreshTokenError extends Error {
+    constructor(message?: string) {
+        super(`Failed to refresh token: ${message}`);
+    }
+}
+
+export {
+    InvalidCredentialsError,
+    ServerCredentialsError,
+    EncryptionError,
+    RefreshTokenError,
+};
