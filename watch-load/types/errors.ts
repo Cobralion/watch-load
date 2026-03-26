@@ -16,9 +16,23 @@ class RefreshTokenError extends Error {
     }
 }
 
+class HeartListError extends Error {
+    constructor(message?: string) {
+        super(`Failed to list ECGs: ${message}`);
+    }
+}
+
+class HeartGetError extends Error {
+    constructor(message?: string) {
+        super(`Failed to get ECG: ${message}`);
+    }
+}
+
 export {
     InvalidCredentialsError,
     ServerCredentialsError,
     EncryptionError,
     RefreshTokenError,
+    HeartListError,
+    HeartGetError,
 };

@@ -1,5 +1,6 @@
 import { DataTable } from '@/components/dashboard/ecg-data-table';
 import { columns, EcgTableData } from '@/components/dashboard/ecg-table-colums';
+import { listHeartAction } from '@/actions/heart';
 
 async function getData(): Promise<EcgTableData[]> {
     // Fetch data from your API here.
@@ -15,6 +16,7 @@ async function getData(): Promise<EcgTableData[]> {
 
 export default async function Page() {
     const data = await getData();
+    await listHeartAction();
 
     return (
         <>
