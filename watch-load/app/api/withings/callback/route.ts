@@ -6,8 +6,7 @@ import { RequestTokenResponse } from '@/types/withings';
 import { disconnectDevice } from '@/lib/withings/oauth';
 import { auth } from '@/lib/auth';
 import { env } from '@/env/server';
-
-const WITHINGS_TOKEN_URL = 'https://wbsapi.withings.net/v2/oauth2';
+import { WITHINGS_TOKEN_URL } from '@/lib/withings/api-urls';
 
 export async function GET(req: NextRequest) {
     const session = await auth();

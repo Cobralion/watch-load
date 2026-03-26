@@ -3,6 +3,10 @@ import { createSignature } from '@/lib/withings/signing';
 import { prisma } from '@/lib/prisma';
 import { WithingsDevice } from '@/generated/prisma/client';
 import { env } from '@/env/server';
+import {
+    WITHINGS_AUTHORIZATION_URL,
+    WITHINGS_OAUTH_URL,
+} from '@/lib/withings/api-urls';
 
 export async function getWithingsAuthUrl(
     userId: string,
@@ -17,7 +21,7 @@ export async function getWithingsAuthUrl(
         mode: mode,
     });
 
-    return `https://account.withings.com/oauth2_user/authorize2?${params.toString()}`;
+    return `${WITHINGS_AUTHORIZATION_URL}?${params.toString()}`;
 }
 
 export async function createStateJWT(userId: string): Promise<string> {
@@ -57,19 +61,16 @@ export async function disconnectDevice(
     try {
         const sig = await createSignature('revoke');
 
-        const fetchResult = await fetch(
-            'https://wbsapi.withings.net/v2/oauth2',
-            {
-                method: 'POST',
-                body: new URLSearchParams({
-                    action: 'revoke',
-                    client_id: env.WITHINGS_CLIENT_ID!,
-                    nonce: sig.nonce,
-                    signature: sig.signature,
-                    userid: String(deviceConnection.withings_user_id),
-                }),
-            }
-        );
+        const fetchResult = await fetch(WITHINGS_OAUTH_URL, {
+            method: 'POST',
+            body: new URLSearchParams({
+                action: 'revoke',
+                client_id: env.WITHINGS_CLIENT_ID!,
+                nonce: sig.nonce,
+                signature: sig.signature,
+                userid: String(deviceConnection.withings_user_id),
+            }),
+        });
 
         if (!fetchResult.ok) {
             const errorText = await fetchResult.text();
