@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import {
     InvalidCredentialsError,
     ServerCredentialsError,
-} from '@/types/auth-errors';
+} from '@/types/errors';
 import bcrypt from 'bcryptjs';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({

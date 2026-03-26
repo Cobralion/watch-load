@@ -8,4 +8,6 @@ class ServerCredentialsError extends CredentialsSignin {
     code = 'server_error';
 }
 
-export { InvalidCredentialsError, ServerCredentialsError };
+class EncryptionError extends Error {}
+
+export { InvalidCredentialsError, ServerCredentialsError, EncryptionError };

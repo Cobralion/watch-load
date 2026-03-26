@@ -1,6 +1,6 @@
 import { env } from '@/env/server';
 import { randomBytes, createCipheriv, createDecipheriv } from 'crypto';
-import { EncryptionError } from '@/types/encryption-error';
+import { EncryptionError } from '@/types/errors';
 
 const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 12;
