@@ -28,6 +28,12 @@ class HeartGetError extends Error {
     }
 }
 
+class SyncHeartError extends Error {
+    constructor(message?: string) {
+        super(`Failed to sync ECGs: ${message}`);
+    }
+}
+
 export {
     InvalidCredentialsError,
     ServerCredentialsError,
@@ -35,4 +41,5 @@ export {
     RefreshTokenError,
     HeartListError,
     HeartGetError,
+    SyncHeartError,
 };

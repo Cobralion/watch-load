@@ -8,9 +8,11 @@ import { decryptToken, encryptToken } from '@/lib/encryption';
 type RefreshedTokens = {
     access_token: string;
     refresh_token: string;
-}
+};
 
-export async function refreshWithingsToken(userId: string): Promise<RefreshedTokens> {
+export async function refreshWithingsToken(
+    userId: string
+): Promise<RefreshedTokens> {
     let deviceConnection:
         | { id: string; refresh_token: string }
         | null
@@ -71,7 +73,7 @@ export async function refreshWithingsToken(userId: string): Promise<RefreshedTok
 
     if (status !== 0) {
         throw new RefreshTokenError(
-            `Failed to retrieve new access_token from Withings API: Status was  ${status}, body was  ${JSON.stringify(body)}`,
+            `Failed to retrieve new access_token from Withings API: Status was  ${status}, body was  ${JSON.stringify(body)}`
         );
     }
 

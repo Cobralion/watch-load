@@ -9,7 +9,7 @@ async function GET() {
     }
 
     const userId = session.user.id;
-    const authUrl = await getWithingsAuthUrl(userId, 'demo'); // TODO: remove demo mode when ready
+    const authUrl = await getWithingsAuthUrl(userId); // TODO: remove demo mode when ready
 
     return NextResponse.redirect(authUrl);
 }

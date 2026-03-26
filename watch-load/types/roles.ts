@@ -1,2 +1,2 @@
-type Role = 'admin' | 'user';
+type Role = 'ADMIN' | 'USER';
 export default Role;

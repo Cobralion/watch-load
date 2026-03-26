@@ -1,34 +1,28 @@
 'use server';
 
+import { syncHeartData } from '@/lib/withings/heart';
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { refreshWithingsToken } from '@/lib/withings/token-managment';
-import { listHeart } from '@/lib/withings/heart';
-import { decryptToken } from '@/lib/encryption';
 
-export async function listHeartAction(): Promise<void> {
+export type SyncHeartActionState = {
+    success: boolean;
+    message?: string;
+};
+
+export async function syncHeartAction(): Promise<SyncHeartActionState> {
     const session = await auth();
     if (!session) {
-        return;
+        return { success: false, message: 'User authentication failed!' };
     }
 
-    const token = await prisma.withingsDevice.findFirst({
-        where: { user_id: session.user.id },
-        select: { access_token: true, expires_at: true },
-    });
-
-    if (!token) {
-        return;
+    try {
+        await syncHeartData(session.user.id);
+    } catch (e) {
+        console.error(e);
+        return {
+            success: false,
+            message: 'Failed to sync ECGs from connected Withings device!',
+        };
     }
 
-    let accessToken = decryptToken(token.access_token);
-    if(token.expires_at <= new Date()) {
-        accessToken = (await refreshWithingsToken(session.user.id)).access_token;
-    }
-
-    const result = await listHeart(accessToken);
-
-    for (const item of result) {
-        console.log(item.ecg.signalid);
-    }
+    return { success: true };
 }

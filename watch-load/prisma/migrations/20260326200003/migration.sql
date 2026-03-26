@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "Afib" ADD VALUE 'UNKOWN';
