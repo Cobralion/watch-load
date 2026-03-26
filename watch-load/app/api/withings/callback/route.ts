@@ -6,7 +6,7 @@ import { RequestTokenResponse } from '@/types/withings';
 import { disconnectDevice } from '@/lib/withings/oauth';
 import { auth } from '@/lib/auth';
 import { env } from '@/env/server';
-import { WITHINGS_TOKEN_URL } from '@/lib/withings/api-urls';
+import { WITHINGS_OAUTH_URL } from '@/lib/withings/api-urls';
 
 export async function GET(req: NextRequest) {
     const session = await auth();
@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Exchange code for tokens
-    const tokenResponse = await fetch(WITHINGS_TOKEN_URL, {
+    const tokenResponse = await fetch(WITHINGS_OAUTH_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
@@ -89,7 +89,7 @@ export async function GET(req: NextRequest) {
 
     try {
         // Create device and link to user atomically
-        const device = await prisma.withingsDevice.create({
+        await prisma.withingsDevice.create({
             data: {
                 user_id: user.id,
                 access_token: encryptToken(body.access_token),
