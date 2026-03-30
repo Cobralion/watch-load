@@ -3,6 +3,7 @@ import { DataTable } from '@/components/ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { FORMAT_DATE } from '@/lib/utils';
+import EditTrailsDialog, { useTrailsDialogState } from '@/components/dashboard/trails-edit-dialog';
 
 
 export type EcgData = {
@@ -14,66 +15,9 @@ export type EcgData = {
     samplingFrequency: number;
 };
 
-export const columns: ColumnDef<EcgData>[] = [
-    {
-        accessorKey: 'id',
-        header: 'ID',
-    },
-    {
-        accessorKey: 'trailsId',
-        header: 'Trails ID',
-        cell: ({ row, table }) => {
-            const trailsId = row.original.trailsId;
-            const isSet = trailsId && trailsId.trim() === '';
-
-            return (
-                <div className="flex items-center gap-3">
-                    {isSet ? (
-                        <span className="text-primary font-medium">
-                            {trailsId}
-                        </span>
-                    ) : (
-                        <span className="text-muted-foreground text-sm italic">
-                            Unassigned
-                        </span>
-                    )}
-                    <Button
-                        variant="secondary"
-                        size="sm"
-                        className="h-7 px-3 text-xs"
-                    >
-                        Edit
-                    </Button>
-                </div>
-            );
-        },
-    },
-    {
-        accessorKey: 'heartRate',
-        header: 'HF',
-    },
-    {
-        accessorKey: 'afib',
-        header: 'Atrial fibrillation',
-    },
-    {
-        accessorKey: 'createdAt',
-        header: 'Creation date',
-        cell: ({ row }) => {
-            const date = new Date(row.getValue('createdAt'));
-
-            const formatted = FORMAT_DATE.format(date);
-
-            return <span>{formatted}</span>;
-        },
-    },
-    {
-        accessorKey: 'samplingFrequency',
-        header: 'Sampling frequency',
-    },
-];
-
 export default function EcgDataTable({ ecgData }: { ecgData: EcgData[] }) {
+    const { isOpen, toggleModal, data, setData } = useTrailsDialogState();
+
     const columns: ColumnDef<EcgData>[] = [
         {
             accessorKey: 'id',
@@ -83,28 +27,40 @@ export default function EcgDataTable({ ecgData }: { ecgData: EcgData[] }) {
             accessorKey: 'trailsId',
             header: 'Trails ID',
             cell: ({ row, table }) => {
-                const trailsId = row.original.trailsId;
+                const original = row.original;
+                const trailsId = original?.trailsId;
                 const isSet = trailsId && trailsId.trim() === '';
 
                 return (
-                    <div className="flex items-center gap-3">
-                        {isSet ? (
-                            <span className="text-primary font-medium">
-                                {trailsId}
-                            </span>
-                        ) : (
-                            <span className="text-muted-foreground text-sm italic">
-                                Unassigned
-                            </span>
-                        )}
-                        <Button
-                            variant="secondary"
-                            size="sm"
-                            className="h-7 px-3 text-xs"
-                        >
-                            Edit
-                        </Button>
-                    </div>
+                    <>
+                        <div className="flex items-center gap-3">
+                            {isSet ? (
+                                <span className="text-primary font-medium">
+                                    {trailsId}
+                                </span>
+                            ) : (
+                                <span className="text-muted-foreground text-sm italic">
+                                    Unassigned
+                                </span>
+                            )}
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                className="h-7 px-3 text-xs"
+                                onClick={() => {
+                                    setData(original);
+                                    toggleModal();
+                                }}
+                            >
+                                Edit
+                            </Button>
+                        </div>
+                        <EditTrailsDialog
+                            isOpen={isOpen}
+                            toggleModal={toggleModal}
+                            data={data}
+                        ></EditTrailsDialog>
+                    </>
                 );
             },
         },
