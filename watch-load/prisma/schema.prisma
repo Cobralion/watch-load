@@ -59,15 +59,7 @@ model HeartMeasurement {
   signal             Int[]
   sampling_frequency Int
 
-  trails Trails?
+  trails_id String?
 
-  @@index([signal_id, timestamp])
-}
-
-model Trails {
-  id       String @id @default(cuid())
-  trail_id String @unique
-
-  heart_measurement_id String           @unique
-  heart_measurement    HeartMeasurement @relation(fields: [heart_measurement_id], references: [id], onDelete: Cascade)
+  @@index([signal_id, timestamp, trails_id])
 }
