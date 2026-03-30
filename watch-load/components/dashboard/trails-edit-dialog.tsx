@@ -13,6 +13,8 @@ import { Label } from '@/components/ui/label';
 import { DialogState } from '@/types/dialog/dialog-state';
 import { EcgData } from '@/components/dashboard/ecg-data-table';
 import { create } from 'zustand';
+import { useState } from 'react';
+import { editTrailsId } from '@/actions/heart';
 
 export const useTrailsDialogState = create<DialogState<EcgData>>((set) => ({
     isOpen: false,
@@ -25,6 +27,16 @@ export const useTrailsDialogState = create<DialogState<EcgData>>((set) => ({
 export default function EditTrailsDialog(
     props: Pick<DialogState<EcgData>, 'isOpen' | 'data' | 'toggleModal'>
 ) {
+    const [trailsId, setTrailsId] = useState<string>(
+        props.data?.trailsId ?? ''
+    );
+
+    const handleSave = async () => {
+        const data = { ...props.data!, trailsId: trailsId }; // TODO: check that data is not null
+        const result = await editTrailsId(data);
+        props.toggleModal();
+    };
+
     return (
         <Dialog open={props.isOpen} onOpenChange={props.toggleModal}>
             <DialogContent className="sm:max-w-[425px]">
@@ -43,13 +55,14 @@ export default function EditTrailsDialog(
                         </Label>
                         <Input
                             id="name"
-                            defaultValue={props.data?.trailsId}
+                            defaultValue={trailsId}
+                            onChange={(e) => setTrailsId(e.target.value)}
                             className="col-span-3"
                         />
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button type="submit" onClick={() => props.toggleModal()}>
+                    <Button type="submit" onClick={() => handleSave()}>
                         Save changes
                     </Button>
                 </DialogFooter>

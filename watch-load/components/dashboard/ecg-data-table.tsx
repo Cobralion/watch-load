@@ -4,6 +4,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { FORMAT_DATE } from '@/lib/utils';
 import EditTrailsDialog, { useTrailsDialogState } from '@/components/dashboard/trails-edit-dialog';
+import { useState } from 'react';
 
 
 export type EcgData = {
@@ -26,17 +27,17 @@ export default function EcgDataTable({ ecgData }: { ecgData: EcgData[] }) {
         {
             accessorKey: 'trailsId',
             header: 'Trails ID',
-            cell: ({ row, table }) => {
+            cell: ({ row }) => {
                 const original = row.original;
-                const trailsId = original?.trailsId;
-                const isSet = trailsId && trailsId.trim() === '';
+                const trailsId = row.original.trailsId;
+                const isSet = trailsId !== null && trailsId !== undefined && trailsId.length > 0;
 
                 return (
                     <>
                         <div className="flex items-center gap-3">
                             {isSet ? (
                                 <span className="text-primary font-medium">
-                                    {trailsId}
+                                    {original?.trailsId}
                                 </span>
                             ) : (
                                 <span className="text-muted-foreground text-sm italic">

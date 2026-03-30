@@ -2,8 +2,14 @@
 
 import { syncHeartData } from '@/lib/withings/heart';
 import { auth } from '@/lib/auth';
-import { SyncHeartActionState } from '@/types/action-states';
+import {
+    SyncHeartActionState,
+    TrailsChangeActionState,
+} from '@/types/action-states';
 import { NoAccessTokenError } from '@/types/errors';
+import { EcgData } from '@/components/dashboard/ecg-data-table';
+import { prisma } from '@/lib/prisma';
+import { revalidatePath } from 'next/cache';
 
 export async function syncHeartAction(): Promise<SyncHeartActionState> {
     const session = await auth();
@@ -26,6 +32,33 @@ export async function syncHeartAction(): Promise<SyncHeartActionState> {
                 message: 'Failed to sync ECGs from connected Withings device!',
             };
         }
+    }
+
+    return { success: true };
+}
+
+export async function editTrailsId(ecgData: EcgData | null): Promise<TrailsChangeActionState> {
+    const session = await auth();
+    if (!session) {
+        return { success: false, message: 'User authentication failed!' };
+    }
+
+    if(!ecgData || !ecgData.id) {
+        return { success: false, message: 'Failed to parse summited data.' };
+    }
+
+    if(!ecgData.trailsId || (ecgData.trailsId.length < 1)) {
+        return { success: false, message: 'Trails id cannot be empty.' };
+    }
+
+    try {
+        await prisma.heartMeasurement.update({where: {id: ecgData.id}, data: {trails_id: ecgData.trailsId}});
+    } catch (e) {
+        console.error(e);
+        return { success: false, message: 'Failed to save edited trails id.' };
+    }
+    finally {
+        revalidatePath('/dashboard');
     }
 
     return { success: true };

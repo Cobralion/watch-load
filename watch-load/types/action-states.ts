@@ -1,11 +1,11 @@
 type ActionStates = {
     success: boolean;
-    message: string;
-};
-
-type SyncHeartActionState = {
-    success: boolean;
     message?: string;
 };
 
-export type { ActionStates, SyncHeartActionState };
+type SyncHeartActionState = ActionStates;
+type TrailsChangeActionState = ActionStates;
+
+
+
+export type { ActionStates, SyncHeartActionState, TrailsChangeActionState };
