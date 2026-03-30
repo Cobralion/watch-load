@@ -11,12 +11,10 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { syncHeartAction } from '@/actions/heart';
-import { DataTable } from '@/components/dashboard/ecg-data-table';
-import { useState, useTransition } from 'react';
-import { SyncHeartActionState } from '@/types/action-states';
-import {toast} from "sonner";
+import { useTransition } from 'react';
+import { toast } from 'sonner';
 
-export function ECGCard({ className, ...props }: React.ComponentProps<'div'>) {
+export function EcgCard({ className, children }: React.ComponentProps<'div'>) {
     const [isSyncPending, startSyncTransaction] = useTransition();
 
     const handleSync = async () => {
@@ -27,15 +25,14 @@ export function ECGCard({ className, ...props }: React.ComponentProps<'div'>) {
                 toast.error(
                     result.message ??
                         'An error occurred while syncing heart data.',
-                    {position: 'top-right'}
+                    { position: 'top-right' }
                 );
                 return;
             }
 
-            toast.success(
-                'Successfully synced heart data.',
-                { position: 'top-right' }
-            );
+            toast.success('Successfully synced heart data.', {
+                position: 'top-right',
+            });
         });
     };
     return (
@@ -54,9 +51,7 @@ export function ECGCard({ className, ...props }: React.ComponentProps<'div'>) {
                     </Button>
                 </CardAction>
             </CardHeader>
-            <CardContent>
-                {/*<DataTable columns={} data={}></DataTable>*/}
-            </CardContent>
+            <CardContent>{children}</CardContent>
             <CardFooter>
                 <p>Card Footer</p>
             </CardFooter>

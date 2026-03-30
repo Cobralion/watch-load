@@ -9,7 +9,6 @@ import { getAccessToken } from '@/lib/helper';
 import { prisma } from '@/lib/prisma';
 import { HeartMeasurementCreateManyInput } from '@/generated/prisma/models/HeartMeasurement';
 
-// Helper to chunk arrays for batch processing
 const chunkArray = <T>(arr: T[], size: number): T[][] =>
     Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
         arr.slice(i * size, i * size + size)
@@ -42,7 +41,6 @@ export async function syncHeartData(userId: string): Promise<void> {
     let listedHeartData;
     let ecgData;
 
-    // Isolate API interactions to catch rate limits or network failures specifically
     try {
         listedHeartData = await listHeart(
             accessToken,
@@ -88,7 +86,6 @@ export async function syncHeartData(userId: string): Promise<void> {
         }
     };
 
-    // Use reduce instead of map to allow skipping malformed records without crashing the whole sync
     const combinedData = listedHeartData.reduce<
         HeartMeasurementCreateManyInput[]
     >((acc, item) => {
@@ -120,7 +117,6 @@ export async function syncHeartData(userId: string): Promise<void> {
 
     if (combinedData.length === 0) return;
 
-    // Isolate database writes to handle transaction failures
     try {
         const batches = chunkArray(combinedData, 100);
         for (const batch of batches) {
