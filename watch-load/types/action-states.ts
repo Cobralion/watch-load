@@ -8,5 +8,4 @@ type SyncHeartActionState = {
     message?: string;
 };
 
-
 export type { ActionStates, SyncHeartActionState };
