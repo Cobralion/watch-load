@@ -1,5 +1,10 @@
 import { WITHINGS_HEART_URL } from '@/lib/withings/api-urls';
-import { HeartListError, SyncHeartError } from '@/types/errors';
+import {
+    APIFetchError,
+    HeartListError,
+    NoAccessTokenError,
+    SyncHeartError,
+} from '@/types/errors';
 import { getAccessToken } from '@/lib/helper';
 import { prisma } from '@/lib/prisma';
 import { HeartMeasurementCreateManyInput } from '@/generated/prisma/models/HeartMeasurement';
@@ -13,24 +18,37 @@ const chunkArray = <T>(arr: T[], size: number): T[][] =>
 export async function syncHeartData(userId: string): Promise<void> {
     const accessToken = await getAccessToken(userId);
     if (!accessToken) {
-        console.warn('No access token available for user:', userId);
-        return;
+        console.warn(
+            `[SyncHeart] No access token available for user: ${userId}`
+        );
+        throw new NoAccessTokenError('User is not connected to a device.');
     }
 
+    let queryResult;
     try {
-        const queryResult = await prisma.withingsDevice.findFirst({
+        queryResult = await prisma.withingsDevice.findFirst({
             where: { user_id: userId },
-            select: { last_sync: true },
+            select: { id: true, last_sync: true },
         });
+    } catch (err) {
+        throw new SyncHeartError(
+            `Failed to fetch device state for user ${userId}`,
+            { cause: err }
+        );
+    }
 
-        if (!queryResult) return;
+    if (!queryResult) return;
 
-        const listedHeartData = await listHeart(
+    let listedHeartData;
+    let ecgData;
+
+    // Isolate API interactions to catch rate limits or network failures specifically
+    try {
+        listedHeartData = await listHeart(
             accessToken,
             queryResult.last_sync,
             new Date()
         );
-
         if (listedHeartData.length === 0) return;
 
         const validItemsWithEcg = listedHeartData.filter(
@@ -38,65 +56,89 @@ export async function syncHeartData(userId: string): Promise<void> {
         );
         const signalIds = validItemsWithEcg.map((item) => item.ecg.signalid);
 
-        const ecgData = await getECGs(accessToken, signalIds);
-
-        const afib = (e?: number) => {
-            switch (e) {
-                case 0:
-                    return 'NEGATIVE';
-                case 1:
-                    return 'POSITIVE';
-                case 2:
-                    return 'INCONCLUSIVE';
-                default:
-                    return 'UNKNOWN';
-            }
-        };
-
-        const ecgMap = new Map(
-            ecgData.map((item) => [
-                item.signalId,
-                {
-                    sampling_frequency: item.body.sampling_frequency,
-                    signal: item.body.signal,
-                },
-            ])
+        ecgData =
+            signalIds.length > 0 ? await getECGs(accessToken, signalIds) : [];
+    } catch (err) {
+        throw new APIFetchError(
+            `Withings API failure during sync for user ${userId}`,
+            { cause: err }
         );
+    }
 
-        const combinedData = listedHeartData.map(
-            (item): HeartMeasurementCreateManyInput => {
-                const signalId = item.ecg?.signalid;
-                const ecg = signalId ? ecgMap.get(signalId) : undefined;
-                if (!ecg) {
-                    throw new SyncHeartError(
-                        'Signal ID missing or ECG data not found for signal ID: ' +
-                            signalId
-                    );
-                }
+    const ecgMap = new Map(
+        ecgData.map((item) => [
+            item.signalId,
+            {
+                sampling_frequency: item.body.sampling_frequency,
+                signal: item.body.signal,
+            },
+        ])
+    );
 
-                return {
-                    signal_id: signalId,
-                    device_id: item.deviceid,
-                    heart_rate: item.heart_rate,
-                    afib: afib(item.ecg?.afib),
-                    modified: new Date(item.modified * 1000),
-                    timestamp: new Date(item.timestamp * 1000),
-                    sampling_frequency: ecg?.sampling_frequency ?? 0,
-                    signal: ecg?.signal ?? [],
-                };
+    const afib = (e?: number) => {
+        switch (e) {
+            case 0:
+                return 'NEGATIVE';
+            case 1:
+                return 'POSITIVE';
+            case 2:
+                return 'INCONCLUSIVE';
+            default:
+                return 'UNKNOWN';
+        }
+    };
+
+    // Use reduce instead of map to allow skipping malformed records without crashing the whole sync
+    const combinedData = listedHeartData.reduce<
+        HeartMeasurementCreateManyInput[]
+    >((acc, item) => {
+        const signalId = item.ecg?.signalid;
+
+        if (signalId) {
+            const ecg = ecgMap.get(signalId);
+            if (!ecg) {
+                // Log and skip instead of failing the entire batch
+                console.warn(
+                    `[SyncHeart] Missing ECG data for signal ID: ${signalId}. Skipping record.`
+                );
+                return acc;
             }
-        );
 
+            acc.push({
+                signal_id: signalId,
+                device_id: item.deviceid,
+                heart_rate: item.heart_rate,
+                afib: afib(item.ecg?.afib),
+                modified: new Date(item.modified * 1000),
+                timestamp: new Date(item.timestamp * 1000),
+                sampling_frequency: ecg.sampling_frequency,
+                signal: ecg.signal,
+            });
+        }
+        return acc;
+    }, []);
+
+    if (combinedData.length === 0) return;
+
+    // Isolate database writes to handle transaction failures
+    try {
         const batches = chunkArray(combinedData, 100);
         for (const batch of batches) {
             await prisma.heartMeasurement.createMany({
                 data: batch,
-                skipDuplicates: true, // Crucial for overlapping syncs
+                skipDuplicates: true,
             });
         }
+
+        await prisma.withingsDevice.update({
+            where: { id: queryResult.id },
+            data: { last_sync: new Date() },
+        });
     } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        throw new SyncHeartError(`Sync failed for user ${userId}: ${message}`);
+        throw new SyncHeartError(
+            `Database write failed during sync for user ${userId}`,
+            { cause: err }
+        );
     }
 }
 

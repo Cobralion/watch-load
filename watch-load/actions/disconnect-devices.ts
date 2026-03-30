@@ -2,10 +2,10 @@
 
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { ActionState } from '@/types/action-state';
+import { ActionStates } from '@/types/action-states';
 import { disconnectDevice } from '@/lib/withings/oauth';
 
-async function disconnectDevices(): Promise<ActionState> {
+async function disconnectDevices(): Promise<ActionStates> {
     const session = await auth();
     if (!session) {
         return { success: false, message: 'User not authenticated.' };

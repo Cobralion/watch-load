@@ -10,10 +10,34 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { listHeartAction } from '@/actions/heart';
+import { syncHeartAction } from '@/actions/heart';
 import { DataTable } from '@/components/dashboard/ecg-data-table';
+import { useState, useTransition } from 'react';
+import { SyncHeartActionState } from '@/types/action-states';
+import {toast} from "sonner";
 
 export function ECGCard({ className, ...props }: React.ComponentProps<'div'>) {
+    const [isSyncPending, startSyncTransaction] = useTransition();
+
+    const handleSync = async () => {
+        startSyncTransaction(async () => {
+            const result = await syncHeartAction();
+
+            if (!result.success) {
+                toast.error(
+                    result.message ??
+                        'An error occurred while syncing heart data.',
+                    {position: 'top-right'}
+                );
+                return;
+            }
+
+            toast.success(
+                'Successfully synced heart data.',
+                { position: 'top-right' }
+            );
+        });
+    };
     return (
         <Card>
             <CardHeader>
@@ -23,9 +47,10 @@ export function ECGCard({ className, ...props }: React.ComponentProps<'div'>) {
                     <Button
                         className="cursor-pointer"
                         variant="outline"
-                        onClick={async () => await listHeartAction()}
+                        onClick={handleSync}
+                        disabled={isSyncPending}
                     >
-                        Pull updates
+                        {isSyncPending ? 'Syncing...' : 'Sync Now'}
                     </Button>
                 </CardAction>
             </CardHeader>

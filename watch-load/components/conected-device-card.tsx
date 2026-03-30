@@ -12,14 +12,14 @@ import {
 import { Activity, Watch } from 'lucide-react';
 import { disconnectDevices } from '@/actions/disconnect-devices';
 import { useState } from 'react';
-import { ActionState } from '@/types/action-state';
+import { ActionStates } from '@/types/action-states';
 
 export default function ConnectedDevicesCard({
     initialConnectionStatus,
 }: {
     initialConnectionStatus: boolean;
 }) {
-    const [disconnectState, setDisconnectState] = useState<ActionState | null>(
+    const [disconnectState, setDisconnectState] = useState<ActionStates | null>(
         null
     );
     const [connectionStatus, setConnectionStatus] = useState(

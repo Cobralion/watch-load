@@ -2,11 +2,9 @@
 
 import { syncHeartData } from '@/lib/withings/heart';
 import { auth } from '@/lib/auth';
+import { SyncHeartActionState } from '@/types/action-states';
+import { NoAccessTokenError } from '@/types/errors';
 
-export type SyncHeartActionState = {
-    success: boolean;
-    message?: string;
-};
 
 export async function syncHeartAction(): Promise<SyncHeartActionState> {
     const session = await auth();
@@ -18,10 +16,17 @@ export async function syncHeartAction(): Promise<SyncHeartActionState> {
         await syncHeartData(session.user.id);
     } catch (e) {
         console.error(e);
-        return {
-            success: false,
-            message: 'Failed to sync ECGs from connected Withings device!',
-        };
+        if(e instanceof NoAccessTokenError) {
+            return {
+                success: false,
+                message: 'No connected devices found! Please connect a device.',
+            };
+        } else {
+            return {
+                success: false,
+                message: 'Failed to sync ECGs from connected Withings device!',
+            };
+        }
     }
 
     return { success: true };

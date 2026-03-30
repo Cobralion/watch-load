@@ -8,29 +8,51 @@ class ServerCredentialsError extends CredentialsSignin {
     code = 'server_error';
 }
 
-class EncryptionError extends Error {}
+class EncryptionError extends Error {
+    constructor(message: string, options?: ErrorOptions) {
+        super(message, options);
+        this.name = 'EncryptionError';
+    }
+}
 
 class RefreshTokenError extends Error {
-    constructor(message?: string) {
-        super(`Failed to refresh token: ${message}`);
+    constructor(message: string, options?: ErrorOptions) {
+        super(message, options);
+        this.name = 'RefreshTokenError';
     }
 }
 
 class HeartListError extends Error {
-    constructor(message?: string) {
-        super(`Failed to list ECGs: ${message}`);
+    constructor(message: string, options?: ErrorOptions) {
+        super(message, options);
+        this.name = 'HeartListError';
     }
 }
 
 class HeartGetError extends Error {
-    constructor(message?: string) {
-        super(`Failed to get ECG: ${message}`);
+    constructor(message: string, options?: ErrorOptions) {
+        super(message, options);
+        this.name = 'HeartGetError';
     }
 }
 
 class SyncHeartError extends Error {
-    constructor(message?: string) {
-        super(`Failed to sync ECGs: ${message}`);
+    constructor(message: string, options?: ErrorOptions) {
+        super(message, options);
+        this.name = 'SyncHeartError';
+    }
+}
+class APIFetchError extends SyncHeartError {
+    constructor(message: string, options?: ErrorOptions) {
+        super(message, options);
+        this.name = 'APIFetchError';
+    }
+}
+
+class NoAccessTokenError extends Error {
+    constructor(message: string, options?: ErrorOptions) {
+        super(message, options);
+        this.name = 'NoAccessTokenError';
     }
 }
 
@@ -42,4 +64,6 @@ export {
     HeartListError,
     HeartGetError,
     SyncHeartError,
+    APIFetchError,
+    NoAccessTokenError,
 };
