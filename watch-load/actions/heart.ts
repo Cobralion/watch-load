@@ -53,6 +53,7 @@ export async function editTrailsId(ecgData: EcgData | null): Promise<TrailsChang
     }
 
     try {
+        //TODO: maybe check that the measurement with given id belongs to the user?
         await prisma.heartMeasurement.update({where: {id: ecgData.id}, data: {trails_id: ecgData.trailsId}});
     } catch (e) {
         console.error(e);

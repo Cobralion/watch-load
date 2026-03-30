@@ -14,7 +14,7 @@ import { syncHeartAction } from '@/actions/heart';
 import { useTransition } from 'react';
 import { toast } from 'sonner';
 
-export function EcgCard({ className, children }: React.ComponentProps<'div'>) {
+export function EcgCard({ children }: React.ComponentProps<'div'>) {
     const [isSyncPending, startSyncTransaction] = useTransition();
 
     const handleSync = async () => {

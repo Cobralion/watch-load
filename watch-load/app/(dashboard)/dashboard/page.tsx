@@ -14,7 +14,7 @@ async function getData(): Promise<EcgData[]> {
     const querryResults = await prisma.heartMeasurement.findMany();
 
     // TODO: handle null | undefined
-    return querryResults.map((result): EcgData[] => ({
+    return querryResults.map((result): EcgData => ({
         id: result.id,
         trailsId: result.trails_id,
         afib: result.afib ?? 'UNKNOWN',

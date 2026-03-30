@@ -13,10 +13,9 @@ import { Label } from '@/components/ui/label';
 import { DialogState } from '@/types/dialog/dialog-state';
 import { EcgData } from '@/components/dashboard/ecg-data-table';
 import { create } from 'zustand';
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { editTrailsId } from '@/actions/heart';
 import { FORMAT_DATE } from '@/lib/utils';
-import { toast } from 'sonner';
 import { TrailsChangeActionState } from '@/types/action-states';
 
 export const useTrailsDialogState = create<DialogState<EcgData>>((set) => ({
@@ -34,6 +33,7 @@ export default function EditTrailsDialog(
         props.data?.trailsId ?? ''
     );
     const [error, setError] = useState<TrailsChangeActionState | null>(null);
+
     const [saveTransition, startSaveTransition] = useTransition();
 
     const handleSave = async () => {
@@ -69,7 +69,7 @@ export default function EditTrailsDialog(
                 <div className="grid gap-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="name" className="text-right">
-                            TrailsI ID
+                            Trails ID
                         </Label>
                         <Input
                             id="name"
