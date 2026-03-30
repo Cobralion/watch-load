@@ -34,7 +34,7 @@ export default function EcgDataTable({ ecgData }: { ecgData: EcgData[] }) {
 
                 return (
                     <>
-                        <div className="flex items-center gap-3">
+                        <div className="flex justify-between gap-3">
                             {isSet ? (
                                 <span className="text-primary font-medium">
                                     {original?.trailsId}
@@ -47,7 +47,7 @@ export default function EcgDataTable({ ecgData }: { ecgData: EcgData[] }) {
                             <Button
                                 variant="secondary"
                                 size="sm"
-                                className="h-7 px-3 text-xs"
+                                className="h-7 px-3 text-xs cursor-pointer"
                                 onClick={() => {
                                     setData(original);
                                     toggleModal();

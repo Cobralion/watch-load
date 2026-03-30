@@ -34,6 +34,7 @@ export async function syncHeartAction(): Promise<SyncHeartActionState> {
         }
     }
 
+    revalidatePath('/dashboard');
     return { success: true };
 }
 
@@ -48,7 +49,7 @@ export async function editTrailsId(ecgData: EcgData | null): Promise<TrailsChang
     }
 
     if(!ecgData.trailsId || (ecgData.trailsId.length < 1)) {
-        return { success: false, message: 'Trails id cannot be empty.' };
+        return { success: false, message: 'Trails ID cannot be empty.' };
     }
 
     try {
@@ -57,9 +58,7 @@ export async function editTrailsId(ecgData: EcgData | null): Promise<TrailsChang
         console.error(e);
         return { success: false, message: 'Failed to save edited trails id.' };
     }
-    finally {
-        revalidatePath('/dashboard');
-    }
 
+    revalidatePath('/dashboard');
     return { success: true };
 }

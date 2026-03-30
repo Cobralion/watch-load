@@ -13,8 +13,11 @@ import { Label } from '@/components/ui/label';
 import { DialogState } from '@/types/dialog/dialog-state';
 import { EcgData } from '@/components/dashboard/ecg-data-table';
 import { create } from 'zustand';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { editTrailsId } from '@/actions/heart';
+import { FORMAT_DATE } from '@/lib/utils';
+import { toast } from 'sonner';
+import { TrailsChangeActionState } from '@/types/action-states';
 
 export const useTrailsDialogState = create<DialogState<EcgData>>((set) => ({
     isOpen: false,
@@ -30,41 +33,74 @@ export default function EditTrailsDialog(
     const [trailsId, setTrailsId] = useState<string>(
         props.data?.trailsId ?? ''
     );
+    const [error, setError] = useState<TrailsChangeActionState | null>(null);
+    const [saveTransition, startSaveTransition] = useTransition();
 
     const handleSave = async () => {
-        const data = { ...props.data!, trailsId: trailsId }; // TODO: check that data is not null
-        const result = await editTrailsId(data);
-        props.toggleModal();
+        startSaveTransition(async () => {
+            const data = { ...props.data!, trailsId: trailsId }; // TODO: check that data is not null
+            if (trailsId === props.data?.trailsId) {
+                props.toggleModal();
+                return;
+            }
+
+            const result = await editTrailsId(data);
+            if (!result.success) {
+                setError(result);
+                return;
+            }
+            props.toggleModal();
+        });
     };
 
     return (
         <Dialog open={props.isOpen} onOpenChange={props.toggleModal}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>
-                        {props.data == null ? 'Create' : 'Edit'} profile
-                    </DialogTitle>
+                    <DialogTitle>Edit trails ID</DialogTitle>
                     <DialogDescription>
-                        Make changes to your profile here. Click save when
+                        Edit the trails ID for the ECG measurement from
+                        <span>
+                            {' '}
+                            {FORMAT_DATE.format(props.data?.createdAt)}
+                        </span>
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="name" className="text-right">
-                            Name
+                            TrailsI ID
                         </Label>
                         <Input
                             id="name"
                             defaultValue={trailsId}
                             onChange={(e) => setTrailsId(e.target.value)}
                             className="col-span-3"
+                            aria-invalid={error ? 'true' : 'false'}
                         />
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button type="submit" onClick={() => handleSave()}>
-                        Save changes
-                    </Button>
+                    <div className={"flex flex-col gap-2 w-full"}>
+                        {error && (
+                            <div
+                                className={`rounded-md p-4 ${
+                                    error.success
+                                        ? 'bg-green-100 text-green-700'
+                                        : 'bg-red-100 text-red-700'
+                                }`}
+                            >
+                                <p className="text-sm">{error.message}</p>
+                            </div>
+                        )}
+                        <Button
+                            className="cursor-pointer"
+                            type="submit"
+                            onClick={() => handleSave()}
+                        >
+                            {saveTransition ? 'Saving...' : 'Save changes'}
+                        </Button>
+                    </div>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
