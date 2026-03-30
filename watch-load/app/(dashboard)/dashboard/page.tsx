@@ -1,13 +1,12 @@
-import { ECGDataTable } from '@/components/dashboard/ecg-data-table';
-import { ECG_DATA_TABLE_COLUMNS, EcgTableData } from '@/types/ecg-table-colums';
+import EcgDataTable, { EcgData } from '@/components/dashboard/ecg-data-table';
 import { EcgCard } from '@/components/dashboard/ecg-card';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-async function getData(): Promise<EcgTableData[]> {
+async function getData(): Promise<EcgData[]> {
     const session = await auth();
-    if(!session) {
-    // TODO: Handle unauthenticated user case
+    if (!session) {
+        // TODO: Handle unauthenticated user case
         return [];
     }
 
@@ -15,7 +14,7 @@ async function getData(): Promise<EcgTableData[]> {
     const querryResults = await prisma.heartMeasurement.findMany();
 
     // TODO: handle null | undefined
-    return querryResults.map((result): EcgTableData[] => ({
+    return querryResults.map((result): EcgData[] => ({
         id: result.id,
         trailsId: result.trails_id,
         afib: result.afib ?? 'UNKNOWN',
@@ -33,10 +32,7 @@ export default async function Page() {
             <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
             <div className="m-4 flex flex-col gap-6 pt-6">
                 <EcgCard>
-                    <ECGDataTable
-                        columns={ECG_DATA_TABLE_COLUMNS}
-                        data={data}
-                    ></ECGDataTable>
+                    <EcgDataTable ecgData={data}></EcgDataTable>
                 </EcgCard>
             </div>
         </>

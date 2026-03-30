@@ -1,87 +1,136 @@
 'use client';
+import { DataTable } from '@/components/ui/data-table';
+import { ColumnDef } from '@tanstack/react-table';
+import { Button } from '@/components/ui/button';
+import { FORMAT_DATE } from '@/lib/utils';
 
-import {
-    ColumnDef,
-    flexRender,
-    getCoreRowModel,
-    useReactTable,
-} from '@tanstack/react-table';
 
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
+export type EcgData = {
+    id: string;
+    trailsId?: string;
+    heartRate: number;
+    afib: string;
+    createdAt: Date;
+    samplingFrequency: number;
+};
 
-interface DataTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[];
-    data: TData[];
-}
+export const columns: ColumnDef<EcgData>[] = [
+    {
+        accessorKey: 'id',
+        header: 'ID',
+    },
+    {
+        accessorKey: 'trailsId',
+        header: 'Trails ID',
+        cell: ({ row, table }) => {
+            const trailsId = row.original.trailsId;
+            const isSet = trailsId && trailsId.trim() === '';
 
-export function ECGDataTable<TData, TValue>({
-    columns,
-    data,
-}: DataTableProps<TData, TValue>) {
-    const table = useReactTable({
-        data,
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-    });
-
-    return (
-        <div className="overflow-hidden rounded-md border">
-            <Table>
-                <TableHeader>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                        <TableRow key={headerGroup.id}>
-                            {headerGroup.headers.map((header) => {
-                                return (
-                                    <TableHead key={header.id}>
-                                        {header.isPlaceholder
-                                            ? null
-                                            : flexRender(
-                                                  header.column.columnDef
-                                                      .header,
-                                                  header.getContext()
-                                              )}
-                                    </TableHead>
-                                );
-                            })}
-                        </TableRow>
-                    ))}
-                </TableHeader>
-                <TableBody>
-                    {table.getRowModel().rows?.length ? (
-                        table.getRowModel().rows.map((row) => (
-                            <TableRow
-                                key={row.id}
-                                data-state={row.getIsSelected() && 'selected'}
-                            >
-                                {row.getVisibleCells().map((cell) => (
-                                    <TableCell key={cell.id}>
-                                        {flexRender(
-                                            cell.column.columnDef.cell,
-                                            cell.getContext()
-                                        )}
-                                    </TableCell>
-                                ))}
-                            </TableRow>
-                        ))
+            return (
+                <div className="flex items-center gap-3">
+                    {isSet ? (
+                        <span className="text-primary font-medium">
+                            {trailsId}
+                        </span>
                     ) : (
-                        <TableRow>
-                            <TableCell
-                                colSpan={columns.length}
-                                className="h-24 text-center"
-                            >
-                                No results.
-                            </TableCell>
-                        </TableRow>
+                        <span className="text-muted-foreground text-sm italic">
+                            Unassigned
+                        </span>
                     )}
-                </TableBody>
-            </Table>
-        </div>
-    );
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        className="h-7 px-3 text-xs"
+                    >
+                        Edit
+                    </Button>
+                </div>
+            );
+        },
+    },
+    {
+        accessorKey: 'heartRate',
+        header: 'HF',
+    },
+    {
+        accessorKey: 'afib',
+        header: 'Atrial fibrillation',
+    },
+    {
+        accessorKey: 'createdAt',
+        header: 'Creation date',
+        cell: ({ row }) => {
+            const date = new Date(row.getValue('createdAt'));
+
+            const formatted = FORMAT_DATE.format(date);
+
+            return <span>{formatted}</span>;
+        },
+    },
+    {
+        accessorKey: 'samplingFrequency',
+        header: 'Sampling frequency',
+    },
+];
+
+export default function EcgDataTable({ ecgData }: { ecgData: EcgData[] }) {
+    const columns: ColumnDef<EcgData>[] = [
+        {
+            accessorKey: 'id',
+            header: 'ID',
+        },
+        {
+            accessorKey: 'trailsId',
+            header: 'Trails ID',
+            cell: ({ row, table }) => {
+                const trailsId = row.original.trailsId;
+                const isSet = trailsId && trailsId.trim() === '';
+
+                return (
+                    <div className="flex items-center gap-3">
+                        {isSet ? (
+                            <span className="text-primary font-medium">
+                                {trailsId}
+                            </span>
+                        ) : (
+                            <span className="text-muted-foreground text-sm italic">
+                                Unassigned
+                            </span>
+                        )}
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            className="h-7 px-3 text-xs"
+                        >
+                            Edit
+                        </Button>
+                    </div>
+                );
+            },
+        },
+        {
+            accessorKey: 'heartRate',
+            header: 'HF',
+        },
+        {
+            accessorKey: 'afib',
+            header: 'Atrial fibrillation',
+        },
+        {
+            accessorKey: 'createdAt',
+            header: 'Creation date',
+            cell: ({ row }) => {
+                const date = new Date(row.getValue('createdAt'));
+
+                const formatted = FORMAT_DATE.format(date);
+
+                return <span>{formatted}</span>;
+            },
+        },
+        {
+            accessorKey: 'samplingFrequency',
+            header: 'Sampling frequency',
+        },
+    ];
+    return <DataTable columns={columns} data={ecgData} />;
 }
