@@ -14,24 +14,25 @@ const chunkArray = <T>(arr: T[], size: number): T[][] =>
         arr.slice(i * size, i * size + size)
     );
 
-export async function syncHeartData(userId: string): Promise<void> {
-    const accessToken = await getAccessToken(userId);
+export async function syncHeartData(workspaceId: string): Promise<void> {
+    const accessToken = await getAccessToken(workspaceId);
     if (!accessToken) {
         console.warn(
-            `[SyncHeart] No access token available for user: ${userId}`
+            `[SyncHeart] No access token available for workspace: ${workspaceId}`
         );
         throw new NoAccessTokenError('User is not connected to a device.');
     }
 
     let queryResult;
     try {
-        queryResult = await prisma.withingsDevice.findFirst({
-            where: { user_id: userId },
-            select: { id: true, last_sync: true },
+        // TODO: add support for multiple connections
+        queryResult = await prisma.withingsConnection.findFirst({
+            where: { workspaceId: workspaceId },
+            select: { id: true, lastSync: true },
         });
     } catch (err) {
         throw new SyncHeartError(
-            `Failed to fetch device state for user ${userId}`,
+            `Failed to fetch device state for workspace ${workspaceId}`,
             { cause: err }
         );
     }
@@ -44,7 +45,7 @@ export async function syncHeartData(userId: string): Promise<void> {
     try {
         listedHeartData = await listHeart(
             accessToken,
-            queryResult.last_sync,
+            queryResult.lastSync,
             new Date()
         );
         if (listedHeartData.length === 0) return;
@@ -58,7 +59,7 @@ export async function syncHeartData(userId: string): Promise<void> {
             signalIds.length > 0 ? await getECGs(accessToken, signalIds) : [];
     } catch (err) {
         throw new APIFetchError(
-            `Withings API failure during sync for user ${userId}`,
+            `Withings API failure during sync for workspace ${workspaceId}`,
             { cause: err }
         );
     }
@@ -102,14 +103,15 @@ export async function syncHeartData(userId: string): Promise<void> {
             }
 
             acc.push({
-                signal_id: signalId,
-                device_id: item.deviceid,
-                heart_rate: item.heart_rate,
+                signalId: signalId.toString(),
+                deviceId: item.deviceid,
+                heartRate: item.heart_rate,
                 afib: afib(item.ecg?.afib),
                 modified: new Date(item.modified * 1000),
                 timestamp: new Date(item.timestamp * 1000),
-                sampling_frequency: ecg.sampling_frequency,
+                samplingFrequency: ecg.sampling_frequency,
                 signal: ecg.signal,
+                workspaceId: workspaceId
             });
         }
         return acc;
@@ -126,13 +128,13 @@ export async function syncHeartData(userId: string): Promise<void> {
             });
         }
 
-        await prisma.withingsDevice.update({
+        await prisma.withingsConnection.update({
             where: { id: queryResult.id },
-            data: { last_sync: new Date() },
+            data: { lastSync: new Date() },
         });
     } catch (err) {
         throw new SyncHeartError(
-            `Database write failed during sync for user ${userId}`,
+            `Database write failed during sync for workspace ${workspaceId}`,
             { cause: err }
         );
     }
@@ -190,7 +192,7 @@ async function getECGs(
 }
 
 async function listHeart(
-    access_token: string,
+    accessToken: string,
     startDate?: Date,
     endDate?: Date
 ): Promise<WithingsHeartListSeries[]> {
@@ -199,7 +201,7 @@ async function listHeart(
 
     while (true) {
         const data: WithingsHeartListBody = await fetchHeartList(
-            access_token,
+            accessToken,
             offset,
             startDate,
             endDate
@@ -215,7 +217,7 @@ async function listHeart(
 }
 
 async function fetchHeartList(
-    access_token: string,
+    accessToken: string,
     offset?: number,
     startDate?: Date,
     endDate?: Date
@@ -231,7 +233,7 @@ async function fetchHeartList(
     try {
         const response = await fetch(WITHINGS_HEART_URL, {
             method: 'POST',
-            headers: { Authorization: `Bearer ${access_token}` },
+            headers: { Authorization: `Bearer ${accessToken}` },
             body: new URLSearchParams(params),
         });
 

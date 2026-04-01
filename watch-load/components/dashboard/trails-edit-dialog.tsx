@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { DialogState } from '@/types/dialog/dialog-state';
 import { EcgData } from '@/components/dashboard/ecg-data-table';
 import { create } from 'zustand';
-import { useEffect, useState, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { editTrailsId } from '@/actions/heart';
 import { FORMAT_DATE } from '@/lib/utils';
 import { TrailsChangeActionState } from '@/types/action-states';
@@ -62,7 +62,7 @@ export default function EditTrailsDialog(
                         Edit the trails ID for the ECG measurement from
                         <span>
                             {' '}
-                            {FORMAT_DATE.format(props.data?.createdAt)}
+                            {FORMAT_DATE.format(props.data?.timestamp)}
                         </span>
                     </DialogDescription>
                 </DialogHeader>

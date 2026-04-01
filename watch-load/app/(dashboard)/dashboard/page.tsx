@@ -16,11 +16,11 @@ async function getData(): Promise<EcgData[]> {
     // TODO: handle null | undefined
     return querryResults.map((result): EcgData => ({
         id: result.id,
-        trailsId: result.trails_id,
+        trailsId: result.trailsId,
         afib: result.afib ?? 'UNKNOWN',
-        createdAt: result.timestamp,
-        heartRate: result.heart_rate,
-        samplingFrequency: result.sampling_frequency,
+        timestamp: result.timestamp,
+        heartRate: result.heartRate,
+        samplingFrequency: result.samplingFrequency,
     }));
 }
 

@@ -27,7 +27,9 @@ async function GET() {
 
     // TODO: Excel finds illegal symbols
     try {
-        const result = await prisma.heartMeasurement.findMany();
+        const result = await prisma.heartMeasurement.findMany({
+            where: {workspaceId: workspaceId}
+        });
         const rows = result.map((row) => {
             return {
                 ...row,

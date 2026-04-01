@@ -4,7 +4,6 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { FORMAT_DATE } from '@/lib/utils';
 import EditTrailsDialog, { useTrailsDialogState } from '@/components/dashboard/trails-edit-dialog';
-import { useState } from 'react';
 
 
 export type EcgData = {
@@ -12,7 +11,7 @@ export type EcgData = {
     trailsId?: string;
     heartRate: number;
     afib: string;
-    createdAt: Date;
+    timestamp: Date;
     samplingFrequency: number;
 };
 
@@ -74,7 +73,7 @@ export default function EcgDataTable({ ecgData }: { ecgData: EcgData[] }) {
             header: 'Atrial fibrillation',
         },
         {
-            accessorKey: 'createdAt',
+            accessorKey: 'timestamp',
             header: 'Creation date',
             cell: ({ row }) => {
                 const date = new Date(row.getValue('createdAt'));

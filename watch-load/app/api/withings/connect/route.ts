@@ -8,8 +8,9 @@ async function GET() {
         return new Response('Unauthorized', { status: 401 });
     }
 
+    // TODO: get the workspace id from the query params, check if user is allowed to access the workspace, then pass it to the getWithingsAuthUrl function
     const userId = session.user.id;
-    const authUrl = await getWithingsAuthUrl(userId); // TODO: remove demo mode when ready
+    const authUrl = await getWithingsAuthUrl(workspaceId);
 
     return NextResponse.redirect(authUrl);
 }

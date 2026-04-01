@@ -10,29 +10,15 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarMenuSub,
-    SidebarMenuSubButton,
-    SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
 import { Watch } from 'lucide-react';
 import { APPLICATION_NAME, APPLICATION_VERSION } from '@/constants/constants';
 
-// This is sample data.
 const data = {
     navMain: [
         {
             title: 'Dashboard',
             url: '/dashboard',
-            // items: [
-            //   {
-            //     title: 'Test 1',
-            //     url: '#',
-            //   },
-            //   {
-            //     title: 'Test 2',
-            //     url: '#',
-            //   },
-            // ],
         },
         {
             title: 'Conected Devices',
@@ -75,24 +61,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                         {item.title}
                                     </a>
                                 </SidebarMenuButton>
-                                {item.items?.length ? (
-                                    <SidebarMenuSub className="ml-0 border-l-0 px-1.5">
-                                        {item.items.map((item) => (
-                                            <SidebarMenuSubItem
-                                                key={item.title}
-                                            >
-                                                <SidebarMenuSubButton
-                                                    asChild
-                                                    isActive={item.isActive}
-                                                >
-                                                    <a href={item.url}>
-                                                        {item.title}
-                                                    </a>
-                                                </SidebarMenuSubButton>
-                                            </SidebarMenuSubItem>
-                                        ))}
-                                    </SidebarMenuSub>
-                                ) : null}
                             </SidebarMenuItem>
                         ))}
                     </SidebarMenu>

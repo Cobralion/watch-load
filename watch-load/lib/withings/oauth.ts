@@ -1,7 +1,7 @@
 import * as jose from 'jose';
 import { createSignature } from '@/lib/withings/signing';
 import { prisma } from '@/lib/prisma';
-import { WithingsDevice } from '@/generated/prisma/client';
+import { WithingsConnection } from '@/generated/prisma/client';
 import { env } from '@/env/server';
 import {
     WITHINGS_AUTHORIZATION_URL,
@@ -9,25 +9,25 @@ import {
 } from '@/lib/withings/api-urls';
 
 export async function getWithingsAuthUrl(
-    userId: string,
-    mode: 'demo' | '' = ''
+    workspaceId: string,
+    mode: string = ''
 ) {
     const params = new URLSearchParams({
         response_type: 'code',
         client_id: env.WITHINGS_CLIENT_ID,
         redirect_uri: env.WITHINGS_REDIRECT_URI,
         scope: 'user.metrics,user.activity',
-        state: await createStateJWT(userId),
+        state: await createStateJWT(workspaceId),
         mode: mode,
     });
 
     return `${WITHINGS_AUTHORIZATION_URL}?${params.toString()}`;
 }
 
-export async function createStateJWT(userId: string): Promise<string> {
+export async function createStateJWT(workspaceId: string): Promise<string> {
     const secret = new TextEncoder().encode(env.JWT_SECRET);
     const alg = 'HS256';
-    const data = { userId: userId };
+    const data = { workspaceId: workspaceId };
 
     return await new jose.SignJWT(data)
         .setProtectedHeader({ alg })
@@ -38,8 +38,9 @@ export async function createStateJWT(userId: string): Promise<string> {
         .sign(secret);
 }
 
+// TODO: Verify state against a stored value to eliminate CSRF
 export async function verifyStateJWT(jwt: string): Promise<string | null> {
-    const secret = new TextEncoder().encode(env.JWT_SECRET!);
+    const secret = new TextEncoder().encode(env.JWT_SECRET);
 
     try {
         const { payload } = await jose.jwtVerify(jwt, secret, {
@@ -47,16 +48,17 @@ export async function verifyStateJWT(jwt: string): Promise<string | null> {
             audience: env.JWT_APP_AUDIENCE!,
         });
 
-        return payload.userId as string;
+        return payload.workspaceId as string;
     } catch (error) {
         console.error('JWT verification failed:', error);
         return null;
     }
 }
 
+// TODO: add support for multiple device connections per workspace and revoke only the relevant one instead of all connections
 export async function disconnectDevice(
-    deviceConnection: WithingsDevice,
-    userId: string
+    withingsConnection: WithingsConnection,
+    workspaceId: string
 ): Promise<boolean> {
     try {
         const sig = await createSignature('revoke');
@@ -65,10 +67,10 @@ export async function disconnectDevice(
             method: 'POST',
             body: new URLSearchParams({
                 action: 'revoke',
-                client_id: env.WITHINGS_CLIENT_ID!,
+                client_id: env.WITHINGS_CLIENT_ID,
                 nonce: sig.nonce,
                 signature: sig.signature,
-                userid: String(deviceConnection.withings_user_id),
+                userid: String(withingsConnection.withingsUserId),
             }),
         });
 
@@ -90,8 +92,8 @@ export async function disconnectDevice(
     }
 
     try {
-        await prisma.withingsDevice.deleteMany({
-            where: { user_id: userId },
+        await prisma.withingsConnection.deleteMany({
+            where: { workspaceId: workspaceId },
         });
         return true;
     } catch (err) {

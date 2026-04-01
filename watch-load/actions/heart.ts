@@ -18,7 +18,7 @@ export async function syncHeartAction(): Promise<SyncHeartActionState> {
     }
 
     try {
-        await syncHeartData(session.user.id);
+        await syncHeartData(workspaceId);
     } catch (e) {
         console.error(e);
         if (e instanceof NoAccessTokenError) {

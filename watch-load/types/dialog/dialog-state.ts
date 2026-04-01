@@ -1,5 +1,4 @@
 
-
 export type DialogState<T> = {
     isOpen: boolean;
     toggleModal: () => void;

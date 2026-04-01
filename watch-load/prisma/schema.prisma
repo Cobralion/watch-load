@@ -91,38 +91,23 @@ model WithingsConnection {
 }
 
 model HeartMeasurement {
-  id        String   @id @default(cuid())
-  signalId  String   @unique @map("signal_id")
-  deviceId  String   @map("device_id")
-  heartRate Int      @map("heart_rate")
-  afib      Afib
-  timestamp DateTime
-  modified  DateTime
-  trailsId  String?  @map("trails_id")
+  id                String   @id @default(cuid())
+  signalId          String   @unique @map("signal_id")
+  deviceId          String   @map("device_id")
+  heartRate         Int      @map("heart_rate")
+  afib              Afib
+  signal            Int[]
+  samplingFrequency Int      @map("sampling_frequency")
+  timestamp         DateTime
+  modified          DateTime
+  trailsId          String?  @map("trails_id")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-
-  signal HeartMeasurementSignal?
 
   workspaceId String    @map("workspace_id")
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@index([workspaceId, deviceId, timestamp(sort: Desc)])
   @@map("heart_measurements")
-}
-
-model HeartMeasurementSignal {
-  id                String @id @default(cuid())
-  signalId          String @unique @map("signal_id")
-  signal            Int[]
-  samplingFrequency Int    @map("sampling_frequency")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  heartMeasurementId String           @unique @map("heart_measurement_id")
-  heartMeasurement   HeartMeasurement @relation(fields: [heartMeasurementId], references: [id], onDelete: Cascade)
-
-  @@map("heart_measurement_signals")
 }

@@ -1,5 +1,5 @@
 # TODO
-- create README
+- [ ] use next-safe-actions for auth actions
 
 # Node
 *Version 24.11.0*

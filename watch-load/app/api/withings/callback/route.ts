@@ -37,12 +37,12 @@ export async function GET(req: NextRequest) {
     }
 
     // Check if there is already a connected device
-    const existingDevice = await prisma.withingsDevice.findFirst({
-        where: { user_id: user.id },
+    const existingDevice = await prisma.withingsConnection.findFirst({
+        where: { workspaceId: workspaceId },
     });
 
     if (existingDevice) {
-        const result = await disconnectDevice(existingDevice, user.id);
+        const result = await disconnectDevice(existingDevice, workspaceId);
         if (!result) {
             return new Response('Failed to revoke old connection.', {
                 status: 400,

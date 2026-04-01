@@ -10,16 +10,16 @@ async function disconnectDevices(): Promise<ActionStates> {
     if (!session) {
         return { success: false, message: 'User not authenticated.' };
     }
-
-    const deviceConnection = await prisma.withingsDevice.findFirst({
-        where: { user_id: session.user.id },
+    // TODO: workspaceId
+    const connection = await prisma.withingsConnection.findFirst({
+        where: { workspaceId: workspaceId },
     });
 
-    if (!deviceConnection) {
+    if (!connection) {
         return { success: false, message: 'No device connection found.' };
     }
 
-    const result = await disconnectDevice(deviceConnection, session.user.id);
+    const result = await disconnectDevice(connection, workspaceId);
 
     if (result) {
         return { success: true, message: 'Device disconnected.' };

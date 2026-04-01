@@ -6,21 +6,23 @@ import { createSignature } from '@/lib/withings/signing';
 import { decryptToken, encryptToken } from '@/lib/encryption';
 
 type RefreshedTokens = {
-    access_token: string;
-    refresh_token: string;
+    accessToken: string;
+    refreshToken: string;
 };
 
+// TODO: lock so that only one party can refresh at a time
 export async function refreshWithingsToken(
-    userId: string
+    workspaceId: string
 ): Promise<RefreshedTokens> {
-    let deviceConnection:
-        | { id: string; refresh_token: string }
+    let connection:
+        | { id: string; refreshToken: string }
         | null
         | undefined;
     try {
-        deviceConnection = await prisma.withingsDevice.findFirst({
-            where: { user_id: userId },
-            select: { id: true, refresh_token: true },
+        // TODO: add support for multiple connections
+        connection = await prisma.withingsConnection.findFirst({
+            where: { workspaceId: workspaceId },
+            select: { id: true, refreshToken: true },
         });
     } catch (err) {
         const message = (err as Error).message ?? String(err);
@@ -30,14 +32,14 @@ export async function refreshWithingsToken(
     }
 
     if (
-        !deviceConnection ||
-        !deviceConnection.id ||
-        !deviceConnection.refresh_token
+        !connection ||
+        !connection.id ||
+        !connection.refreshToken
     ) {
         throw new RefreshTokenError("Can't find a device connection");
     }
 
-    const refresh_token = decryptToken(deviceConnection.refresh_token); // throw decryption error
+    const refreshToken = decryptToken(connection.refreshToken); // throw decryption error
 
     let response: Response;
     try {
@@ -51,7 +53,7 @@ export async function refreshWithingsToken(
                 nonce: sig.nonce,
                 signature: sig.signature,
                 grant_type: 'refresh_token',
-                refresh_token: refresh_token,
+                refresh_token: refreshToken,
             }),
         });
     } catch (err) {
@@ -71,22 +73,23 @@ export async function refreshWithingsToken(
 
     const { status, body } = await response.json();
 
+    // TODO: check for specific error codes like expired refresh token
     if (status !== 0) {
         throw new RefreshTokenError(
             `Failed to retrieve new access_token from Withings API: Status was  ${status}, body was  ${JSON.stringify(body)}`
         );
     }
 
-    const expiresAt = new Date(Date.now() + body.expires_in * 1000);
+    const expiresAt = new Date(Date.now() + body.expires_in * 1000 - 60000);
 
     try {
         // Update device connection
-        await prisma.withingsDevice.update({
-            where: { id: deviceConnection.id },
+        await prisma.withingsConnection.update({
+            where: { id: connection.id },
             data: {
-                access_token: encryptToken(body.access_token),
-                refresh_token: encryptToken(body.refresh_token),
-                expires_at: expiresAt,
+                accessToken: encryptToken(body.access_token),
+                refreshToken: encryptToken(body.refresh_token),
+                expiresAt: expiresAt,
             },
         });
     } catch (err) {
@@ -98,7 +101,7 @@ export async function refreshWithingsToken(
     }
 
     return {
-        access_token: body.access_token,
-        refresh_token: body.refresh_token,
+        accessToken: body.access_token,
+        refreshToken: body.refresh_token,
     };
 }
