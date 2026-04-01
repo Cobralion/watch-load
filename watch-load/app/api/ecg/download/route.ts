@@ -33,8 +33,8 @@ async function GET() {
         const rows = result.map((row) => {
             return {
                 ...row,
-                signal_id: row.signal_id.toString(),
-                trails_id: row.trails_id ?? '0',
+                signal_id: row.signalId.toString(),
+                trails_id: row.trailsId ?? '0',
             };
         });
 
