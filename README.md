@@ -23,3 +23,4 @@
 # Test Passwords
 - admin:Admin!123
 - user:User!123
+- user2:User!123
