@@ -88,14 +88,14 @@ export async function GET(req: NextRequest) {
     const expiresAt = new Date(Date.now() + body.expires_in * 1000);
 
     try {
-        // Create device and link to user atomically
-        await prisma.withingsDevice.create({
+        // Create device and link to workspace
+        await prisma.withingsConnection.create({
             data: {
-                user_id: user.id,
-                access_token: encryptToken(body.access_token),
-                refresh_token: encryptToken(body.refresh_token),
-                expires_at: expiresAt,
-                withings_user_id: body.userid,
+                workspaceId: workspaceId,
+                accessToken: encryptToken(body.access_token),
+                refreshToken: encryptToken(body.refresh_token),
+                expiresAt: expiresAt,
+                withingsUserId: body.userid,
             },
         });
     } catch (err) {
