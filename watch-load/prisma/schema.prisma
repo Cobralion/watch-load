@@ -11,9 +11,14 @@ datasource db {
 // ---------- ENUMS ---------------
 // --------------------------------
 
-enum Role {
+enum GlobalRole {
   ADMIN
   USER
+}
+
+enum WorkspaceRole {
+  WORKSPACE_ADMIN
+  WORKSPACE_USER
 }
 
 enum Afib {
@@ -28,38 +33,96 @@ enum Afib {
 // --------------------------------
 
 model User {
-  id       String           @id @default(cuid())
-  username String           @unique
-  password String
-  role     Role
-  name     String?
-  devices  WithingsDevice[]
+  id          String       @id @default(cuid())
+  username    String       @unique
+  password    String
+  role        GlobalRole
+  // name        String?
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  memberships Membership[]
+
+  @@map("users")
 }
 
-model WithingsDevice {
-  id               String   @id @default(cuid())
-  access_token     String
-  refresh_token    String
-  expires_at       DateTime
-  withings_user_id String
-  last_sync        DateTime @default("1970-01-01T00:00:00Z") // beginning of time
+model Workspace {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  slug        String   @unique
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
-  user_id String
-  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  withingsConnections WithingsConnection[]
+  memberships         Membership[]
+  heartMeasurements   HeartMeasurement[]
+
+  @@map("workspaces")
+}
+
+model Membership {
+  id            String        @id @default(cuid())
+  userId        String        @map("user_id")
+  workspaceId   String        @map("workspace_id")
+  workspaceRole WorkspaceRole @map("workspace_role")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workspaceId])
+  @@map("memberships")
+}
+
+model WithingsConnection {
+  id             String    @id @default(cuid())
+  accessToken    String    @map("access_token")
+  refreshToken   String    @map("refresh_token")
+  expiresAt      DateTime  @map("expires_at")
+  withingsUserId String    @map("withings_user_id")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  lastSync       DateTime  @default("1970-01-01T00:00:00Z") @map("last_sync") // beginning of time
+  workspaceId    String    @map("workspace_id")
+  workspace      Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@map("withings_connections")
 }
 
 model HeartMeasurement {
-  id                 String   @id @default(cuid())
-  signal_id          BigInt   @unique
-  device_id          String
-  heart_rate         Int
-  afib               Afib
-  timestamp          DateTime
-  modified           DateTime
-  signal             Int[]
-  sampling_frequency Int
+  id        String   @id @default(cuid())
+  signalId  String   @unique @map("signal_id")
+  deviceId  String   @map("device_id")
+  heartRate Int      @map("heart_rate")
+  afib      Afib
+  timestamp DateTime
+  modified  DateTime
+  trailsId  String?  @map("trails_id")
 
-  trails_id String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@index([signal_id, timestamp, trails_id])
+  signal HeartMeasurementSignal?
+
+  workspaceId String    @map("workspace_id")
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, deviceId, timestamp(sort: Desc)])
+  @@map("heart_measurements")
+}
+
+model HeartMeasurementSignal {
+  id                String @id @default(cuid())
+  signalId          String @unique @map("signal_id")
+  signal            Int[]
+  samplingFrequency Int    @map("sampling_frequency")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  heartMeasurementId String           @unique @map("heart_measurement_id")
+  heartMeasurement   HeartMeasurement @relation(fields: [heartMeasurementId], references: [id], onDelete: Cascade)
+
+  @@map("heart_measurement_signals")
 }
