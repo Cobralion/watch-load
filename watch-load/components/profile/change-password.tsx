@@ -14,14 +14,12 @@ import {
 import { Eye, EyeOff, Lock } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useState } from 'react';
-import {
-    ChangePasswordFormData,
-    changePasswordSchema,
-} from '@/lib/validations/auth';
+import { changePasswordSchema } from '@/lib/validations/auth';
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
-import { useForm } from 'react-hook-form';
 import { Field, FieldError, FieldGroup, FieldLabel } from '../ui/field';
-import changePassword from '@/actions/change-password';
+import { changePassword } from '@/actions/change-password';
+import { useHookFormAction } from '@next-safe-action/adapter-react-hook-form/hooks';
+import { toast } from 'sonner';
 
 const FIELDS = [
     {
@@ -44,36 +42,33 @@ export default function ChangePassword() {
         'confirm-password': false,
     });
 
-    const [showSuccess, setShowSuccess] = useState(false);
-
-    const togglePassword = (id: string) =>
+    const togglePassword = (id: keyof typeof showPasswords) =>
         setShowPasswords((prev) => ({ ...prev, [id]: !prev[id] }));
 
-    const {
-        register,
-        handleSubmit,
-        setError,
-        formState: { errors, isSubmitting },
-    } = useForm<ChangePasswordFormData>({
-        resolver: standardSchemaResolver(changePasswordSchema),
-        defaultValues: {
-            currentPassword: '',
-            newPassword: '',
-            confirmPassword: '',
-        },
-    });
-
-    const onSubmit = async (data: ChangePasswordFormData) => {
-        const result = await changePassword(data);
-        if (result?.error) {
-            setError('root', {
-                type: 'manual',
-                message: result.error,
-            });
-            return;
+    const { form, action, handleSubmitWithAction } = useHookFormAction(
+        changePassword,
+        standardSchemaResolver(changePasswordSchema),
+        {
+            formProps: {
+                defaultValues: {
+                    currentPassword: '',
+                    newPassword: '',
+                    confirmPassword: '',
+                },
+            },
+            actionProps: {
+                onSuccess: () => {
+                    toast.success('Password changed successfully!', {position: 'top-right'});
+                    form.reset();
+                    setShowPasswords({
+                        'current-password': false,
+                        'new-password': false,
+                        'confirm-password': false,
+                    });
+                },
+            },
         }
-        setShowSuccess(true);
-    };
+    );
 
     return (
         <Card>
@@ -88,7 +83,7 @@ export default function ChangePassword() {
             </CardHeader>
 
             <CardContent className="space-y-4 px-5 pb-5">
-                <form onSubmit={handleSubmit(onSubmit)}>
+                <form onSubmit={handleSubmitWithAction}>
                     <FieldGroup>
                         {FIELDS.map(({ id, name, label }) => (
                             <Field key={id}>
@@ -100,15 +95,21 @@ export default function ChangePassword() {
                                 </FieldLabel>
                                 <InputGroup>
                                     <InputGroupInput
-                                        {...register(name)}
+                                        {...form.register(name)}
                                         id={`form-changepwd-${id}`}
                                         type={
                                             showPasswords[id]
                                                 ? 'text'
                                                 : 'password'
                                         }
-                                        aria-invalid={!!errors[name]}
-                                        autoComplete="off"
+                                        aria-invalid={
+                                            !!form.formState.errors[name]
+                                        }
+                                        autoComplete={
+                                            name === 'currentPassword'
+                                                ? 'current-password'
+                                                : 'new-password'
+                                        }
                                     />
                                     <InputGroupAddon
                                         onClick={() => togglePassword(id)}
@@ -121,21 +122,17 @@ export default function ChangePassword() {
                                         )}
                                     </InputGroupAddon>
                                 </InputGroup>
-                                {errors[name] && (
-                                    <FieldError errors={[errors[name]]} />
+                                {form.formState.errors[name] && (
+                                    <FieldError
+                                        errors={[form.formState.errors[name]]}
+                                    />
                                 )}
                             </Field>
                         ))}
 
-                        {errors.root && (
+                        {action.result.serverError && (
                             <p className="text-sm font-medium text-red-500">
-                                {errors.root.message}
-                            </p>
-                        )}
-
-                        {showSuccess && (
-                            <p className="text-sm font-medium text-green-500">
-                                Password has been updated.
+                                {action.result.serverError}
                             </p>
                         )}
 
@@ -143,9 +140,9 @@ export default function ChangePassword() {
                             <Button
                                 className="cursor-pointer"
                                 type="submit"
-                                disabled={isSubmitting}
+                                disabled={action.isPending}
                             >
-                                {isSubmitting
+                                {action.isPending
                                     ? 'Changing password...'
                                     : 'Change Password'}
                             </Button>

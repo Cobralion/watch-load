@@ -42,7 +42,7 @@ class SyncHeartError extends Error {
         this.name = 'SyncHeartError';
     }
 }
-class APIFetchError extends SyncHeartError {
+class APIFetchError extends Error {
     constructor(message: string, options?: ErrorOptions) {
         super(message, options);
         this.name = 'APIFetchError';
@@ -56,6 +56,13 @@ class NoAccessTokenError extends Error {
     }
 }
 
+class ActionError extends Error {
+    constructor(message: string, options?: ErrorOptions) {
+        super(message, options);
+        this.name = 'ActionError';
+    }
+}
+
 export {
     InvalidCredentialsError,
     ServerCredentialsError,
@@ -66,4 +73,5 @@ export {
     SyncHeartError,
     APIFetchError,
     NoAccessTokenError,
+    ActionError,
 };

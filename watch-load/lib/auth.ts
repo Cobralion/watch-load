@@ -8,6 +8,7 @@ import {
 import bcrypt from 'bcryptjs';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+    debug: true, // TODO: change to false in production
     providers: [
         Credentials({
             name: 'credentials',
@@ -52,13 +53,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 }
 
                 if (!result) {
-                    console.error('[AUTH] User not found: ', username);
+                    console.error(
+                        '[AUTH] Invalid credentials - user not found'
+                    );
                     throw new InvalidCredentialsError();
                 }
 
+                // TODO: compare against dummy if user is not found for security
                 const isMatch = await bcrypt.compare(password, result.password);
                 if (!isMatch) {
-                    console.error('[AUTH] Wrong password for ', username);
+                    console.error(
+                        '[AUTH] Invalid credentials - wrong password'
+                    );
                     throw new InvalidCredentialsError();
                 }
 
@@ -75,18 +81,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         jwt: async ({ token, user }) => {
             if (user) {
                 token.id = user.id;
-                token.name = user.name;
                 token.role = user.role;
                 token.username = user.username;
             }
             return token;
         },
         session: async ({ session, token }) => {
-            session.user.id = token.id as string;
-            session.user.name = token.name as string;
-            session.user.role = token.role as string;
-            session.user.username = token.username as string;
-
+            if (session.user) {
+                session.user.id = token.id as string;
+                session.user.role = token.role as string;
+                session.user.username = token.username as string;
+            }
             return session;
         },
     },

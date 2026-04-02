@@ -111,7 +111,7 @@ export async function syncHeartData(workspaceId: string): Promise<void> {
                 timestamp: new Date(item.timestamp * 1000),
                 samplingFrequency: ecg.sampling_frequency,
                 signal: ecg.signal,
-                workspaceId: workspaceId
+                workspaceId: workspaceId,
             });
         }
         return acc;

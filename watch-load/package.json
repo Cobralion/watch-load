@@ -16,6 +16,7 @@
         "@casl/ability": "^6.8.0",
         "@casl/react": "^5.0.1",
         "@hookform/resolvers": "^5.2.2",
+        "@next-safe-action/adapter-react-hook-form": "^2.0.4",
         "@prisma/adapter-pg": "^7.4.2",
         "@prisma/client": "^7.4.2",
         "@t3-oss/env-nextjs": "^0.13.11",

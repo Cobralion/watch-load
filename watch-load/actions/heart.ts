@@ -38,23 +38,28 @@ export async function syncHeartAction(): Promise<SyncHeartActionState> {
     return { success: true };
 }
 
-export async function editTrailsId(ecgData: EcgData | null): Promise<TrailsChangeActionState> {
+export async function editTrailsId(
+    ecgData: EcgData | null
+): Promise<TrailsChangeActionState> {
     const session = await auth();
     if (!session) {
         return { success: false, message: 'User authentication failed!' };
     }
 
-    if(!ecgData || !ecgData.id) {
+    if (!ecgData || !ecgData.id) {
         return { success: false, message: 'Failed to parse summited data.' };
     }
 
-    if(!ecgData.trailsId || (ecgData.trailsId.length < 1)) {
+    if (!ecgData.trailsId || ecgData.trailsId.length < 1) {
         return { success: false, message: 'Trails ID cannot be empty.' };
     }
 
     try {
         //TODO: maybe check that the measurement with given id belongs to the user?
-        await prisma.heartMeasurement.update({where: {id: ecgData.id}, data: {trails_id: ecgData.trailsId}});
+        await prisma.heartMeasurement.update({
+            where: { id: ecgData.id },
+            data: { trails_id: ecgData.trailsId },
+        });
     } catch (e) {
         console.error(e);
         return { success: false, message: 'Failed to save edited trails id.' };

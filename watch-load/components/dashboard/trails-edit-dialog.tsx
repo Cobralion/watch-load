@@ -81,7 +81,7 @@ export default function EditTrailsDialog(
                     </div>
                 </div>
                 <DialogFooter>
-                    <div className={"flex flex-col gap-2 w-full"}>
+                    <div className={'flex w-full flex-col gap-2'}>
                         {error && (
                             <div
                                 className={`rounded-md p-4 ${

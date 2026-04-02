@@ -3,8 +3,9 @@ import { DataTable } from '@/components/ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { FORMAT_DATE } from '@/lib/utils';
-import EditTrailsDialog, { useTrailsDialogState } from '@/components/dashboard/trails-edit-dialog';
-
+import EditTrailsDialog, {
+    useTrailsDialogState,
+} from '@/components/dashboard/trails-edit-dialog';
 
 export type EcgData = {
     id: string;
@@ -29,7 +30,10 @@ export default function EcgDataTable({ ecgData }: { ecgData: EcgData[] }) {
             cell: ({ row }) => {
                 const original = row.original;
                 const trailsId = row.original.trailsId;
-                const isSet = trailsId !== null && trailsId !== undefined && trailsId.length > 0;
+                const isSet =
+                    trailsId !== null &&
+                    trailsId !== undefined &&
+                    trailsId.length > 0;
 
                 return (
                     <>
@@ -46,7 +50,7 @@ export default function EcgDataTable({ ecgData }: { ecgData: EcgData[] }) {
                             <Button
                                 variant="secondary"
                                 size="sm"
-                                className="h-7 px-3 text-xs cursor-pointer"
+                                className="h-7 cursor-pointer px-3 text-xs"
                                 onClick={() => {
                                     setData(original);
                                     toggleModal();

@@ -6,6 +6,4 @@ type ActionStates = {
 type SyncHeartActionState = ActionStates;
 type TrailsChangeActionState = ActionStates;
 
-
-
 export type { ActionStates, SyncHeartActionState, TrailsChangeActionState };

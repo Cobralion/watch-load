@@ -1,29 +1,36 @@
 'use server';
 
-import { LoginFormData, loginSchema } from '@/lib/validations/auth';
+import { loginSchema } from '@/lib/validations/auth';
 import { signIn } from '@/lib/auth';
-import { AuthError } from 'next-auth';
-import { AuthState } from '@/types/form-states';
+import { AuthError, CredentialsSignin } from 'next-auth';
+import { authActionClient } from '@/lib/safe-action';
+import { ActionError } from '@/types/errors';
+import { isRedirectError } from 'next/dist/client/components/redirect-error';
+import { redirect } from 'next/navigation';
 
-export async function login(formData: LoginFormData): Promise<AuthState> {
-    const validation = await loginSchema.safeParseAsync(formData);
-    if (!validation.success) throw new Error('Invalid form data.');
+export const login = authActionClient
+    .inputSchema(loginSchema)
+    .action(async ({ parsedInput }): Promise<void> => {
+        const { username, password } = parsedInput;
 
-    const { username, password } = validation.data;
-
-    try {
-        await signIn('credentials', { username, password, redirect: false });
-        return { success: true };
-    } catch (error) {
-        if (error instanceof AuthError) {
-            return {
-                success: false,
-                error:
-                    error.type === 'CredentialsSignin'
-                        ? 'Invalid username or password.'
-                        : 'An unknown authentication error occurred.',
-            };
+        let loginSuccess = false;
+        try {
+            loginSuccess = await signIn('credentials', {
+                username,
+                password,
+                redirect: false,
+            });
+        } catch (error) {
+            console.error('Login action error: ', error);
+            if (error instanceof AuthError) {
+                if (error instanceof CredentialsSignin) {
+                    throw new ActionError('Invalid username or password.');
+                }
+            }
+            throw new ActionError('An unknown authentication error occurred.');
         }
-        throw error;
-    }
-}
+
+        if(loginSuccess) {
+            redirect('/dashboard');
+        }
+    });

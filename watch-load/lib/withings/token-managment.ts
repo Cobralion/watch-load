@@ -14,10 +14,7 @@ type RefreshedTokens = {
 export async function refreshWithingsToken(
     workspaceId: string
 ): Promise<RefreshedTokens> {
-    let connection:
-        | { id: string; refreshToken: string }
-        | null
-        | undefined;
+    let connection: { id: string; refreshToken: string } | null | undefined;
     try {
         // TODO: add support for multiple connections
         connection = await prisma.withingsConnection.findFirst({
@@ -31,11 +28,7 @@ export async function refreshWithingsToken(
         );
     }
 
-    if (
-        !connection ||
-        !connection.id ||
-        !connection.refreshToken
-    ) {
+    if (!connection || !connection.id || !connection.refreshToken) {
         throw new RefreshTokenError("Can't find a device connection");
     }
 
