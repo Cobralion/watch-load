@@ -11,28 +11,29 @@ import {
 } from '@/components/ui/card';
 import { Activity, Watch } from 'lucide-react';
 import { disconnectDevices } from '@/actions/disconnect-devices';
-import { useState } from 'react';
-import { ActionStates } from '@/types/action-states';
+import { useState, useEffect } from 'react';
+import { useWorkspace } from '@/app/(dashboard)/workspace/[workspaceSlug]/workspace-provider';
+import { useAction } from 'next-safe-action/hooks';
 
 export default function ConnectedDevicesCard({
     initialConnectionStatus,
 }: {
     initialConnectionStatus: boolean;
 }) {
-    const [disconnectState, setDisconnectState] = useState<ActionStates | null>(
-        null
-    );
+    const { workspace } = useWorkspace() || {};
     const [connectionStatus, setConnectionStatus] = useState(
         initialConnectionStatus
     );
 
-    async function handleDisconnect() {
-        const result = await disconnectDevices();
-        setDisconnectState(result);
-        if (result.success) {
+    useEffect(() => {
+        setConnectionStatus(initialConnectionStatus);
+    }, [initialConnectionStatus]);
+
+    const { execute, result, status, isExecuting } = useAction(disconnectDevices, {
+        onSuccess: () => {
             setConnectionStatus(false);
         }
-    }
+    });
 
     return (
         <Card className="w-full max-w-sm overflow-hidden">
@@ -63,19 +64,15 @@ export default function ConnectedDevicesCard({
                     </div>
                     <div className="ml-auto">
                         {connectionStatus ? (
-                            <>
-                                <span className="inline-flex items-center gap-1 rounded-full border border-green-100 bg-green-50 px-2 py-0.5 text-[11px] font-medium text-green-600">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-green-400" />
-                                    Linked
-                                </span>
-                            </>
+                            <span className="inline-flex items-center gap-1 rounded-full border border-green-100 bg-green-50 px-2 py-0.5 text-[11px] font-medium text-green-600">
+                                <span className="h-1.5 w-1.5 rounded-full bg-green-400" />
+                                Linked
+                            </span>
                         ) : (
-                            <>
-                                <span className="inline-flex items-center gap-1 rounded-full border border-amber-100 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-600">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-                                    Not linked
-                                </span>
-                            </>
+                            <span className="inline-flex items-center gap-1 rounded-full border border-amber-100 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-600">
+                                <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+                                Not linked
+                            </span>
                         )}
                     </div>
                 </div>
@@ -84,31 +81,38 @@ export default function ConnectedDevicesCard({
                     <Button
                         variant="destructive"
                         className="h-10 w-full cursor-pointer"
-                        onClick={async () => await handleDisconnect()}
+                        onClick={() => workspace?.id && execute({ workspaceId: workspace.id })}
+                        disabled={isExecuting || !workspace?.id}
                     >
                         Disconnect Device
                     </Button>
                 ) : (
-                    <Button asChild className="h-10 w-full cursor-pointer">
-                        <Link
-                            href="/api/withings/connect"
-                            rel="noreferrer"
-                            target="_self"
-                        >
-                            Connect Withings Device
-                        </Link>
+                    <Button asChild className="h-10 w-full cursor-pointer" disabled={!workspace?.slug}>
+                        {workspace?.slug ? (
+                            <Link
+                                href={`/api/withings/connect?workspace=${workspace.slug}`}
+                                rel="noreferrer"
+                                target="_self"
+                            >
+                                Connect Withings Device
+                            </Link>
+                        ) : (
+                            <span>Loading...</span>
+                        )}
                     </Button>
                 )}
 
-                {disconnectState && (
-                    <div
-                        className={`rounded-md p-4 ${
-                            disconnectState.success
-                                ? 'bg-green-100 text-green-700'
-                                : 'bg-red-100 text-red-700'
-                        }`}
-                    >
-                        <p className="text-sm">{disconnectState.message}</p>
+                {status === 'hasSucceeded' && (
+                    <div className="rounded-md p-4 bg-green-100 text-green-700">
+                        <p className="text-sm">Disconnection successful!</p>
+                    </div>
+                )}
+
+                {status === 'hasErrored' && (
+                    <div className="rounded-md p-4 bg-red-100 text-red-700">
+                        <p className="text-sm">
+                            {result.serverError || 'An error occurred during disconnection.'}
+                        </p>
                     </div>
                 )}
             </CardContent>

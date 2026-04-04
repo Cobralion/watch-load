@@ -5,8 +5,6 @@ const connectionString = `${process.env.DATABASE_URL}`;
 const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
-export { prisma };
-
 async function main() {
     console.log('Seeding database...');
 
@@ -47,6 +45,19 @@ async function main() {
                 '$2a$12$TkBN1iu95ZSoMt3ROtuOWebQOqkZcXOXvsiXzOmdLOGkI38psUz/6',
             role: 'USER',
             name: 'James User',
+        },
+    });
+
+    const jane = await prisma.user.upsert({
+        where: { username: 'test' },
+        update: {},
+        create: {
+            id: 'cmnkeq3j800052a6imq245cr2',
+            username: 'test',
+            password:
+                '$2a$12$YevL//FqxhoK0b4pVdfTq.jmV9ImnmffrffNdYpaQacsuq25OXptC',
+            role: 'USER',
+            name: 'Jane User',
         },
     });
 
@@ -103,6 +114,38 @@ async function main() {
             userId: james.id,
             workspaceId: jamesWorkspace.id,
             workspaceRole: 'WORKSPACE_ADMIN',
+        },
+    });
+
+    await prisma.membership.upsert({
+        where: {
+            userId_workspaceId: {
+                userId: jane.id,
+                workspaceId: jimmysWorkspace.id,
+            },
+        },
+        update: {},
+        create: {
+            id: 'cmnkeqse400092a6imxklf373',
+            userId: jane.id,
+            workspaceId: jimmysWorkspace.id,
+            workspaceRole: 'WORKSPACE_USER',
+        },
+    });
+
+    await prisma.membership.upsert({
+        where: {
+            userId_workspaceId: {
+                userId: jane.id,
+                workspaceId: jamesWorkspace.id,
+            },
+        },
+        update: {},
+        create: {
+            id: 'cmnkerkbn000d2a6iu4548iqj',
+            userId: jane.id,
+            workspaceId: jamesWorkspace.id,
+            workspaceRole: 'WORKSPACE_USER',
         },
     });
 

@@ -4,45 +4,46 @@ import { verifyStateJWT } from '@/lib/withings/oauth';
 import { encryptToken } from '@/lib/encryption';
 import { RequestTokenResponse } from '@/types/withings';
 import { disconnectDevice } from '@/lib/withings/oauth';
-import { auth } from '@/lib/auth';
 import { env } from '@/env/server';
 import { WITHINGS_OAUTH_URL } from '@/lib/withings/api-urls';
+import { resolveWorkspaceFromId } from '@/lib/workspace';
+import { createSignature } from '@/lib/withings/signing';
+import { RefreshTokenError } from '@/types/errors';
 
 export async function GET(req: NextRequest) {
-    const session = await auth();
-    if (!session) {
-        return new Response('Unauthorized', { status: 401 });
-    }
-
     const code = req.nextUrl.searchParams.get('code');
     const state = req.nextUrl.searchParams.get('state');
 
     if (!code || !state) {
-        return new Response('Missing code or state.', { status: 400 });
+        return new Response('Bad Request', { status: 400 });
     }
 
-    const userId = await verifyStateJWT(state);
+    const payload = await verifyStateJWT(state);
 
-    if (!userId || userId !== session.user.id) {
-        return new Response('User verification failed.', { status: 401 });
+    if (!payload) {
+        return new Response('Forbidden', { status: 403 });
     }
 
-    const user = await prisma.user.findUnique({
-        where: { id: userId! },
-        select: { id: true },
-    });
+    const result = await resolveWorkspaceFromId(payload.workspaceId); // TODO: use id instead of slug
+    if ('error' in result) {
+        return new Response(result.error, { status: result.status });
+    }
+    const data = result.data;
 
-    if (!user) {
-        return new Response('Invalid user', { status: 400 });
+    if (data.user.id !== payload.userId || data.role !== 'ADMIN') {
+        return new Response('Forbidden', { status: 403 });
     }
 
     // Check if there is already a connected device
     const existingDevice = await prisma.withingsConnection.findFirst({
-        where: { workspaceId: workspaceId },
+        where: { workspaceId: data.workspace.id },
     });
 
     if (existingDevice) {
-        const result = await disconnectDevice(existingDevice, workspaceId);
+        const result = await disconnectDevice(
+            existingDevice,
+            data.workspace.id
+        );
         if (!result) {
             return new Response('Failed to revoke old connection.', {
                 status: 400,
@@ -50,19 +51,28 @@ export async function GET(req: NextRequest) {
         }
     }
 
-    // Exchange code for tokens
-    const tokenResponse = await fetch(WITHINGS_OAUTH_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-            action: 'requesttoken',
-            client_id: env.WITHINGS_CLIENT_ID,
-            client_secret: env.WITHINGS_CLIENT_SECRET,
-            grant_type: 'authorization_code',
-            code,
-            redirect_uri: env.WITHINGS_REDIRECT_URI,
-        }),
-    });
+    let tokenResponse: Response;
+    try {
+        const action = 'requesttoken';
+        const sig = await createSignature(action);
+        tokenResponse = await fetch(WITHINGS_OAUTH_URL, {
+            method: 'POST',
+            body: new URLSearchParams({
+                action: action,
+                client_id: env.WITHINGS_CLIENT_ID,
+                nonce: sig.nonce,
+                signature: sig.signature,
+                grant_type: 'authorization_code',
+                code,
+                redirect_uri: env.WITHINGS_REDIRECT_URI,
+            }),
+        });
+    } catch (err) {
+        const message = (err as Error).message ?? String(err);
+        throw new RefreshTokenError(
+            'Failed to exchange access_token from Withings API: ' + message
+        );
+    }
 
     if (!tokenResponse.ok) {
         console.error(
@@ -91,7 +101,7 @@ export async function GET(req: NextRequest) {
         // Create device and link to workspace
         await prisma.withingsConnection.create({
             data: {
-                workspaceId: workspaceId,
+                workspaceId: data.workspace.id,
                 accessToken: encryptToken(body.access_token),
                 refreshToken: encryptToken(body.refresh_token),
                 expiresAt: expiresAt,
@@ -103,5 +113,7 @@ export async function GET(req: NextRequest) {
         return new Response('Internal server error', { status: 500 });
     }
 
-    return NextResponse.redirect(new URL('/connected-devices', req.url));
+    return NextResponse.redirect(
+        new URL(`/workspace/${data.workspace.slug}/connected-devices`, req.url)
+    );
 }

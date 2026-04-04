@@ -97,8 +97,6 @@ export function AppSidebar({
                                     </a>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
-
-                            {/* FIX 2: Isolate the second button in its own MenuItem */}
                             <SidebarMenuItem>
                                 <SidebarMenuButton
                                     asChild

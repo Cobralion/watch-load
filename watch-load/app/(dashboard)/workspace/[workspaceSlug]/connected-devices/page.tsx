@@ -1,35 +1,28 @@
 import ConectedDevicesCard from '@/components/conected-device-card';
-import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { resolveWorkspace } from '@/lib/workspace';
 
-async function getConnectionStatus(): Promise<boolean> {
-    const session = await auth();
-    if (!session) {
-        return false;
-    }
-
-    const userId = session.user.id;
+async function getConnectionStatus(workspaceId: string): Promise<boolean> {
     try {
-        const devices = await prisma.user.findUnique({
-            where: { id: userId },
-            select: {
-                devices: true,
-            },
+        const connections = await prisma.withingsConnection.findMany({
+            where: { workspaceId: workspaceId },
         });
 
-        if (!devices || devices.devices.length === 0) {
-            return false;
-        }
-
-        return true;
+        return !(!connections || connections.length === 0);
     } catch (err) {
         console.error('Failed to fetch connection status:', err);
         return false;
     }
 }
 
-export default async function ConnectedDevicesPage() {
-    const connectionStatus = await getConnectionStatus();
-    console.log('Connection status:', connectionStatus);
+export default async function ConnectedDevicesPage({
+    params,
+}: {
+    params: Promise<{ workspaceSlug: string }>;
+}) {
+    const { workspaceSlug } = await params;
+    const { workspace } = await resolveWorkspace(workspaceSlug);
+
+    const connectionStatus = await getConnectionStatus(workspace.id);
     return <ConectedDevicesCard initialConnectionStatus={connectionStatus} />;
 }

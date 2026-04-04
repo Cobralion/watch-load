@@ -10,6 +10,7 @@ import {
 
 export async function getWithingsAuthUrl(
     workspaceId: string,
+    userId: string,
     mode: string = ''
 ) {
     const params = new URLSearchParams({
@@ -17,17 +18,19 @@ export async function getWithingsAuthUrl(
         client_id: env.WITHINGS_CLIENT_ID,
         redirect_uri: env.WITHINGS_REDIRECT_URI,
         scope: 'user.metrics,user.activity',
-        state: await createStateJWT(workspaceId),
+        state: await createStateJWT(workspaceId, userId),
         mode: mode,
     });
 
     return `${WITHINGS_AUTHORIZATION_URL}?${params.toString()}`;
 }
 
-export async function createStateJWT(workspaceId: string): Promise<string> {
+type JWTPayload = { workspaceId: string; userId: string };
+
+export async function createStateJWT(workspaceId: string, userId: string): Promise<string> {
     const secret = new TextEncoder().encode(env.JWT_SECRET);
     const alg = 'HS256';
-    const data = { workspaceId: workspaceId };
+    const data = { workspaceId: workspaceId, userId: userId };
 
     return await new jose.SignJWT(data)
         .setProtectedHeader({ alg })
@@ -39,7 +42,7 @@ export async function createStateJWT(workspaceId: string): Promise<string> {
 }
 
 // TODO: Verify state against a stored value to eliminate CSRF
-export async function verifyStateJWT(jwt: string): Promise<string | null> {
+export async function verifyStateJWT(jwt: string): Promise<JWTPayload | null> {
     const secret = new TextEncoder().encode(env.JWT_SECRET);
 
     try {
@@ -48,7 +51,7 @@ export async function verifyStateJWT(jwt: string): Promise<string | null> {
             audience: env.JWT_APP_AUDIENCE!,
         });
 
-        return payload.workspaceId as string;
+        return payload as JWTPayload;
     } catch (error) {
         console.error('JWT verification failed:', error);
         return null;

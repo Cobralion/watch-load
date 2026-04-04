@@ -1,17 +1,24 @@
-import { auth } from '@/lib/auth';
 import { getWithingsAuthUrl } from '@/lib/withings/oauth';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { resolveWorkspaceRaw } from '@/lib/workspace';
 
-async function GET() {
-    const session = await auth();
-    if (!session) {
-        return new Response('Unauthorized', { status: 401 });
+async function GET(request: NextRequest) {
+    const searchParams = request.nextUrl.searchParams;
+    const slug = searchParams.get('workspace');
+    if (!slug) {
+        return new Response('Not Found', { status: 404 });
     }
 
-    // TODO: get the workspace id from the query params, check if user is allowed to access the workspace, then pass it to the getWithingsAuthUrl function
-    const userId = session.user.id;
-    const authUrl = await getWithingsAuthUrl(workspaceId);
+    const result = await resolveWorkspaceRaw(slug); // TODO: use id instead of slug
+    if('error' in result) {
+        return new Response(result.error, { status: result.status });
+    }
+    const workspace = result.data;
 
+    if(workspace.role !== 'ADMIN')
+        return new Response('Forbidden', { status: 403 });
+
+    const authUrl = await getWithingsAuthUrl(workspace.workspace.id, workspace.user.id);
     return NextResponse.redirect(authUrl);
 }
 
