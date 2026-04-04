@@ -59,11 +59,6 @@ export default function EcgDataTable({ ecgData }: { ecgData: EcgData[] }) {
                                 Edit
                             </Button>
                         </div>
-                        <EditTrailsDialog
-                            isOpen={isOpen}
-                            toggleModal={toggleModal}
-                            data={data}
-                        ></EditTrailsDialog>
                     </>
                 );
             },
@@ -92,5 +87,15 @@ export default function EcgDataTable({ ecgData }: { ecgData: EcgData[] }) {
             header: 'Sampling frequency',
         },
     ];
-    return <DataTable columns={columns} data={ecgData} />;
+    return (
+        <>
+            <DataTable columns={columns} data={ecgData} />
+            <EditTrailsDialog
+                key={data?.id}
+                isOpen={isOpen}
+                toggleModal={toggleModal}
+                data={data}
+            />
+        </>
+    );
 }

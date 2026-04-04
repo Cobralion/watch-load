@@ -1,4 +1,6 @@
-import { resolveWorkspaceFromSlug } from '@/lib/workspace';
+import {
+    resolveWorkspaceFromSlug,
+} from '@/lib/workspace';
 import EcgDataTable, { EcgData } from '@/components/dashboard/ecg-data-table';
 import { prisma } from '@/lib/prisma';
 import { EcgCard } from '@/components/dashboard/ecg-card';
@@ -32,6 +34,7 @@ export default async function WorkspaceDashboard({
     params: Promise<{ workspaceSlug: string }>;
 }) {
     const { workspaceSlug } = await params;
+    // TODO: remove and only rely on the call in layout and client components
     const { workspace } = await resolveWorkspaceFromSlug(workspaceSlug);
 
     const data = await getData(workspace.id);

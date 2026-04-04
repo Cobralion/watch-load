@@ -85,26 +85,21 @@ export default function ConnectedDevicesCard({
                         variant="destructive"
                         className="h-10 w-full cursor-pointer"
                         onClick={() =>
-                            workspace?.id &&
-                            execute({ workspaceId: workspace?.id })
+                            execute({ workspaceId: workspace.id })
                         }
-                        disabled={isExecuting || !workspace?.id}
+                        disabled={isExecuting}
                     >
                         Disconnect Device
                     </Button>
                 ) : (
                     <Button asChild className="h-10 w-full cursor-pointer">
-                        {workspace?.slug ? (
                             <Link
-                                href={`/api/withings/connect?workspace=${workspace?.id}`}
+                                href={`/api/withings/connect?workspace=${workspace.id}`}
                                 rel="noreferrer"
                                 target="_self"
                             >
-                                Connect Withings Device
+                                {isExecuting ? 'Loading' : 'Connect Withings Account'}
                             </Link>
-                        ) : (
-                            <span>Loading...</span>
-                        )}
                     </Button>
                 )}
 

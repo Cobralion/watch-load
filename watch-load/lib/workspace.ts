@@ -1,6 +1,5 @@
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
-import { notFound, redirect } from 'next/navigation';
 import { Workspace, WorkspaceRole } from '@/generated/prisma/client';
 import { cache } from 'react';
 import {
@@ -13,7 +12,7 @@ import { NextResponse } from 'next/server';
 
 type WorkspaceIdOrSlug = { workspaceId: string } | { workspaceSlug: string };
 
-const resolve = cache(
+const resolveAction = cache(
     async (idOrSlug: WorkspaceIdOrSlug): Promise<ResolvedWorkspace> => {
         const session = await auth();
 
@@ -60,9 +59,9 @@ const resolveRawNoAuth = async (
 };
 
 export const resolveWorkspaceFromSlug = (slug: string) =>
-    resolve({ workspaceSlug: slug });
+    resolveAction({ workspaceSlug: slug });
 export const resolveWorkspaceFromId = (id: string) =>
-    resolve({ workspaceId: id });
+    resolveAction({ workspaceId: id });
 
 export const resolveWorkspaceRawNoAuthFromSlug = (
     userId: string,

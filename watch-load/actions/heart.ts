@@ -11,6 +11,7 @@ import { resolveWorkspaceFromId } from '@/lib/workspace';
 import * as z from 'zod';
 import { ActionError, NoAccessTokenError } from '@/types/errors';
 import { BatchPayload } from '@/generated/prisma/internal/prismaNamespace';
+import { notFound } from 'next/navigation';
 
 export const syncHeartAction = actionClient
     .metadata({ actionName: 'syncHeartAction' })
@@ -37,7 +38,7 @@ export const syncHeartAction = actionClient
         }
 
         // TODO: check if needed and more robust
-        revalidatePath(`/workspaces/${slug}`);
+        revalidatePath(`/workspace/${slug}`);
     });
 
 export const editTrailsId = actionClient
@@ -75,5 +76,5 @@ export const editTrailsId = actionClient
             throw new ActionError('Could not update trails id.');
         }
 
-        revalidatePath(`/workspaces/${slug}`);
+        revalidatePath(`/workspace/${slug}`);
     });
