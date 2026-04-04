@@ -64,9 +64,12 @@ class ActionError extends Error {
 }
 
 class WorkspaceError extends Error {
-    constructor(message: string, options?: ErrorOptions) {
-        super(message, options);
+    status: number;
+
+    constructor(message: string, status: number) {
+        super(message);
         this.name = 'WorkspaceError';
+        this.status = status;
     }
 }
 

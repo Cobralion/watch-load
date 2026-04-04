@@ -7,7 +7,7 @@ import { actionClient } from '@/lib/safe-action';
 import { ActionError } from '@/types/errors';
 
 export const changePassword = actionClient
-    .metadata({ actionName: 'changePassword', requiredRole: 'user' })
+    .metadata({ actionName: 'changePassword' })
     .inputSchema(changePasswordSchema)
     .action(async ({ parsedInput, ctx }): Promise<void> => {
         const { currentPassword, newPassword } = parsedInput;

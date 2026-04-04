@@ -4,7 +4,7 @@ import { actionClient } from '@/lib/safe-action';
 import { prisma } from '@/lib/prisma';
 
 export const listSidebarItems = actionClient
-    .metadata({ actionName: 'listSidebarItems', requiredRole: 'USER' })
+    .metadata({ actionName: 'listSidebarItems' })
     .action(async ({ ctx: {userId} }) => {
         const user = await prisma.user.findUniqueOrThrow({
             where: { id: userId },

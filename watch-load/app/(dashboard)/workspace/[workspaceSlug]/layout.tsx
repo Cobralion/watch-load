@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
-import { resolveWorkspace } from '@/lib/workspace';
 import { WorkspaceProvider } from '@/app/(dashboard)/workspace/[workspaceSlug]/workspace-provider';
+import { resolveWorkspaceFromSlug } from '@/lib/workspace';
 
 export default async function WorkspaceLayout({
     children,
@@ -10,7 +10,7 @@ export default async function WorkspaceLayout({
     params: Promise<{ workspaceSlug: string }>;
 }) {
     const { workspaceSlug } = await params;
-    const { workspace, role, isGlobalAdmin } = await resolveWorkspace(workspaceSlug);
+    const { workspace, role, isGlobalAdmin } = await resolveWorkspaceFromSlug(workspaceSlug);
 
 
     return (

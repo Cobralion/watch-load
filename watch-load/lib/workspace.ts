@@ -1,133 +1,135 @@
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { notFound, redirect } from 'next/navigation';
-import { WorkspaceRole } from '@/generated/prisma/client';
+import { Workspace, WorkspaceRole } from '@/generated/prisma/client';
 import { cache } from 'react';
-import { ResolvedWorkspace, ResolvedWorkspaceRole } from '@/types/workspace';
+import {
+    ResolvedWorkspace,
+    ResolvedWorkspaceRole,
+    WorkspaceContext,
+} from '@/types/resolvedWorkspace';
+import { WorkspaceError } from '@/types/errors';
+import { NextResponse } from 'next/server';
 
-export const resolveWorkspace = cache(async (workspaceSlug: string) => {
-    const result = await resolveWorkspaceRaw(workspaceSlug);
-    if ('error' in result) {
-        if (result.status === 401) redirect('/login');
-        notFound();
-    }
-    return result.data;
-});
+type WorkspaceIdOrSlug = { workspaceId: string } | { workspaceSlug: string };
 
-export async function resolveWorkspaceRaw(
-    workspaceSlug: string
-): Promise<{ data: ResolvedWorkspace } | { error: string; status: number }> {
-    const session = await auth();
-    if (!session || !session?.user?.id) {
-        return { error: 'Unauthorized', status: 401 };
-    }
+const resolve = cache(
+    async (idOrSlug: WorkspaceIdOrSlug): Promise<ResolvedWorkspace> => {
+        const session = await auth();
 
-    const user = await prisma.user.findUniqueOrThrow({
-        where: { id: session.user.id },
-        select: { role: true },
-    });
+        if (!session?.user?.id) {
+            redirect('/login');
+        }
 
-    const workspace = await prisma.workspace.findUnique({
-        where: { slug: workspaceSlug },
-    });
-
-    if (!workspace) {
-        return { error: 'Not Found', status: 404 };
-    }
-
-    if (user.role === 'ADMIN') {
-        return {
-            data: {
-                workspace: workspace,
-                role: 'ADMIN',
-                isGlobalAdmin: true,
+        try {
+            const result = await resolveWorkspaceRaw(
+                session.user.id,
+                idOrSlug,
+                session.user.role
+            );
+            return {
+                ...result,
                 user: session.user,
-            },
+            };
+        } catch (err) {
+            if (err instanceof WorkspaceError && err.status === 404) {
+                notFound();
+            }
+            throw err;
+        }
+    }
+);
+
+const resolveRawNoAuth = async (
+    userId: string,
+    userRole: string,
+    idOrSlug: WorkspaceIdOrSlug
+): Promise<WorkspaceContext | NextResponse> => {
+    try {
+        const result = await resolveWorkspaceRaw(
+            userId,
+            idOrSlug,
+            userRole
+        );
+        return {
+            ...result,
+        };
+    } catch (err) {
+        if (err instanceof WorkspaceError && err.status === 404) {
+            return new NextResponse('Not found', { status: 404 });
+        }
+        console.error('Error resolving workspace', err);
+        return new NextResponse('Internal Server Error', { status: 500 });
+    }
+};
+
+export const resolveWorkspaceFromSlug = (slug: string) =>
+    resolve({ workspaceSlug: slug });
+export const resolveWorkspaceFromId = (id: string) =>
+    resolve({ workspaceId: id });
+
+export const resolveWorkspaceRawNoAuthFromSlug = (
+    userId: string,
+    userRole: string,
+    slug: string
+) => resolveRawNoAuth(userId, userRole, { workspaceSlug: slug });
+export const resolveWorkspaceRawNoAuthFromId = (
+    userId: string,
+    userRole: string,
+    id: string
+) => resolveRawNoAuth(userId, userRole, { workspaceId: id });
+
+async function resolveWorkspaceRaw(
+    userId: string,
+    idOrSlug: WorkspaceIdOrSlug,
+    globalRole?: string
+): Promise<WorkspaceContext> {
+    const workspace = await getWorkspace(idOrSlug);
+
+    if (globalRole === 'ADMIN') {
+        return {
+            workspace,
+            role: 'ADMIN',
+            isGlobalAdmin: true,
         };
     }
 
     const membership = await prisma.membership.findFirst({
         where: {
-            userId: session.user.id,
+            userId: userId,
             workspaceId: workspace.id,
         },
     });
 
     if (!membership) {
-        return { error: 'Not Found', status: 404 };
+        throw new WorkspaceError('Not found', 404);
     }
 
     return {
-        data: {
-            workspace,
-            role: workspaceRoleToRole(membership.workspaceRole),
-            isGlobalAdmin: false,
-            user: session.user,
-        },
+        workspace,
+        role: workspaceRoleToRole(membership.workspaceRole),
+        isGlobalAdmin: false,
     };
 }
 
-export async function resolveWorkspaceFromId(
-    workspaceId: string
-): Promise<{ data: ResolvedWorkspace } | { error: string; status: number }> {
-    const session = await auth();
-    if (!session || !session?.user?.id) {
-        return { error: 'Unauthorized', status: 401 };
-    }
-
-    const user = await prisma.user.findUniqueOrThrow({
-        where: { id: session.user.id },
-        select: { role: true },
-    });
-
+async function getWorkspace(idOrSlug: WorkspaceIdOrSlug): Promise<Workspace> {
     const workspace = await prisma.workspace.findUnique({
-        where: { id: workspaceId },
+        where:
+            'workspaceId' in idOrSlug
+                ? { id: idOrSlug.workspaceId }
+                : { slug: idOrSlug.workspaceSlug },
     });
 
     if (!workspace) {
-        return { error: 'Not Found', status: 404 };
+        throw new WorkspaceError('Not found', 404);
     }
-
-    if (user.role === 'ADMIN') {
-        return {
-            data: {
-                workspace: workspace,
-                role: 'ADMIN',
-                isGlobalAdmin: true,
-                user: session.user,
-            },
-        };
-    }
-
-    const membership = await prisma.membership.findFirst({
-        where: {
-            userId: session.user.id,
-            workspaceId: workspace.id,
-        },
-    });
-
-    if (!membership) {
-        return { error: 'Not Found', status: 404 };
-    }
-
-    return {
-        data: {
-            workspace,
-            role: workspaceRoleToRole(membership.workspaceRole),
-            isGlobalAdmin: false,
-            user: session.user,
-        },
-    };
+    return workspace;
 }
 
-
-function workspaceRoleToRole(
-    workspaceRole: WorkspaceRole
-): ResolvedWorkspaceRole {
-    switch (workspaceRole) {
-        case 'WORKSPACE_ADMIN':
-            return 'ADMIN';
-        case 'WORKSPACE_USER':
-            return 'USER';
-    }
+function workspaceRoleToRole(role: WorkspaceRole): ResolvedWorkspaceRole {
+    const mapping: Record<WorkspaceRole, ResolvedWorkspaceRole> = {
+        WORKSPACE_ADMIN: 'ADMIN',
+        WORKSPACE_USER: 'USER',
+    };
+    return mapping[role] ?? 'USER';
 }

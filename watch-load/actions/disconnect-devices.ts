@@ -3,12 +3,13 @@
 import { prisma } from '@/lib/prisma';
 import { disconnectDevice } from '@/lib/withings/oauth';
 import { resolveWorkspaceFromId } from '@/lib/workspace';
-import { publicActionClient } from '@/lib/safe-action';
+import { actionClient } from '@/lib/safe-action';
 import * as z from 'zod';
 import { ActionError } from '@/types/errors';
 
 // TODO: use cleaner safe-action architeture
-export const disconnectDevices = publicActionClient
+export const disconnectDevices = actionClient
+    .metadata({ actionName: 'disconnectDevices' })
     .inputSchema(
         z.object({
             workspaceId: z.string(),
@@ -16,12 +17,12 @@ export const disconnectDevices = publicActionClient
     )
     .action(async ({ parsedInput }) => {
         const { workspaceId } = parsedInput;
-        const payload = await resolveWorkspaceFromId(workspaceId);
-        if ('error' in payload) {
-            throw new ActionError(payload.error);
-        }
-        if(payload.data.role !== 'ADMIN') {
-            throw new ActionError('You are not allowed to perform this action.');
+        const { role } = await resolveWorkspaceFromId(workspaceId);
+
+        if (role !== 'ADMIN') {
+            throw new ActionError(
+                'You are not allowed to perform this action.'
+            );
         }
 
         const connection = await prisma.withingsConnection.findFirst({

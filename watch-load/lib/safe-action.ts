@@ -3,16 +3,12 @@ import * as z from 'zod';
 import { auth } from '@/lib/auth';
 import { ActionError } from '@/types/errors';
 import { GlobalRole } from '@/generated/prisma/enums';
-import { resolveWorkspace } from '@/lib/workspace';
 
 // TODO: infer from prisma schema
 const requiredRoleSchema = z.enum(['USER', 'ADMIN']).optional();
 const metadataSchema = z.object({
     actionName: z.string(),
     requiredRole: requiredRoleSchema,
-});
-const workspaceSlugSchema = z.object({
-    workspaceSlug: z.string(),
 });
 export type RequiredRole = z.infer<typeof requiredRoleSchema>;
 export type ActionMetadata = z.infer<typeof metadataSchema>;
@@ -41,39 +37,6 @@ export const actionClient = createSafeActionClient({
 
     return next({ ctx: { userId, name, username } });
 });
-
-export const workspaceActionClient = actionClient.use(
-    async ({ next, clientInput, ctx }) => {
-        const { workspaceSlug } = workspaceSlugSchema.parse(clientInput);
-        const resolved = await resolveWorkspace(workspaceSlug);
-        return next({
-            ctx: {
-                ...ctx,
-                workspace: resolved.workspace,
-                workspaceRole: resolved.role,
-            },
-        });
-    }
-);
-
-export const workspaceAdminActionClient = actionClient.use(
-    async ({ next, clientInput, ctx }) => {
-        const { workspaceSlug } = workspaceSlugSchema.parse(clientInput);
-        const resolved = await resolveWorkspace(workspaceSlug);
-        if (resolved.role !== 'ADMIN') {
-            throw new ActionError(
-                'You must be a workspace admin to perform this action.'
-            );
-        }
-        return next({
-            ctx: {
-                ...ctx,
-                workspace: resolved.workspace,
-                workspaceRole: resolved.role,
-            },
-        });
-    }
-);
 
 async function checkAuth() {
     const session = await auth();

@@ -20,7 +20,7 @@ export default function ConnectedDevicesCard({
 }: {
     initialConnectionStatus: boolean;
 }) {
-    const { workspace } = useWorkspace() || {};
+    const { workspace } = useWorkspace();
     const [connectionStatus, setConnectionStatus] = useState(
         initialConnectionStatus
     );
@@ -81,16 +81,16 @@ export default function ConnectedDevicesCard({
                     <Button
                         variant="destructive"
                         className="h-10 w-full cursor-pointer"
-                        onClick={() => workspace?.id && execute({ workspaceId: workspace.id })}
+                        onClick={() => workspace?.id && execute({ workspaceId: workspace?.id })}
                         disabled={isExecuting || !workspace?.id}
                     >
                         Disconnect Device
                     </Button>
                 ) : (
-                    <Button asChild className="h-10 w-full cursor-pointer" disabled={!workspace?.slug}>
+                    <Button asChild className="h-10 w-full cursor-pointer">
                         {workspace?.slug ? (
                             <Link
-                                href={`/api/withings/connect?workspace=${workspace.slug}`}
+                                href={`/api/withings/connect?workspace=${workspace?.id}`}
                                 rel="noreferrer"
                                 target="_self"
                             >

@@ -6,11 +6,20 @@ import { RequestTokenResponse } from '@/types/withings';
 import { disconnectDevice } from '@/lib/withings/oauth';
 import { env } from '@/env/server';
 import { WITHINGS_OAUTH_URL } from '@/lib/withings/api-urls';
-import { resolveWorkspaceFromId } from '@/lib/workspace';
+import {
+    resolveWorkspaceRawNoAuthFromId,
+} from '@/lib/workspace';
 import { createSignature } from '@/lib/withings/signing';
-import { RefreshTokenError } from '@/types/errors';
+import { auth } from '@/lib/auth';
 
 export async function GET(req: NextRequest) {
+    const session = await auth();
+    if (!session) {
+        return NextResponse.redirect(
+            new URL(`/login`, req.url)
+        );
+    }
+
     const code = req.nextUrl.searchParams.get('code');
     const state = req.nextUrl.searchParams.get('state');
 
@@ -24,25 +33,31 @@ export async function GET(req: NextRequest) {
         return new Response('Forbidden', { status: 403 });
     }
 
-    const result = await resolveWorkspaceFromId(payload.workspaceId); // TODO: use id instead of slug
-    if ('error' in result) {
-        return new Response(result.error, { status: result.status });
+    const result = await resolveWorkspaceRawNoAuthFromId(
+        session.user.id,
+        session.user.role,
+        payload.workspaceId
+    ); // TODO: use id instead of slug
+    if (result instanceof NextResponse) {
+        return result;
     }
-    const data = result.data;
 
-    if (data.user.id !== payload.userId || data.role !== 'ADMIN') {
-        return new Response('Forbidden', { status: 403 });
-    }
+    const {
+        workspace: { slug },
+        role,
+    } = result;
+
+    if (role !== 'ADMIN') return new Response('Forbidden', { status: 403 });
 
     // Check if there is already a connected device
     const existingDevice = await prisma.withingsConnection.findFirst({
-        where: { workspaceId: data.workspace.id },
+        where: { workspaceId: payload.workspaceId },
     });
 
     if (existingDevice) {
         const result = await disconnectDevice(
             existingDevice,
-            data.workspace.id
+            payload.workspaceId
         );
         if (!result) {
             return new Response('Failed to revoke old connection.', {
@@ -68,10 +83,10 @@ export async function GET(req: NextRequest) {
             }),
         });
     } catch (err) {
-        const message = (err as Error).message ?? String(err);
-        throw new RefreshTokenError(
-            'Failed to exchange access_token from Withings API: ' + message
-        );
+        console.error(err);
+        return new Response('Failed to exchange code for tokens', {
+            status: 502,
+        });
     }
 
     if (!tokenResponse.ok) {
@@ -101,7 +116,7 @@ export async function GET(req: NextRequest) {
         // Create device and link to workspace
         await prisma.withingsConnection.create({
             data: {
-                workspaceId: data.workspace.id,
+                workspaceId: payload.workspaceId,
                 accessToken: encryptToken(body.access_token),
                 refreshToken: encryptToken(body.refresh_token),
                 expiresAt: expiresAt,
@@ -114,6 +129,6 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.redirect(
-        new URL(`/workspace/${data.workspace.slug}/connected-devices`, req.url)
+        new URL(`/workspace/${slug}/connected-devices`, req.url)
     );
 }

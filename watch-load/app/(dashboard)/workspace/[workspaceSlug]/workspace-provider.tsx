@@ -1,6 +1,6 @@
 'use client';
 import { createContext, useContext, ReactNode } from 'react';
-import { WorkspaceContext } from '@/types/workspace';
+import { WorkspaceContext } from '@/types/resolvedWorkspace';
 
 
 const Context = createContext<WorkspaceContext | null>(null);
