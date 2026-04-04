@@ -63,6 +63,13 @@ class ActionError extends Error {
     }
 }
 
+class WorkspaceError extends Error {
+    constructor(message: string, options?: ErrorOptions) {
+        super(message, options);
+        this.name = 'WorkspaceError';
+    }
+}
+
 export {
     InvalidCredentialsError,
     ServerCredentialsError,
@@ -74,4 +81,5 @@ export {
     APIFetchError,
     NoAccessTokenError,
     ActionError,
+    WorkspaceError,
 };

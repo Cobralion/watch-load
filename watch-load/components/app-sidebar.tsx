@@ -6,13 +6,18 @@ import {
     Sidebar,
     SidebarContent,
     SidebarGroup,
+    SidebarGroupLabel,
     SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SidebarMenuSub,
+    SidebarMenuSubButton,
+    SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
 import { Watch } from 'lucide-react';
 import { APPLICATION_NAME, APPLICATION_VERSION } from '@/constants/constants';
+import { usePathname } from 'next/navigation';
 
 const data = {
     navMain: [
@@ -27,7 +32,19 @@ const data = {
     ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+type Workspace = {
+    id: string;
+    name: string;
+    description: string | null;
+    slug: string;
+};
+
+export function AppSidebar({
+    workspaces,
+    ...props
+}: React.ComponentProps<typeof Sidebar> & { workspaces: Workspace[] }) {
+    const pathname = usePathname();
+
     return (
         <Sidebar variant="floating" {...props}>
             <SidebarHeader>
@@ -54,17 +71,51 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarContent>
                 <SidebarGroup>
                     <SidebarMenu className="gap-2">
-                        {data.navMain.map((item) => (
-                            <SidebarMenuItem key={item.title}>
-                                <SidebarMenuButton asChild>
-                                    <a href={item.url} className="font-medium">
-                                        {item.title}
+                        <SidebarMenuItem key="dashboard">
+                            <SidebarMenuButton asChild>
+                                <a href="/dashboard" className="font-medium">
+                                    Dashboard
+                                </a>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarGroup>
+
+                {workspaces.map((ws) => (
+                    <SidebarGroup key={ws.id} className="pt-0 pb-2">
+                        <SidebarGroupLabel>{ws.name}</SidebarGroupLabel>
+                        <SidebarMenu className="gap-1">
+                            <SidebarMenuItem>
+                                <SidebarMenuButton
+                                    asChild
+                                    isActive={pathname.startsWith(
+                                        `/workspace/${ws.slug}`
+                                    )}
+                                >
+                                    <a href={`/workspace/${ws.slug}`}>
+                                        <span>Workspace</span>
                                     </a>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
-                        ))}
-                    </SidebarMenu>
-                </SidebarGroup>
+
+                            {/* FIX 2: Isolate the second button in its own MenuItem */}
+                            <SidebarMenuItem>
+                                <SidebarMenuButton
+                                    asChild
+                                    isActive={pathname.startsWith(
+                                        `/workspace/${ws.slug}/connected-devices`
+                                    )}
+                                >
+                                    <a
+                                        href={`/workspace/${ws.slug}/connected-devices`}
+                                    >
+                                        <span>Connected Devices</span>
+                                    </a>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        </SidebarMenu>
+                    </SidebarGroup>
+                ))}
             </SidebarContent>
         </Sidebar>
     );

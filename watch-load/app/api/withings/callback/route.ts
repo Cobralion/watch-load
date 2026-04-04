@@ -103,5 +103,5 @@ export async function GET(req: NextRequest) {
         return new Response('Internal server error', { status: 500 });
     }
 
-    return NextResponse.redirect(new URL('/conected-devices', req.url));
+    return NextResponse.redirect(new URL('/connected-devices', req.url));
 }

@@ -58,7 +58,9 @@ export default function ChangePassword() {
             },
             actionProps: {
                 onSuccess: () => {
-                    toast.success('Password changed successfully!', {position: 'top-right'});
+                    toast.success('Password changed successfully!', {
+                        position: 'top-right',
+                    });
                     form.reset();
                     setShowPasswords({
                         'current-password': false,

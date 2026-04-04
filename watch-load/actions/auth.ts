@@ -3,12 +3,12 @@
 import { loginSchema } from '@/lib/validations/auth';
 import { signIn } from '@/lib/auth';
 import { AuthError, CredentialsSignin } from 'next-auth';
-import { authActionClient } from '@/lib/safe-action';
+import { publicActionClient } from '@/lib/safe-action';
 import { ActionError } from '@/types/errors';
 import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { redirect } from 'next/navigation';
 
-export const login = authActionClient
+export const login = publicActionClient
     .inputSchema(loginSchema)
     .action(async ({ parsedInput }): Promise<void> => {
         const { username, password } = parsedInput;
@@ -30,7 +30,7 @@ export const login = authActionClient
             throw new ActionError('An unknown authentication error occurred.');
         }
 
-        if(loginSuccess) {
+        if (loginSuccess) {
             redirect('/dashboard');
         }
     });

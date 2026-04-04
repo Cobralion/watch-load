@@ -9,7 +9,7 @@ import EditTrailsDialog, {
 
 export type EcgData = {
     id: string;
-    trailsId?: string;
+    trailsId: string | null;
     heartRate: number;
     afib: string;
     timestamp: Date;

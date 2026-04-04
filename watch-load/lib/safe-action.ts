@@ -1,63 +1,110 @@
 import { createSafeActionClient } from 'next-safe-action';
-import { z } from 'zod';
+import * as z from 'zod';
 import { auth } from '@/lib/auth';
 import { ActionError } from '@/types/errors';
+import { GlobalRole } from '@/generated/prisma/enums';
+import { resolveWorkspace } from '@/lib/workspace';
 
-export const authActionClient = createSafeActionClient({
-    handleServerError: (err) => {
-        console.error(err);
-        if (err instanceof ActionError) {
-            return err.message;
-        }
-        return 'An unexpected error occurred. Please try again.';
-    },
+// TODO: infer from prisma schema
+const requiredRoleSchema = z.enum(['USER', 'ADMIN']).optional();
+const metadataSchema = z.object({
+    actionName: z.string(),
+    requiredRole: requiredRoleSchema,
+});
+const workspaceSlugSchema = z.object({
+    workspaceSlug: z.string(),
+});
+export type RequiredRole = z.infer<typeof requiredRoleSchema>;
+export type ActionMetadata = z.infer<typeof metadataSchema>;
+
+function handleServerError(err: Error): string {
+    console.error(err);
+    if (err instanceof ActionError) {
+        return err.message;
+    }
+
+    return 'An unexpected error occurred. Please try again.';
+}
+
+export const publicActionClient = createSafeActionClient({
+    handleServerError,
 });
 
 export const actionClient = createSafeActionClient({
-    handleServerError: (err) => {
-        console.error(err);
-        if (err instanceof ActionError) {
-            return err.message;
-        }
-
-        return 'An unexpected error occurred. Please try again.';
-    },
+    handleServerError,
     defineMetadataSchema: () => {
-        return z.object({
-            actionName: z.string(),
-            requiredRole: z.enum(['user', 'admin']).optional(),
-        });
+        return metadataSchema;
     },
 }).use(async ({ next, metadata }) => {
+    const { userId, name, username, userRole } = await checkAuth();
+    checkRequiredRole(metadata, userRole);
+
+    return next({ ctx: { userId, name, username } });
+});
+
+export const workspaceActionClient = actionClient.use(
+    async ({ next, clientInput, ctx }) => {
+        const { workspaceSlug } = workspaceSlugSchema.parse(clientInput);
+        const resolved = await resolveWorkspace(workspaceSlug);
+        return next({
+            ctx: {
+                ...ctx,
+                workspace: resolved.workspace,
+                workspaceRole: resolved.role,
+            },
+        });
+    }
+);
+
+export const workspaceAdminActionClient = actionClient.use(
+    async ({ next, clientInput, ctx }) => {
+        const { workspaceSlug } = workspaceSlugSchema.parse(clientInput);
+        const resolved = await resolveWorkspace(workspaceSlug);
+        if (resolved.role !== 'ADMIN') {
+            throw new ActionError(
+                'You must be a workspace admin to perform this action.'
+            );
+        }
+        return next({
+            ctx: {
+                ...ctx,
+                workspace: resolved.workspace,
+                workspaceRole: resolved.role,
+            },
+        });
+    }
+);
+
+async function checkAuth() {
     const session = await auth();
     if (!session || !session.user) {
         throw new ActionError('User is not authenticated.');
     }
 
-    console.log(session.user);
-
     const userId = session.user.id;
-    const name = session.user.name;
+    const name = session.user.name ?? null;
     const username = session.user.username;
+    const userRole = session.user.role;
+    return { userId, name, username, userRole };
+}
 
+function checkRequiredRole(metadata: ActionMetadata, userRole: string) {
     if (
         metadata &&
         metadata.requiredRole &&
-        !checkRole(session.user.role, metadata.requiredRole)
+        !checkRole(userRole as GlobalRole, metadata.requiredRole)
     ) {
         throw new ActionError(
             `User must have ${metadata.requiredRole} role to call ${metadata.actionName}.`
         );
     }
+}
 
-    return next({ ctx: { userId, name, username } });
-});
-
-function checkRole(userRole: string, requiredRole: string): boolean {
-    userRole = userRole.toLowerCase().trim();
-    requiredRole = requiredRole.toLowerCase().trim();
-    if (userRole === 'admin') {
-        return true;
-    }
+function checkRole(
+    userRole: GlobalRole | undefined,
+    requiredRole: RequiredRole
+): boolean {
+    if (!userRole) return false;
+    if (userRole === 'ADMIN') return true;
     return userRole === requiredRole;
 }

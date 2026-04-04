@@ -7,12 +7,17 @@ import {
     SidebarTrigger,
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
+import { listSidebarItems } from '@/actions/sidebar';
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const result = await listSidebarItems();
+    const workspaces = result?.data ?? [];
+
+
     return (
         <SidebarProvider
             style={
@@ -21,7 +26,7 @@ export default function DashboardLayout({
                 } as React.CSSProperties
             }
         >
-            <AppSidebar />
+            <AppSidebar workspaces={workspaces} />
             <SidebarInset>
                 <header className="flex h-16 shrink-0 items-center gap-2 px-4">
                     <SidebarTrigger className="-ml-1" />
