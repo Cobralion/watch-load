@@ -5,7 +5,6 @@ import { signIn } from '@/lib/auth';
 import { AuthError, CredentialsSignin } from 'next-auth';
 import { publicActionClient } from '@/lib/safe-action';
 import { ActionError } from '@/types/errors';
-import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { redirect } from 'next/navigation';
 
 export const login = publicActionClient

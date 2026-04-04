@@ -8,7 +8,7 @@ import {
     ResolvedWorkspaceRole,
     WorkspaceContext,
 } from '@/types/resolvedWorkspace';
-import { WorkspaceError } from '@/types/errors';
+import { ActionError, WorkspaceError } from '@/types/errors';
 import { NextResponse } from 'next/server';
 
 type WorkspaceIdOrSlug = { workspaceId: string } | { workspaceSlug: string };
@@ -18,7 +18,7 @@ const resolve = cache(
         const session = await auth();
 
         if (!session?.user?.id) {
-            redirect('/login');
+            throw new ActionError('User is not authenticated.');
         }
 
         try {
@@ -33,7 +33,7 @@ const resolve = cache(
             };
         } catch (err) {
             if (err instanceof WorkspaceError && err.status === 404) {
-                notFound();
+                throw new ActionError("Workspace couldn't been found.");
             }
             throw err;
         }
@@ -46,11 +46,7 @@ const resolveRawNoAuth = async (
     idOrSlug: WorkspaceIdOrSlug
 ): Promise<WorkspaceContext | NextResponse> => {
     try {
-        const result = await resolveWorkspaceRaw(
-            userId,
-            idOrSlug,
-            userRole
-        );
+        const result = await resolveWorkspaceRaw(userId, idOrSlug, userRole);
         return {
             ...result,
         };

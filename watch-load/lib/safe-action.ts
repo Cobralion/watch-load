@@ -35,7 +35,7 @@ export const actionClient = createSafeActionClient({
     const { userId, name, username, userRole } = await checkAuth();
     checkRequiredRole(metadata, userRole);
 
-    return next({ ctx: { userId, name, username } });
+    return next({ ctx: { userId, name, username, userRole } });
 });
 
 async function checkAuth() {

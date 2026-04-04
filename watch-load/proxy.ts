@@ -19,7 +19,10 @@ export const proxy = auth((req: NextAuthRequest) => {
             return Response.redirect(dashboard);
         }
 
-        if (req.nextUrl.pathname === '/' || req.nextUrl.pathname === '/workspace') {
+        if (
+            req.nextUrl.pathname === '/' ||
+            req.nextUrl.pathname === '/workspace'
+        ) {
             return Response.redirect(dashboard);
         }
     }

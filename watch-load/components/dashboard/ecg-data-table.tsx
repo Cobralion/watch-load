@@ -80,7 +80,7 @@ export default function EcgDataTable({ ecgData }: { ecgData: EcgData[] }) {
             accessorKey: 'timestamp',
             header: 'Creation date',
             cell: ({ row }) => {
-                const date = new Date(row.getValue('createdAt'));
+                const date = new Date(row.getValue('timestamp'));
 
                 const formatted = FORMAT_DATE.format(date);
 

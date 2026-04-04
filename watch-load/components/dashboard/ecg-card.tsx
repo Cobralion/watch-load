@@ -11,31 +11,25 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { syncHeartAction } from '@/actions/heart';
-import { useTransition } from 'react';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import { useAction } from 'next-safe-action/hooks';
+import { useWorkspace } from '@/app/(dashboard)/workspace/[workspaceSlug]/workspace-provider';
 
 export function EcgCard({ children }: React.ComponentProps<'div'>) {
-    const [isSyncPending, startSyncTransaction] = useTransition();
+    const workspaceContext = useWorkspace();
 
-    const handleSync = async () => {
-        startSyncTransaction(async () => {
-            const result = await syncHeartAction();
-
-            if (!result.success) {
-                toast.error(
-                    result.message ??
-                        'An error occurred while syncing heart data.',
-                    { position: 'top-right' }
-                );
-                return;
-            }
-
+    const { execute, isExecuting } = useAction(syncHeartAction, {
+        onSuccess: () => {
             toast.success('Successfully synced heart data.', {
                 position: 'top-right',
             });
-        });
-    };
+        },
+        onError: (error) => {
+            toast.error(error.error.serverError, { position: 'top-right' });
+        },
+    });
+
     return (
         <Card>
             <CardHeader>
@@ -45,10 +39,14 @@ export function EcgCard({ children }: React.ComponentProps<'div'>) {
                     <Button
                         className="cursor-pointer"
                         variant="outline"
-                        onClick={handleSync}
-                        disabled={isSyncPending}
+                        onClick={() => {
+                            execute({
+                                workspaceId: workspaceContext.workspace.id,
+                            });
+                        }}
+                        disabled={isExecuting}
                     >
-                        {isSyncPending ? 'Syncing...' : 'Sync Now'}
+                        {isExecuting ? 'Syncing...' : 'Sync Now'}
                     </Button>
 
                     <Button className="cursor-pointer" variant="ghost">

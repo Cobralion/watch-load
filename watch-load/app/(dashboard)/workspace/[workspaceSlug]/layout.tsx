@@ -10,8 +10,8 @@ export default async function WorkspaceLayout({
     params: Promise<{ workspaceSlug: string }>;
 }) {
     const { workspaceSlug } = await params;
-    const { workspace, role, isGlobalAdmin } = await resolveWorkspaceFromSlug(workspaceSlug);
-
+    const { workspace, role, isGlobalAdmin } =
+        await resolveWorkspaceFromSlug(workspaceSlug);
 
     return (
         <WorkspaceProvider

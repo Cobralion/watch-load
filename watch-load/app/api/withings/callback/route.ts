@@ -6,18 +6,14 @@ import { RequestTokenResponse } from '@/types/withings';
 import { disconnectDevice } from '@/lib/withings/oauth';
 import { env } from '@/env/server';
 import { WITHINGS_OAUTH_URL } from '@/lib/withings/api-urls';
-import {
-    resolveWorkspaceRawNoAuthFromId,
-} from '@/lib/workspace';
+import { resolveWorkspaceRawNoAuthFromId } from '@/lib/workspace';
 import { createSignature } from '@/lib/withings/signing';
 import { auth } from '@/lib/auth';
 
 export async function GET(req: NextRequest) {
     const session = await auth();
     if (!session) {
-        return NextResponse.redirect(
-            new URL(`/login`, req.url)
-        );
+        return NextResponse.redirect(new URL(`/login`, req.url));
     }
 
     const code = req.nextUrl.searchParams.get('code');

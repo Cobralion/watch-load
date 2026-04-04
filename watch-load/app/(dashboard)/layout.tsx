@@ -17,7 +17,6 @@ export default async function DashboardLayout({
     const result = await listSidebarItems();
     const workspaces = result?.data ?? [];
 
-
     return (
         <SidebarProvider
             style={

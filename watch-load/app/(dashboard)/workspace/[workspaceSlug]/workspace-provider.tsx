@@ -2,7 +2,6 @@
 import { createContext, useContext, ReactNode } from 'react';
 import { WorkspaceContext } from '@/types/resolvedWorkspace';
 
-
 const Context = createContext<WorkspaceContext | null>(null);
 
 export function WorkspaceProvider({
@@ -11,8 +10,11 @@ export function WorkspaceProvider({
     isGlobalAdmin,
     children,
 }: WorkspaceContext & { children: ReactNode }) {
-
-    return (<Context.Provider value={{workspace, role, isGlobalAdmin}}>{children}</Context.Provider>);
+    return (
+        <Context.Provider value={{ workspace, role, isGlobalAdmin }}>
+            {children}
+        </Context.Provider>
+    );
 }
 
 export function useWorkspace() {

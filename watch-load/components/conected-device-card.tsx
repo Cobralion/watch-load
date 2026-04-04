@@ -29,11 +29,14 @@ export default function ConnectedDevicesCard({
         setConnectionStatus(initialConnectionStatus);
     }, [initialConnectionStatus]);
 
-    const { execute, result, status, isExecuting } = useAction(disconnectDevices, {
-        onSuccess: () => {
-            setConnectionStatus(false);
+    const { execute, result, status, isExecuting } = useAction(
+        disconnectDevices,
+        {
+            onSuccess: () => {
+                setConnectionStatus(false);
+            },
         }
-    });
+    );
 
     return (
         <Card className="w-full max-w-sm overflow-hidden">
@@ -81,7 +84,10 @@ export default function ConnectedDevicesCard({
                     <Button
                         variant="destructive"
                         className="h-10 w-full cursor-pointer"
-                        onClick={() => workspace?.id && execute({ workspaceId: workspace?.id })}
+                        onClick={() =>
+                            workspace?.id &&
+                            execute({ workspaceId: workspace?.id })
+                        }
                         disabled={isExecuting || !workspace?.id}
                     >
                         Disconnect Device
@@ -103,15 +109,16 @@ export default function ConnectedDevicesCard({
                 )}
 
                 {status === 'hasSucceeded' && (
-                    <div className="rounded-md p-4 bg-green-100 text-green-700">
+                    <div className="rounded-md bg-green-100 p-4 text-green-700">
                         <p className="text-sm">Disconnection successful!</p>
                     </div>
                 )}
 
                 {status === 'hasErrored' && (
-                    <div className="rounded-md p-4 bg-red-100 text-red-700">
+                    <div className="rounded-md bg-red-100 p-4 text-red-700">
                         <p className="text-sm">
-                            {result.serverError || 'An error occurred during disconnection.'}
+                            {result.serverError ||
+                                'An error occurred during disconnection.'}
                         </p>
                     </div>
                 )}

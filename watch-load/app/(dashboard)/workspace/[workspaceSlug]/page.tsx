@@ -3,7 +3,6 @@ import EcgDataTable, { EcgData } from '@/components/dashboard/ecg-data-table';
 import { prisma } from '@/lib/prisma';
 import { EcgCard } from '@/components/dashboard/ecg-card';
 
-
 async function getData(workspaceId: string): Promise<EcgData[]> {
     // TODO: handle large amount of measurements
     const queryResults = await prisma.heartMeasurement.findMany({
@@ -11,7 +10,7 @@ async function getData(workspaceId: string): Promise<EcgData[]> {
             workspaceId,
         },
         take: 10,
-        orderBy: { timestamp: 'desc'}
+        orderBy: { timestamp: 'desc' },
     });
 
     // TODO: handle null | undefined

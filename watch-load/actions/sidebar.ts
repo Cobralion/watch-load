@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 
 export const listSidebarItems = actionClient
     .metadata({ actionName: 'listSidebarItems' })
-    .action(async ({ ctx: {userId} }) => {
+    .action(async ({ ctx: { userId } }) => {
         const user = await prisma.user.findUniqueOrThrow({
             where: { id: userId },
             select: { role: true },
@@ -15,11 +15,11 @@ export const listSidebarItems = actionClient
             const workspaces = await prisma.workspace.findMany({
                 orderBy: { name: 'asc' },
             });
-            return workspaces.map(item => ({
+            return workspaces.map((item) => ({
                 id: item.id,
                 name: item.name,
                 description: item.description,
-                slug: item.slug
+                slug: item.slug,
             }));
         }
 
@@ -35,5 +35,5 @@ export const listSidebarItems = actionClient
             name: item.name,
             description: item.description,
             slug: item.slug,
-        }));;
+        }));
     });

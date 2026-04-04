@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { resolveWorkspaceRawNoAuthFromId } from '@/lib/workspace';
 import { auth } from '@/lib/auth';
 
+// TODO: to action
 async function GET(request: NextRequest) {
     const session = await auth();
     if (!session) {

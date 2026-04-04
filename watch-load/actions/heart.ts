@@ -2,69 +2,78 @@
 
 import { syncHeartData } from '@/lib/withings/heart';
 import { auth } from '@/lib/auth';
-import {
-    SyncHeartActionState,
-    TrailsChangeActionState,
-} from '@/types/action-states';
-import { NoAccessTokenError } from '@/types/errors';
+import { TrailsChangeActionState } from '@/types/action-states';
 import { EcgData } from '@/components/dashboard/ecg-data-table';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { actionClient } from '@/lib/safe-action';
+import { resolveWorkspaceFromId } from '@/lib/workspace';
+import * as z from 'zod';
+import { ActionError, NoAccessTokenError } from '@/types/errors';
+import { BatchPayload } from '@/generated/prisma/internal/prismaNamespace';
 
-export async function syncHeartAction(): Promise<SyncHeartActionState> {
-    const session = await auth();
-    if (!session) {
-        return { success: false, message: 'User authentication failed!' };
-    }
+export const syncHeartAction = actionClient
+    .metadata({ actionName: 'syncHeartAction' })
+    .inputSchema(
+        z.object({
+            workspaceId: z.string(),
+        })
+    )
+    .action(async ({ parsedInput }): Promise<void> => {
+        const {
+            workspace: { id, slug },
+        } = await resolveWorkspaceFromId(parsedInput.workspaceId);
 
-    try {
-        await syncHeartData(workspaceId);
-    } catch (e) {
-        console.error(e);
-        if (e instanceof NoAccessTokenError) {
-            return {
-                success: false,
-                message: 'No connected devices found! Please connect a device.',
-            };
-        } else {
-            return {
-                success: false,
-                message: 'Failed to sync ECGs from connected Withings device!',
-            };
+        try {
+            await syncHeartData(id);
+        } catch (e) {
+            console.error(e);
+            if (e instanceof NoAccessTokenError) {
+                throw new ActionError(
+                    'Connection to Withings is invalid. Please reconnect your Withings account in workspace settings.'
+                );
+            }
+            throw e;
         }
-    }
 
-    revalidatePath('/dashboard');
-    return { success: true };
-}
+        // TODO: check if needed and more robust
+        revalidatePath(`/workspaces/${slug}`);
+    });
 
-export async function editTrailsId(
-    ecgData: EcgData | null
-): Promise<TrailsChangeActionState> {
-    const session = await auth();
-    if (!session) {
-        return { success: false, message: 'User authentication failed!' };
-    }
+export const editTrailsId = actionClient
+    .metadata({ actionName: 'editTrailsId' })
+    .inputSchema(
+        z.object({
+            id: z.string(),
+            workspaceId: z.string(),
+            trailId: z
+                .string()
+                .min(1, { message: 'Trails ID cannot be empty.' }),
+        })
+    )
+    .action(async ({ parsedInput }): Promise<void> => {
+        const {
+            workspace: { slug },
+        } = await resolveWorkspaceFromId(parsedInput.workspaceId);
 
-    if (!ecgData || !ecgData.id) {
-        return { success: false, message: 'Failed to parse summited data.' };
-    }
+        let batchPayload: BatchPayload | null = null;
+        try {
+            //TODO: maybe check that the measurement with given id belongs to the user?
+            batchPayload = await prisma.heartMeasurement.updateMany({
+                where: {
+                    id: parsedInput.id,
+                    workspaceId: parsedInput.workspaceId,
+                },
+                data: { trailsId: parsedInput.trailId },
+            });
+        } catch (e) {
+            console.error(e);
+            throw new ActionError('Could not update trails id.');
+        }
 
-    if (!ecgData.trailsId || ecgData.trailsId.length < 1) {
-        return { success: false, message: 'Trails ID cannot be empty.' };
-    }
+        if (!batchPayload || batchPayload.count === 0) {
+            throw new ActionError('Could not update trails id.');
+        }
 
-    try {
-        //TODO: maybe check that the measurement with given id belongs to the user?
-        await prisma.heartMeasurement.update({
-            where: { id: ecgData.id },
-            data: { trails_id: ecgData.trailsId },
-        });
-    } catch (e) {
-        console.error(e);
-        return { success: false, message: 'Failed to save edited trails id.' };
-    }
-
-    revalidatePath('/dashboard');
-    return { success: true };
-}
+        revalidatePath(`/workspaces/${slug}`);
+    });

@@ -27,7 +27,10 @@ export async function getWithingsAuthUrl(
 
 type JWTPayload = { workspaceId: string; userId: string };
 
-export async function createStateJWT(workspaceId: string, userId: string): Promise<string> {
+export async function createStateJWT(
+    workspaceId: string,
+    userId: string
+): Promise<string> {
     const secret = new TextEncoder().encode(env.JWT_SECRET);
     const alg = 'HS256';
     const data = { workspaceId: workspaceId, userId: userId };
