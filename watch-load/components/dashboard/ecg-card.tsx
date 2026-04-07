@@ -30,6 +30,7 @@ export function EcgCard({ children }: React.ComponentProps<'div'>) {
         },
     });
 
+
     return (
         <Card>
             <CardHeader>
@@ -50,7 +51,13 @@ export function EcgCard({ children }: React.ComponentProps<'div'>) {
                     </Button>
 
                     <Button className="cursor-pointer" variant="ghost">
-                        <Link href="/api/ecg/download">Download Excel</Link>
+                        <Link
+                            href={`/api/ecg/download?workspace=${workspaceContext.workspace.id}&format=csv`}
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            Export CSV
+                        </Link>
                     </Button>
                 </CardAction>
             </CardHeader>

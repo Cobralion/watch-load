@@ -1,58 +1,70 @@
 import { auth } from '@/lib/auth';
-import { NextResponse } from 'next/server';
-import ExcelJS from 'exceljs';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { resolveWorkspaceRawNoAuthFromId } from '@/lib/workspace';
 
-async function GET() {
+async function GET(request: NextRequest) {
     const session = await auth();
     if (!session) {
-        return new NextResponse('Unauthorized', { status: 401 });
+        return NextResponse.redirect('/login');
     }
 
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('ECGs');
+    const searchParams = request.nextUrl.searchParams;
+    const workspaceId = searchParams.get('workspace');
+    if (!workspaceId) {
+        return new Response('Bad Request', { status: 400 });
+    }
 
-    worksheet.columns = [
-        { header: 'ID', key: 'id', width: 20 },
-        { header: 'signal ID', key: 'signal_id', width: 20 },
-        { header: 'device ID', key: 'device_id', width: 20 },
-        { header: 'heart rate', key: 'heart_rate', width: 10 },
-        { header: 'atrial fibrillation ', key: 'afib', width: 10 },
-        { header: 'created at', key: 'timestamp', width: 20 },
-        { header: 'modified at', key: 'modified', width: 20 },
-        { header: 'sampling frequency', key: 'sampling_frequency', width: 10 },
-        { header: 'trails ID', key: 'trails_id', width: 10 },
-        { header: 'Signal', key: 'signal', width: 10 },
-    ];
+    const format = searchParams.get('format');
+    if (!format || format !== 'csv') {
+        return new Response('Bad Request', { status: 400 });
+    }
 
-    // TODO: Excel finds illegal symbols
+    const result = await resolveWorkspaceRawNoAuthFromId(
+        session.user.id,
+        session.user.role,
+        workspaceId
+    );
+    if (result instanceof NextResponse) {
+        return result;
+    }
+
     try {
         const result = await prisma.heartMeasurement.findMany({
-            where: { workspaceId: workspaceId },
+            where: { workspaceId },
         });
-        const rows = result.map((row) => {
-            return {
-                ...row,
-                signal_id: row.signalId.toString(),
-                trails_id: row.trailsId ?? '0',
-            };
-        });
+        const header = [
+            'Id',
+            'SignalId',
+            'DeviceId',
+            'HeartRate',
+            'Afib',
+            'SamplingFrequency',
+            'Timestamp',
+            'Modified',
+            'TrailsId',
+            'Signal',
+        ];
 
-        worksheet.addRows(rows);
-        const buffer = await workbook.xlsx.writeBuffer();
-        return new NextResponse(buffer, {
+        const csvContent = [
+            header.join(','),
+            ...result.map(
+                (e) =>
+                    `${e.id},${e.signalId},${e.deviceId},${e.heartRate},${e.afib},${e.samplingFrequency},${e.timestamp.toISOString()},${e.modified.toISOString()},${e.trailsId},"${e.signal}"`
+            ),
+        ].join('\n');
+
+        return new Response(csvContent, {
             status: 200,
             headers: {
-                'Content-Disposition': 'attachment; filename="ecg_data.xlsx"',
-                'Content-Type':
-                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Type': 'text/csv',
+                'Content-Disposition':
+                    'attachment; filename="ecgs-export.csv"',
             },
         });
     } catch (error) {
         console.error(error);
-        return new NextResponse('Internal server error occurred,', {
-            status: 500,
-        });
+        return new Response('Internal Server Error', { status: 500 });
     }
 }
 
