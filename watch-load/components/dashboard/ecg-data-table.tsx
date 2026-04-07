@@ -6,6 +6,7 @@ import { FORMAT_DATE } from '@/lib/utils';
 import EditTrailsDialog, {
     useTrailsDialogState,
 } from '@/components/dashboard/trails-edit-dialog';
+import { ArrowUpDown } from 'lucide-react';
 
 export type EcgData = {
     id: string;
@@ -22,11 +23,35 @@ export default function EcgDataTable({ ecgData }: { ecgData: EcgData[] }) {
     const columns: ColumnDef<EcgData>[] = [
         {
             accessorKey: 'id',
-            header: 'ID',
+            header: ({ column }) => {
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() =>
+                            column.toggleSorting(column.getIsSorted() === 'asc')
+                        }
+                    >
+                        ID
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                );
+            },
         },
         {
             accessorKey: 'trailsId',
-            header: 'Trails ID',
+            header: ({ column }) => {
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() =>
+                            column.toggleSorting(column.getIsSorted() === 'asc')
+                        }
+                    >
+                        Trails ID
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                );
+            },
             cell: ({ row }) => {
                 const original = row.original;
                 const trailsId = row.original.trailsId;
@@ -73,7 +98,19 @@ export default function EcgDataTable({ ecgData }: { ecgData: EcgData[] }) {
         },
         {
             accessorKey: 'timestamp',
-            header: 'Creation date',
+            header: ({ column }) => {
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() =>
+                            column.toggleSorting(column.getIsSorted() === 'asc')
+                        }
+                    >
+                        Measured at
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                );
+            },
             cell: ({ row }) => {
                 const date = new Date(row.getValue('timestamp'));
 

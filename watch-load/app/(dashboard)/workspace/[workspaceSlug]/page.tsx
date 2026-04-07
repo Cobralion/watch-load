@@ -11,7 +11,6 @@ async function getData(workspaceId: string): Promise<EcgData[]> {
         where: {
             workspaceId,
         },
-        take: 10,
         orderBy: { timestamp: 'desc' },
     });
 
