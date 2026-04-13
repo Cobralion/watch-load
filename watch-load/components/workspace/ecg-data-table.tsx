@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { FORMAT_DATE } from '@/lib/utils';
 import EditTrailsDialog, {
     useTrailsDialogState,
-} from '@/components/dashboard/trails-edit-dialog';
+} from '@/components/workspace/trails-edit-dialog';
 import { ArrowUpDown } from 'lucide-react';
 
 export type EcgData = {

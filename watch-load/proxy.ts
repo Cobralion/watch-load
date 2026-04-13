@@ -2,7 +2,7 @@ import { auth } from '@/lib/auth';
 import { NextAuthRequest } from 'next-auth';
 
 export const proxy = auth((req: NextAuthRequest) => {
-    const dashboard = new URL('/dashboard', req.nextUrl.origin);
+    const dashboard = new URL('/workspace', req.nextUrl.origin);
     const loginPage = new URL('/login', req.nextUrl.origin);
 
     // User is not authenticated
@@ -15,7 +15,7 @@ export const proxy = auth((req: NextAuthRequest) => {
     // User is authenticated
     if (req.auth) {
         if (req.nextUrl.pathname === '/login') {
-            const dashboard = new URL('/dashboard', req.nextUrl.origin);
+            const dashboard = new URL('/workspace', req.nextUrl.origin);
             return Response.redirect(dashboard);
         }
 

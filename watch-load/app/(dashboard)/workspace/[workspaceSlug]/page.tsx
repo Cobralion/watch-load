@@ -1,9 +1,9 @@
 import {
     resolveWorkspaceFromSlug,
 } from '@/lib/workspace';
-import EcgDataTable, { EcgData } from '@/components/dashboard/ecg-data-table';
+import EcgDataTable, { EcgData } from '@/components/workspace/ecg-data-table';
 import { prisma } from '@/lib/prisma';
-import { EcgCard } from '@/components/dashboard/ecg-card';
+import { EcgCard } from '@/components/workspace/ecg-card';
 
 async function getData(workspaceId: string): Promise<EcgData[]> {
     // TODO: handle large amount of measurements
