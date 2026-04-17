@@ -35,19 +35,11 @@ import { createWorkspace } from '@/actions/workspace';
 import { toast } from 'sonner';
 import { Fragment } from 'react';
 import { Controller } from 'react-hook-form';
+import { WorkspaceUser } from '@/types/workspace';
 
-type WorkspaceUser = {
-    id: string;
-    name: string | null;
-    username: string;
-};
-
-type Props = {
-    users: WorkspaceUser[];
-};
 
 // TODO: add red alrial filed on error
-export default function NewWorkspaceCard({ users }: Props) {
+export default function NewWorkspaceCard({ users }: { users: WorkspaceUser[] }) {
     const anchor = useComboboxAnchor();
     const { form, action, handleSubmitWithAction, resetFormAndAction } =
         useHookFormAction(

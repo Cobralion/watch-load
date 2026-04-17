@@ -3,20 +3,34 @@ import { actionClient } from '@/lib/safe-action';
 import { prisma } from '@/lib/prisma';
 import { ActionError } from '@/types/errors';
 import { PrismaClientKnownRequestError } from '@/generated/prisma/internal/prismaNamespace';
-import { createWorkspaceSchema } from '@/lib/validations/dashboard';
+import {
+    createWorkspaceSchema,
+    manageWorkspaceSchema,
+} from '@/lib/validations/dashboard';
 import { revalidatePath } from 'next/cache';
 
 export const createWorkspace = actionClient
     .metadata({ actionName: 'createWorkspace' })
     .inputSchema(createWorkspaceSchema)
-    .action(async ({ parsedInput }) => {
+    .action(async ({ parsedInput, ctx }) => {
         try {
-            const workspace = await prisma.workspace.create({
-                data: {
-                    name: parsedInput.name,
-                    description: parsedInput.description,
-                    slug: parsedInput.slug,
-                },
+            const workspace = await prisma.$transaction(async (tx) => {
+                const workspace = await tx.workspace.create({
+                    data: {
+                        name: parsedInput.name,
+                        description: parsedInput.description,
+                        slug: parsedInput.slug,
+                    },
+                });
+                tx.membership.create({
+                    data: {
+                        userId: ctx.userId,
+                        workspaceId: workspace.id,
+                        workspaceRole: 'WORKSPACE_ADMIN',
+                    },
+                });
+
+                return workspace;
             });
 
             revalidatePath('/dashboard');
@@ -33,3 +47,8 @@ export const createWorkspace = actionClient
             throw new ActionError('Could not create workspace.');
         }
     });
+
+export const manageWorkspace = actionClient
+    .metadata({ actionName: 'manageWorkspace' })
+    .inputSchema(manageWorkspaceSchema)
+    .action(async ({ parsedInput }) => {});

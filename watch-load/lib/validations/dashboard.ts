@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 
 export const createWorkspaceSchema = z.object({
     name: z
@@ -18,4 +18,17 @@ export const createWorkspaceSchema = z.object({
             'Slug must be lowercase letters, numbers, and hyphens'
         ),
     memberIds: z.array(z.string()).default([]),
+});
+
+export const manageWorkspaceSchema = z.object({
+    name: z
+        .string()
+        .min(3, 'Name must be at least 3 characters long.')
+        .max(25, 'Name must not be longer than 25 characters.'),
+    description: z
+        .string()
+        .max(100, 'Name must not be longer than 100 characters.')
+        .optional(),
+    memberIds: z.array(z.string()).default([]),
+    adminIds: z.array(z.string()).default([]),
 });

@@ -11,4 +11,4 @@ type ResolvedWorkspace = WorkspaceContext & { user: User };
 
 type ResolvedWorkspaceRole = 'ADMIN' | 'USER';
 
-export type { WorkspaceContext, ResolvedWorkspace, ResolvedWorkspaceRole };
+export type { WorkspaceContext, ResolvedWorkspace, ResolvedWorkspaceRole, Workspace };

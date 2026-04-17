@@ -11,26 +11,11 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarMenuSub,
-    SidebarMenuSubButton,
-    SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
 import { Watch } from 'lucide-react';
 import { APPLICATION_NAME, APPLICATION_VERSION } from '@/constants/constants';
 import { usePathname } from 'next/navigation';
 
-const data = {
-    navMain: [
-        {
-            title: 'Dashboard',
-            url: '/dashboard',
-        },
-        {
-            title: 'Conected Devices',
-            url: '/conected-devices',
-        },
-    ],
-};
 
 type Workspace = {
     id: string;
@@ -108,6 +93,19 @@ export function AppSidebar({
                                         href={`/workspace/${ws.slug}/connected-devices`}
                                     >
                                         <span>Connected Devices</span>
+                                    </a>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                            { /* TODO: conditionally render only for admins*/ }
+                            <SidebarMenuItem>
+                                <SidebarMenuButton
+                                    asChild
+                                    isActive={pathname.startsWith(
+                                        `/workspace/${ws.slug}/settings`
+                                    )}
+                                >
+                                    <a href={`/workspace/${ws.slug}/settings`}>
+                                        <span>Settings</span>
                                     </a>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
