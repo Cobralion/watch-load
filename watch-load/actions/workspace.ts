@@ -22,7 +22,7 @@ export const createWorkspace = actionClient
                         slug: parsedInput.slug,
                     },
                 });
-                tx.membership.create({
+                await tx.membership.create({
                     data: {
                         userId: ctx.userId,
                         workspaceId: workspace.id,

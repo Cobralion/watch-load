@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import ManageWorkspaceCard, {
     WorkspaceUserWithRole,
-} from '@/components/dashboard/manage-workspace-card';
+} from '@/components/workspace/manage-workspace-card';
 
 export default async function WorkspaceSettingsPage({
     params,
