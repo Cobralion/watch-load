@@ -6,7 +6,6 @@ import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { manageWorkspaceSchema } from '@/lib/validations/dashboard';
 import {
     Card,
-    CardAction,
     CardContent,
     CardDescription,
     CardHeader,
@@ -21,7 +20,6 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Workspace } from '@/types/resolvedWorkspace';
-import { DeleteWorkspaceDialog } from '@/components/workspace-settings/delete-workspace-dialog';
 
 export default function ManageWorkspaceCard({
     workspace,
@@ -29,11 +27,12 @@ export default function ManageWorkspaceCard({
     workspace: Workspace;
 }) {
     const { form, action, handleSubmitWithAction } = useHookFormAction(
-        manageWorkspace.bind(null, workspace.id),
+        manageWorkspace,
         standardSchemaResolver(manageWorkspaceSchema),
         {
             formProps: {
                 values: {
+                    workspaceId: workspace.id,
                     name: workspace.name,
                     description: workspace.description ?? '',
                 },

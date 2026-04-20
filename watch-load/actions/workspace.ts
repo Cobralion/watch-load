@@ -261,95 +261,39 @@ export const toggleAdmin = actionClient
 export const manageWorkspace = actionClient
     .metadata({ actionName: 'manageWorkspace' })
     .inputSchema(manageWorkspaceSchema)
-    .bindArgsSchemas<[workspaceId: z.ZodString]>([z.string()])
-    .action(
-        async ({ parsedInput, ctx, bindArgsParsedInputs: [workspaceId] }) => {
-            const {
-                workspace: { slug },
-                isGlobalAdmin,
-                role,
-            } = await resolveWorkspaceFromId(workspaceId);
+    .action(async ({ parsedInput }) => {
+        const {
+            workspace: { slug, name, description },
+            role,
+        } = await resolveWorkspaceFromId(parsedInput.workspaceId);
 
-            if (!isGlobalAdmin && role !== 'ADMIN') {
-                throw new UnauthorizedError();
-            }
-
-            // Global admins can remove themselves, since they can edit any workspace, even though the ui doesn't currently support this.
-            if (!parsedInput.adminIds.includes(ctx.userId)) {
-                throw new ActionError(
-                    "You can't remove yourself from this workspace."
-                );
-            }
-
-            const overlap = parsedInput.adminIds.filter((id) =>
-                parsedInput.memberIds.includes(id)
-            );
-            if (overlap.length > 0) {
-                throw new ActionError(
-                    'A user cannot be both an admin and a member.'
-                );
-            }
-
-            const incoming = [
-                ...parsedInput.adminIds.map((id) => ({
-                    userId: id,
-                    workspaceRole: WorkspaceRole.WORKSPACE_ADMIN,
-                })),
-                ...parsedInput.memberIds.map((id) => ({
-                    userId: id,
-                    workspaceRole: WorkspaceRole.WORKSPACE_USER,
-                })),
-            ];
-
-            const incomingIds = incoming.map((i) => i.userId);
-
-            const existing = await prisma.membership.findMany({
-                where: { workspaceId },
-                select: { userId: true, workspaceRole: true },
-            });
-
-            const toCreate = incoming.filter(
-                (user) => !existing.some((e) => e.userId === user.userId)
-            );
-            const toDelete = existing.filter(
-                (user) => !incomingIds.includes(user.userId)
-            );
-            const toUpdate = incoming.filter((m) => {
-                const match = existing.find((e) => e.userId === m.userId);
-                return match && match.workspaceRole !== m.workspaceRole;
-            });
-
-            await prisma.$transaction([
-                prisma.workspace.update({
-                    where: { id: workspaceId },
-                    data: {
-                        name: parsedInput.name,
-                        description: parsedInput.description,
-                    },
-                }),
-                prisma.membership.createMany({
-                    data: toCreate.map((m) => ({ ...m, workspaceId })),
-                    skipDuplicates: true,
-                }),
-                prisma.membership.deleteMany({
-                    where: {
-                        workspaceId,
-                        userId: { in: toDelete.map((e) => e.userId) },
-                    },
-                }),
-                ...toUpdate.map((m) =>
-                    prisma.membership.update({
-                        where: {
-                            userId_workspaceId: {
-                                userId: m.userId,
-                                workspaceId,
-                            },
-                        },
-                        data: { workspaceRole: m.workspaceRole },
-                    })
-                ),
-            ]);
-
-            revalidatePath(`/workspace/${slug}/settings`);
+        if (role !== 'ADMIN') {
+            throw new UnauthorizedError();
         }
-    );
+
+        const hasChanged =
+            name !== parsedInput.name ||
+            description !== parsedInput.description;
+
+        if (!hasChanged) {
+            throw new ActionError(
+                'There where no changes to name or description detected. Could not update workspace.'
+            );
+        }
+
+        try {
+            await prisma.workspace.update({
+                where: { id: parsedInput.workspaceId },
+                data: {
+                    name: parsedInput.name,
+                    description: parsedInput.description,
+                },
+            });
+        } catch (error) {
+            console.error(error);
+
+            throw new ActionError('Could not update workspace.');
+        }
+
+        revalidatePath(`/workspace/${slug}/settings`);
+    });
