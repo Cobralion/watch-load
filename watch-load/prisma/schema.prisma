@@ -101,6 +101,7 @@ model HeartMeasurement {
   timestamp         DateTime
   modified          DateTime
   trailsId          String?  @map("trails_id")
+  capturedAt        String?  @map("captured_at")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
