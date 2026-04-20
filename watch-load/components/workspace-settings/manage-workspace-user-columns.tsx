@@ -18,8 +18,6 @@ import { removeUser, toggleAdmin } from '@/actions/workspace';
 import { useWorkspace } from '@/app/(dashboard)/workspace/[workspaceSlug]/workspace-provider';
 import { toast } from 'sonner';
 
-
-
 export const columns: ColumnDef<WorkspaceMember>[] = [
     {
         accessorKey: 'username',
@@ -48,10 +46,10 @@ export const RoleSwitchCell = ({ row }: RoleSwitchCellProps) => {
     const member = row.original;
     const { execute, isPending } = useAction(toggleAdmin, {
         onError: ({ error }) => {
-            toast.error(error.serverError, {position: 'top-right'});
+            toast.error(error.serverError, { position: 'top-right' });
         },
     });
-    const {workspace} = useWorkspace();
+    const { workspace } = useWorkspace();
 
     return (
         <Switch
@@ -67,7 +65,6 @@ export const RoleSwitchCell = ({ row }: RoleSwitchCellProps) => {
         />
     );
 };
-
 
 interface RemoveDropdownCellProps {
     row: Row<WorkspaceMember>;
@@ -94,7 +91,12 @@ export const RemoveDropdownCell = ({ row }: RemoveDropdownCellProps) => {
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                 <DropdownMenuItem
                     className="text-red-500 focus:text-red-400"
-                    onClick={() => execute({workspaceId: workspace.id, userId: member.id})}
+                    onClick={() =>
+                        execute({
+                            workspaceId: workspace.id,
+                            userId: member.id,
+                        })
+                    }
                 >
                     Remove
                 </DropdownMenuItem>
@@ -102,4 +104,3 @@ export const RemoveDropdownCell = ({ row }: RemoveDropdownCellProps) => {
         </DropdownMenu>
     );
 };
-

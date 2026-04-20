@@ -22,7 +22,11 @@ interface AsyncUserSearchProps {
     workspaceId: string;
 }
 
-export function AsyncUserSearch({ selected, onChange, workspaceId }: AsyncUserSearchProps) {
+export function AsyncUserSearch({
+    selected,
+    onChange,
+    workspaceId,
+}: AsyncUserSearchProps) {
     const [query, setQuery] = useState('');
     const [users, setUsers] = useState<User[]>([]);
 

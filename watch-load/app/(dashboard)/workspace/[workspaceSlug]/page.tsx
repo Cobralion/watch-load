@@ -1,7 +1,7 @@
-import {
-    resolveWorkspaceFromSlug,
-} from '@/lib/workspace';
-import EcgDataColumns, { EcgData } from '@/components/workspace/ecg-data-columns';
+import { resolveWorkspaceFromSlug } from '@/lib/workspace';
+import EcgDataColumns, {
+    EcgData,
+} from '@/components/workspace/ecg-data-columns';
 import { prisma } from '@/lib/prisma';
 import { EcgCard } from '@/components/workspace/ecg-card';
 

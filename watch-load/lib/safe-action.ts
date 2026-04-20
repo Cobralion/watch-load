@@ -17,7 +17,7 @@ export type ActionMetadata = z.infer<typeof metadataSchema>;
 function handleServerError(err: Error): string {
     console.error(err);
 
-    if(isRedirectError(err)) {
+    if (isRedirectError(err)) {
         throw err;
     }
 

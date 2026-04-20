@@ -73,7 +73,6 @@ class ActionError extends Error {
     }
 }
 
-
 class NotFoundError extends ActionError {
     constructor(resource: string) {
         super(`${resource} not found`);

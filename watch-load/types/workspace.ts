@@ -1,5 +1,3 @@
-
-
 // TODO: remove
 export type WorkspaceUser = {
     id: string;

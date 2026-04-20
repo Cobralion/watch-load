@@ -32,8 +32,7 @@ export default async function WorkspaceSettingsPage({
             id: membership.userId,
             name: membership.user.name ?? membership.user.username,
             username: membership.user.username,
-            isWorkspaceAdmin:
-                membership.workspaceRole === 'WORKSPACE_ADMIN',
+            isWorkspaceAdmin: membership.workspaceRole === 'WORKSPACE_ADMIN',
         })
     );
 

@@ -1,6 +1,5 @@
 'use client';
 
-
 import {
     Card,
     CardContent,
@@ -10,7 +9,11 @@ import {
 } from '@/components/ui/card';
 import { ReactNode } from 'react';
 
-export default function ManageWorkspaceUserCard({children}: {children: ReactNode}) {
+export default function ManageWorkspaceUserCard({
+    children,
+}: {
+    children: ReactNode;
+}) {
     return (
         <Card>
             <CardHeader>
@@ -19,9 +22,7 @@ export default function ManageWorkspaceUserCard({children}: {children: ReactNode
                     Here you can manage the workspaces users.
                 </CardDescription>
             </CardHeader>
-            <CardContent>
-                {children}
-            </CardContent>
+            <CardContent>{children}</CardContent>
         </Card>
     );
 }

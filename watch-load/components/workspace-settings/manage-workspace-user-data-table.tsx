@@ -28,7 +28,12 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import { Command, CommandEmpty, CommandInput, CommandList } from '@/components/ui/command';
+import {
+    Command,
+    CommandEmpty,
+    CommandInput,
+    CommandList,
+} from '@/components/ui/command';
 import { AsyncUserSearch } from '@/components/workspace-settings/async-user-command';
 import { AddMemberDialog } from '@/components/workspace-settings/new-user-dialog-box';
 import { useState } from 'react';

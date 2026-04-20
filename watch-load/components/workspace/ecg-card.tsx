@@ -30,7 +30,6 @@ export function EcgCard({ children }: React.ComponentProps<'div'>) {
         },
     });
 
-
     return (
         <Card>
             <CardHeader>

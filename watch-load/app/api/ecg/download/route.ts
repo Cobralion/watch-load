@@ -58,8 +58,7 @@ async function GET(request: NextRequest) {
             status: 200,
             headers: {
                 'Content-Type': 'text/csv',
-                'Content-Disposition':
-                    'attachment; filename="ecgs-export.csv"',
+                'Content-Disposition': 'attachment; filename="ecgs-export.csv"',
             },
         });
     } catch (error) {

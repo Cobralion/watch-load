@@ -1,9 +1,9 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { useAction } from "next-safe-action/hooks"
-import { AsyncUserSearch } from "@/components/workspace-settings/async-user-command"
-import { Button } from "@/components/ui/button"
+import { useState } from 'react';
+import { useAction } from 'next-safe-action/hooks';
+import { AsyncUserSearch } from '@/components/workspace-settings/async-user-command';
+import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogContent,
@@ -12,45 +12,43 @@ import {
     DialogTitle,
     DialogTrigger,
     DialogFooter,
-} from "@/components/ui/dialog"
+} from '@/components/ui/dialog';
 import { addNewUser } from '@/actions/workspace';
 
 interface AddMemberDialogProps {
-    workspaceId: string
+    workspaceId: string;
 }
 
 export function AddMemberDialog({ workspaceId }: AddMemberDialogProps) {
-    const [open, setOpen] = useState(false)
-    const [selectedUser, setSelectedUser] = useState<string | null>(null)
+    const [open, setOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<string | null>(null);
 
     // Initialize the submission action
     const { result, execute, isExecuting } = useAction(addNewUser, {
         onSuccess: () => {
             // Teardown sequence on successful mutation
-            setOpen(false)
+            setOpen(false);
             setSelectedUser(null);
         },
-        onError: ({ error }) => {
-
-        }
-    })
+        onError: ({ error }) => {},
+    });
 
     const handleSubmit = () => {
         // TODO: handle no selected user
-        if(!selectedUser) {
+        if (!selectedUser) {
             return;
         }
         execute({
             workspaceId,
             userId: selectedUser,
-        })
-    }
+        });
+    };
 
     // Handle modal closure, ensuring state is reset if user cancels
     const handleOpenChange = (isOpen: boolean) => {
-        setOpen(isOpen)
-        if (!isOpen) setSelectedUser(null)
-    }
+        setOpen(isOpen);
+        if (!isOpen) setSelectedUser(null);
+    };
 
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>

@@ -33,8 +33,7 @@ export function EcgDataTable<TData, TValue>({
         pageIndex: 0,
         pageSize: 10,
     });
-    const [sorting, setSorting] = useState<SortingState>([])
-    ;
+    const [sorting, setSorting] = useState<SortingState>([]);
     const table = useReactTable({
         data,
         columns,
@@ -106,7 +105,7 @@ export function EcgDataTable<TData, TValue>({
             </div>
 
             <div className="flex items-center justify-end space-x-2 py-4">
-                <div className="flex mr-5">
+                <div className="mr-5 flex">
                     <span>
                         Page {pagination.pageIndex + 1} / {table.getPageCount()}
                     </span>

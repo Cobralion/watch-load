@@ -14,7 +14,6 @@ import {
 import { Button } from '@/components/ui/button';
 import {
     Field,
-    FieldDescription,
     FieldError,
     FieldGroup,
     FieldLabel,
@@ -22,7 +21,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Workspace } from '@/types/resolvedWorkspace';
 import { WorkspaceRole } from '@/generated/prisma/enums';
-import MemberCombobox from '@/components/member-combobox';
 
 export type WorkspaceUserWithRole = {
     id: string;
@@ -63,13 +61,12 @@ export default function ManageWorkspaceCard({
                             .filter(
                                 (u) =>
                                     u.workspaceRole !==
-                                        WorkspaceRole.WORKSPACE_ADMIN
+                                    WorkspaceRole.WORKSPACE_ADMIN
                             )
                             .map((u) => u.id),
                     },
                 },
-                actionProps: {
-                },
+                actionProps: {},
             }
         );
 
@@ -128,27 +125,6 @@ export default function ManageWorkspaceCard({
                                 disabled
                             />
                         </Field>
-
-                        <MemberCombobox
-                            label="Admins"
-                            description="Admins can manage workspace settings and members."
-                            fieldName="adminIds"
-                            allUsers={allUsers}
-                            currentUserId={currentUserId}
-                            lockedUser={currentUser}
-                            form={form}
-                            errorField={form.formState.errors.adminIds}
-                        />
-
-                        <MemberCombobox
-                            label="Members"
-                            description="Members have access to the workspace but cannot change settings."
-                            fieldName="memberIds"
-                            allUsers={allUsers}
-                            currentUserId={currentUserId}
-                            form={form}
-                            errorField={form.formState.errors.memberIds}
-                        />
 
                         {action.result?.serverError && (
                             <p className="text-sm font-medium text-red-500">

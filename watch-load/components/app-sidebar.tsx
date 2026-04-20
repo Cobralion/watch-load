@@ -16,7 +16,6 @@ import { Watch } from 'lucide-react';
 import { APPLICATION_NAME, APPLICATION_VERSION } from '@/constants/constants';
 import { usePathname } from 'next/navigation';
 
-
 type Workspace = {
     id: string;
     name: string;
@@ -96,7 +95,7 @@ export function AppSidebar({
                                     </a>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
-                            { /* TODO: conditionally render only for admins*/ }
+                            {/* TODO: conditionally render only for admins*/}
                             <SidebarMenuItem>
                                 <SidebarMenuButton
                                     asChild
