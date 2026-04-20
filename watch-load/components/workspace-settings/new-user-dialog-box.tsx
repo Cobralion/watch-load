@@ -58,8 +58,10 @@ export function AddMemberDialog({ workspaceId }: AddMemberDialogProps) {
 
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Add Members</DialogTitle>
-                    <DialogDescription>
+                    <DialogTitle className="text-left text-lg">
+                        Add Members
+                    </DialogTitle>
+                    <DialogDescription className="text-left">
                         Search for users to grant them access to this workspace.
                     </DialogDescription>
                 </DialogHeader>

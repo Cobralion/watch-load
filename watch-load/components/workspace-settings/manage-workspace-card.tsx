@@ -6,6 +6,7 @@ import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { manageWorkspaceSchema } from '@/lib/validations/dashboard';
 import {
     Card,
+    CardAction,
     CardContent,
     CardDescription,
     CardHeader,
@@ -20,65 +21,26 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Workspace } from '@/types/resolvedWorkspace';
-import { WorkspaceRole } from '@/generated/prisma/enums';
-
-export type WorkspaceUserWithRole = {
-    id: string;
-    name: string | null;
-    username: string;
-    workspaceRole: WorkspaceRole | null;
-};
+import { DeleteWorkspaceDialog } from '@/components/workspace-settings/delete-workspace-dialog';
 
 export default function ManageWorkspaceCard({
-    users,
     workspace,
-    allUsers,
-    currentUserId,
 }: {
     workspace: Workspace;
-    users: WorkspaceUserWithRole[];
-    allUsers: WorkspaceUserWithRole[];
-    currentUserId: string;
 }) {
-    const { form, action, handleSubmitWithAction, resetFormAndAction } =
-        useHookFormAction(
-            manageWorkspace.bind(null, workspace.id),
-            standardSchemaResolver(manageWorkspaceSchema),
-            {
-                formProps: {
-                    values: {
-                        name: workspace.name,
-                        description: workspace.description ?? '',
-                        adminIds: users
-                            .filter(
-                                (u) =>
-                                    u.workspaceRole ===
-                                        WorkspaceRole.WORKSPACE_ADMIN &&
-                                    u.id !== currentUserId
-                            )
-                            .map((u) => u.id),
-                        memberIds: users
-                            .filter(
-                                (u) =>
-                                    u.workspaceRole !==
-                                    WorkspaceRole.WORKSPACE_ADMIN
-                            )
-                            .map((u) => u.id),
-                    },
+    const { form, action, handleSubmitWithAction } = useHookFormAction(
+        manageWorkspace.bind(null, workspace.id),
+        standardSchemaResolver(manageWorkspaceSchema),
+        {
+            formProps: {
+                values: {
+                    name: workspace.name,
+                    description: workspace.description ?? '',
                 },
-                actionProps: {},
-            }
-        );
-
-    const currentUser = users.find((u) => u.id === currentUserId);
-
-    const onSubmit = form.handleSubmit((data) => {
-        const submitData = {
-            ...data,
-            adminIds: [...data.adminIds, currentUserId],
-        };
-        action.execute(submitData);
-    });
+            },
+            actionProps: {},
+        }
+    );
 
     return (
         <Card>
@@ -87,9 +49,19 @@ export default function ManageWorkspaceCard({
                 <CardDescription>
                     Here you can manage your workspace.
                 </CardDescription>
+                {/* TODO: Implement delete workspace functionality and uncomment the code below */}
+                {/*<CardAction>*/}
+                {/*    <DeleteWorkspaceDialog*/}
+                {/*        workspaceSlug={workspace.slug}*/}
+                {/*        workspaceName={workspace.name}*/}
+                {/*        onDelete={() => {*/}
+                {/*            alert('This feature hasn\'t been implemented yet.');*/}
+                {/*        }}*/}
+                {/*    ></DeleteWorkspaceDialog>*/}
+                {/*</CardAction>*/}
             </CardHeader>
             <CardContent>
-                <form onSubmit={onSubmit}>
+                <form onSubmit={handleSubmitWithAction}>
                     <FieldGroup>
                         <Field>
                             <FieldLabel htmlFor="new-workspace-workspace-name">
@@ -132,7 +104,10 @@ export default function ManageWorkspaceCard({
                             </p>
                         )}
 
-                        <Field orientation="horizontal">
+                        <Field
+                            orientation="horizontal"
+                            className="flex justify-end"
+                        >
                             <Button type="submit">
                                 {action.isPending
                                     ? 'Saving...'

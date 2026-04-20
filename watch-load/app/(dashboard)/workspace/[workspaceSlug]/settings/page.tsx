@@ -1,13 +1,11 @@
 import { resolveWorkspaceFromSlug } from '@/lib/workspace';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
-import ManageWorkspaceCard, {
-    WorkspaceUserWithRole,
-} from '@/components/workspace-settings/manage-workspace-card';
 import ManageWorkspaceUserCard from '@/components/workspace-settings/manage-workspace-user-card';
 import ManageWorkspaceUserDataTable from '@/components/workspace-settings/manage-workspace-user-data-table';
 import { columns } from '@/components/workspace-settings/manage-workspace-user-columns';
 import { WorkspaceMember } from '@/types/workspace';
+import ManageWorkspaceCard from "@/components/workspace-settings/manage-workspace-card";
 
 export default async function WorkspaceSettingsPage({
     params,
@@ -15,7 +13,7 @@ export default async function WorkspaceSettingsPage({
     params: Promise<{ workspaceSlug: string }>;
 }) {
     const { workspaceSlug } = await params;
-    const { workspace, role, user } =
+    const { workspace, role } =
         await resolveWorkspaceFromSlug(workspaceSlug);
 
     if (role !== 'ADMIN') {
@@ -42,12 +40,9 @@ export default async function WorkspaceSettingsPage({
                 Workspace settings
             </h1>
             <div className="m-4 flex w-1/2 flex-col gap-6 pt-6">
-                {/*<ManageWorkspaceCard*/}
-                {/*    workspace={workspace}*/}
-                {/*    users={users}*/}
-                {/*    allUsers={allUsers}*/}
-                {/*    currentUserId={user?.id}*/}
-                {/*></ManageWorkspaceCard>*/}
+                <ManageWorkspaceCard
+                    workspace={workspace}
+                ></ManageWorkspaceCard>
 
                 <ManageWorkspaceUserCard>
                     <ManageWorkspaceUserDataTable

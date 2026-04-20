@@ -28,6 +28,4 @@ export const manageWorkspaceSchema = z.object({
         .string()
         .max(100, 'Name must not be longer than 100 characters.')
         .optional(),
-    memberIds: z.array(z.string()).default([]),
-    adminIds: z.array(z.string()).default([]),
 });
