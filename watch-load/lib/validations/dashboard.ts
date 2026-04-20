@@ -17,7 +17,6 @@ export const createWorkspaceSchema = z.object({
             /^[a-z0-9-]+$/,
             'Slug must be lowercase letters, numbers, and hyphens'
         ),
-    memberIds: z.array(z.string()).default([]),
 });
 
 export const manageWorkspaceSchema = z.object({
