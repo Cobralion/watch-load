@@ -1,6 +1,7 @@
 import ConnectedDevicesCard from '@/components/conected-device-card';
 import { prisma } from '@/lib/prisma';
 import { resolveWorkspaceFromSlug } from '@/lib/workspace';
+import { redirect } from 'next/navigation';
 
 async function getConnectionStatus(workspaceId: string): Promise<boolean> {
     try {
@@ -21,7 +22,11 @@ export default async function ConnectedDevicesPage({
     params: Promise<{ workspaceSlug: string }>;
 }) {
     const { workspaceSlug } = await params;
-    const { workspace } = await resolveWorkspaceFromSlug(workspaceSlug);
+    const { workspace, role } = await resolveWorkspaceFromSlug(workspaceSlug);
+
+    if (role !== 'ADMIN') {
+        redirect(`/workspace/${workspaceSlug}`);
+    }
 
     const connectionStatus = await getConnectionStatus(workspace.id);
     return <ConnectedDevicesCard initialConnectionStatus={connectionStatus} />;

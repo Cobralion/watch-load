@@ -21,6 +21,7 @@ type Workspace = {
     name: string;
     description: string | null;
     slug: string;
+    showProtected: boolean;
 };
 
 export function AppSidebar({
@@ -81,33 +82,40 @@ export function AppSidebar({
                                     </a>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton
-                                    asChild
-                                    isActive={pathname.startsWith(
-                                        `/workspace/${ws.slug}/connected-devices`
-                                    )}
-                                >
-                                    <a
-                                        href={`/workspace/${ws.slug}/connected-devices`}
+
+                            {ws.showProtected && (
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton
+                                        asChild
+                                        isActive={pathname.startsWith(
+                                            `/workspace/${ws.slug}/connected-devices`
+                                        )}
                                     >
-                                        <span>Connected Devices</span>
-                                    </a>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                            {/* TODO: conditionally render only for admins*/}
-                            <SidebarMenuItem>
-                                <SidebarMenuButton
-                                    asChild
-                                    isActive={pathname.startsWith(
-                                        `/workspace/${ws.slug}/settings`
-                                    )}
-                                >
-                                    <a href={`/workspace/${ws.slug}/settings`}>
-                                        <span>Settings</span>
-                                    </a>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
+                                        <a
+                                            href={`/workspace/${ws.slug}/connected-devices`}
+                                        >
+                                            <span>Connected Devices</span>
+                                        </a>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            )}
+
+                            {ws.showProtected && (
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton
+                                        asChild
+                                        isActive={pathname.startsWith(
+                                            `/workspace/${ws.slug}/settings`
+                                        )}
+                                    >
+                                        <a
+                                            href={`/workspace/${ws.slug}/settings`}
+                                        >
+                                            <span>Settings</span>
+                                        </a>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            )}
                         </SidebarMenu>
                     </SidebarGroup>
                 ))}

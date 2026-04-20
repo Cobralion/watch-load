@@ -2,6 +2,7 @@
 
 import { actionClient } from '@/lib/safe-action';
 import { prisma } from '@/lib/prisma';
+import { GlobalRole, WorkspaceRole } from '@/generated/prisma/enums';
 
 export const listSidebarItems = actionClient
     .metadata({ actionName: 'listSidebarItems' })
@@ -11,7 +12,7 @@ export const listSidebarItems = actionClient
             select: { role: true },
         });
 
-        if (user.role === 'ADMIN') {
+        if (user.role === GlobalRole.ADMIN) {
             const workspaces = await prisma.workspace.findMany({
                 orderBy: { name: 'asc' },
             });
@@ -20,6 +21,7 @@ export const listSidebarItems = actionClient
                 name: item.name,
                 description: item.description,
                 slug: item.slug,
+                showProtected: user.role === GlobalRole.ADMIN,
             }));
         }
 
@@ -29,11 +31,11 @@ export const listSidebarItems = actionClient
             orderBy: { workspace: { name: 'asc' } },
         });
 
-        const workspaces = memberships.map((m) => m.workspace);
-        return workspaces.map((item) => ({
-            id: item.id,
-            name: item.name,
-            description: item.description,
-            slug: item.slug,
+        return memberships.map((item) => ({
+            id: item.workspace.id,
+            name: item.workspace.name,
+            description: item.workspace.description,
+            slug: item.workspace.slug,
+            showProtected: item.workspaceRole === WorkspaceRole.WORKSPACE_ADMIN
         }));
     });
