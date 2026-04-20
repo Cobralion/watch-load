@@ -25,7 +25,7 @@ export function EcgCard({ children }: React.ComponentProps<'div'>) {
                 position: 'top-right',
             });
         },
-        onError: ({error}) => {
+        onError: ({ error }) => {
             toast.error(error.serverError, { position: 'top-right' });
         },
     });
@@ -33,7 +33,7 @@ export function EcgCard({ children }: React.ComponentProps<'div'>) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>ECG Table</CardTitle>
+                <CardTitle>ECG Annotation Workspace</CardTitle>
                 <CardDescription>Card Description</CardDescription>
                 <CardAction className="flex gap-2">
                     <Button
@@ -61,9 +61,6 @@ export function EcgCard({ children }: React.ComponentProps<'div'>) {
                 </CardAction>
             </CardHeader>
             <CardContent>{children}</CardContent>
-            <CardFooter>
-                <p>Card Footer</p>
-            </CardFooter>
         </Card>
     );
 }

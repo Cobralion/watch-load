@@ -36,6 +36,6 @@ export const listSidebarItems = actionClient
             name: item.workspace.name,
             description: item.workspace.description,
             slug: item.workspace.slug,
-            showProtected: item.workspaceRole === WorkspaceRole.WORKSPACE_ADMIN
+            showProtected: item.workspaceRole === WorkspaceRole.WORKSPACE_ADMIN,
         }));
     });

@@ -40,7 +40,7 @@ export default async function WorkspaceDashboard({
 
     return (
         <>
-            <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+            <h1 className="text-2xl font-bold tracking-tight">Workspace</h1>
             <div className="m-4 flex flex-col gap-6 pt-6">
                 <EcgCard>
                     <EcgDataColumns ecgData={data}></EcgDataColumns>

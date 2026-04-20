@@ -90,8 +90,9 @@ export function DeleteWorkspaceDialog({
                                 {workspaceName}
                             </span>{' '}
                             will permanently remove all ecg data, members,
-                            settings, connected accounts, and any associated data. This workspace
-                            will immediately stop working and{' '}
+                            settings, connected accounts, and any associated
+                            data. This workspace will immediately stop working
+                            and{' '}
                             <span className="text-foreground font-semibold">
                                 cannot be recovered
                             </span>
