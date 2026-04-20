@@ -5,7 +5,7 @@ import ManageWorkspaceUserCard from '@/components/workspace-settings/manage-work
 import ManageWorkspaceUserDataTable from '@/components/workspace-settings/manage-workspace-user-data-table';
 import { columns } from '@/components/workspace-settings/manage-workspace-user-columns';
 import { WorkspaceMember } from '@/types/workspace';
-import ManageWorkspaceCard from "@/components/workspace-settings/manage-workspace-card";
+import ManageWorkspaceCard from '@/components/workspace-settings/manage-workspace-card';
 
 export default async function WorkspaceSettingsPage({
     params,
@@ -13,8 +13,7 @@ export default async function WorkspaceSettingsPage({
     params: Promise<{ workspaceSlug: string }>;
 }) {
     const { workspaceSlug } = await params;
-    const { workspace, role } =
-        await resolveWorkspaceFromSlug(workspaceSlug);
+    const { workspace, role } = await resolveWorkspaceFromSlug(workspaceSlug);
 
     if (role !== 'ADMIN') {
         redirect(`/workspace/${workspaceSlug}`);
@@ -35,7 +34,7 @@ export default async function WorkspaceSettingsPage({
     );
 
     return (
-        <>
+        <div className="flex items-start gap-6">
             <h1 className="text-2xl font-bold tracking-tight">
                 Workspace settings
             </h1>
@@ -52,6 +51,6 @@ export default async function WorkspaceSettingsPage({
                     ></ManageWorkspaceUserDataTable>
                 </ManageWorkspaceUserCard>
             </div>
-        </>
+        </div>
     );
 }
