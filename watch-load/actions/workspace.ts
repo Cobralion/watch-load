@@ -4,7 +4,10 @@ import { actionClient } from '@/lib/safe-action';
 import { prisma } from '@/lib/prisma';
 import { ActionError, UnauthorizedError } from '@/types/errors';
 import {
+    createLocationSchema,
     createWorkspaceSchema,
+    deleteLocationSchema,
+    editLocationSchema,
     manageWorkspaceSchema,
 } from '@/lib/validations/workspace';
 import { revalidatePath } from 'next/cache';
@@ -12,6 +15,7 @@ import { resolveWorkspaceFromId } from '@/lib/workspace';
 import * as z from 'zod';
 import { GlobalRole, WorkspaceRole } from '@/generated/prisma/enums';
 import { PrismaClientKnownRequestError } from '@/generated/prisma/internal/prismaNamespace';
+import { LocationOption } from '@/types/workspace';
 
 // TODO: implement redirect on ui if unauthorized
 export const createWorkspace = actionClient
@@ -297,6 +301,117 @@ export const manageWorkspace = actionClient
             console.error(error);
 
             throw new ActionError('Could not update workspace.');
+        }
+
+        revalidatePath(`/workspace/${slug}/settings`);
+    });
+
+export const createLocation = actionClient
+    .metadata({ actionName: 'createLocation' })
+    .inputSchema(createLocationSchema)
+    .action(async ({ parsedInput }) => {
+        const {
+            workspace: { slug },
+            role,
+        } = await resolveWorkspaceFromId(parsedInput.workspaceId);
+
+        if (role !== 'ADMIN') {
+            throw new UnauthorizedError();
+        }
+
+        try {
+            const query = await prisma.locationOption.create({
+                data: {
+                    name: parsedInput.name,
+                    workspaceId: parsedInput.workspaceId,
+                },
+            });
+
+            revalidatePath(`/workspace/${slug}/settings`);
+            return {
+                id: query.id,
+                name: query.name,
+            };
+        } catch (error) {
+            console.error(error);
+            if (
+                error instanceof PrismaClientKnownRequestError &&
+                error.code === 'P2002'
+            ) {
+                throw new ActionError(
+                    'This location already exists for this workspace.'
+                );
+            }
+            throw new ActionError('Could not create location.');
+        }
+    });
+
+export const editLocation = actionClient
+    .metadata({ actionName: 'editLocation' })
+    .inputSchema(editLocationSchema)
+    .action(async ({ parsedInput }) => {
+        const {
+            workspace: { slug },
+            role,
+        } = await resolveWorkspaceFromId(parsedInput.workspaceId);
+
+        if (role !== 'ADMIN') {
+            throw new UnauthorizedError();
+        }
+        try {
+            const query = await prisma.locationOption.update({
+                where: { id: parsedInput.id },
+                data: {
+                    name: parsedInput.name,
+                },
+            });
+
+            revalidatePath(`/workspace/${slug}/settings`);
+            return {
+                id: query.id,
+                name: query.name,
+            };
+        } catch (error) {
+            console.error(error);
+            if (
+                error instanceof PrismaClientKnownRequestError &&
+                error.code === 'P2002'
+            ) {
+                throw new ActionError(
+                    'This location name already exists for this workspace.'
+                );
+            }
+            throw new ActionError('Could not update location.');
+        }
+    });
+
+export const deleteLocation = actionClient
+    .metadata({ actionName: 'deleteLocation' })
+    .inputSchema(deleteLocationSchema)
+    .action(async ({ parsedInput }) => {
+        const {
+            workspace: { slug },
+            role,
+        } = await resolveWorkspaceFromId(parsedInput.workspaceId);
+
+        if (role !== 'ADMIN') {
+            throw new UnauthorizedError();
+        }
+        try {
+            await prisma.locationOption.delete({
+                where: { id: parsedInput.id },
+            });
+        } catch (error) {
+            console.error(error);
+            if (
+                error instanceof PrismaClientKnownRequestError &&
+                error.code === 'P2003'
+            ) {
+                throw new ActionError(
+                    'This location cannot be deleted as it is currently in use.'
+                );
+            }
+            throw new ActionError('Could not delete location.');
         }
 
         revalidatePath(`/workspace/${slug}/settings`);

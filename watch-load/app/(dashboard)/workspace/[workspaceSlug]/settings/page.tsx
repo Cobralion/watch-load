@@ -4,8 +4,9 @@ import { prisma } from '@/lib/prisma';
 import ManageWorkspaceUserCard from '@/components/workspace-settings/manage-workspace-user-card';
 import ManageWorkspaceUserDataTable from '@/components/workspace-settings/manage-workspace-user-data-table';
 import { columns } from '@/components/workspace-settings/manage-workspace-user-columns';
-import { WorkspaceMember } from '@/types/workspace';
+import { LocationOption, WorkspaceMember } from '@/types/workspace';
 import ManageWorkspaceCard from '@/components/workspace-settings/manage-workspace-card';
+import { LocationSettings } from '@/components/workspace-settings/manage-location-card';
 
 export default async function WorkspaceSettingsPage({
     params,
@@ -24,7 +25,7 @@ export default async function WorkspaceSettingsPage({
         include: { user: true },
     });
 
-    const data = membershipsQuery.map(
+    const workspaceMembers = membershipsQuery.map(
         (membership): WorkspaceMember => ({
             id: membership.userId,
             name: membership.user.name ?? membership.user.username,
@@ -32,6 +33,12 @@ export default async function WorkspaceSettingsPage({
             isWorkspaceAdmin: membership.workspaceRole === 'WORKSPACE_ADMIN',
         })
     );
+
+    const locationOptions: LocationOption[] =
+        await prisma.locationOption.findMany({
+            where: { workspaceId: workspace.id },
+            select: { id: true, name: true },
+        });
 
     return (
         <div className="flex items-start gap-6">
@@ -46,10 +53,15 @@ export default async function WorkspaceSettingsPage({
                 <ManageWorkspaceUserCard>
                     <ManageWorkspaceUserDataTable
                         columns={columns}
-                        data={data}
+                        data={workspaceMembers}
                         workspaceId={workspace.id}
                     ></ManageWorkspaceUserDataTable>
                 </ManageWorkspaceUserCard>
+
+                <LocationSettings
+                    initialOptions={locationOptions}
+                    workspaceId={workspace.id}
+                ></LocationSettings>
             </div>
         </div>
     );

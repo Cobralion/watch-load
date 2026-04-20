@@ -56,7 +56,7 @@ model Workspace {
   withingsConnections WithingsConnection[]
   memberships         Membership[]
   heartMeasurements   HeartMeasurement[]
-  capturedAtOptions   CapturedAtOption[]
+  locationOptions     LocationOption[]
 
   @@map("workspaces")
 }
@@ -103,8 +103,8 @@ model HeartMeasurement {
   modified          DateTime @map("modified")
   trialsId          String?  @map("trials_id")
 
-  capturedAtId String?           @map("captured_at_id")
-  capturedAt   CapturedAtOption? @relation(fields: [capturedAtId], references: [id], onDelete: SetNull)
+  locationId String?         @map("location_id")
+  location   LocationOption? @relation(fields: [locationId], references: [id], onDelete: Restrict)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -116,7 +116,7 @@ model HeartMeasurement {
   @@map("heart_measurements")
 }
 
-model CapturedAtOption {
+model LocationOption {
   id   String @id @default(cuid())
   name String
 
@@ -129,5 +129,5 @@ model CapturedAtOption {
   measurements HeartMeasurement[]
 
   @@unique([workspaceId, name])
-  @@map("captured_at_options")
+  @@map("location_options")
 }
