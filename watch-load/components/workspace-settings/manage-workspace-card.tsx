@@ -108,7 +108,7 @@ export default function ManageWorkspaceCard({
                             className="flex justify-end"
                         >
                             <Button type="submit">
-                                {action.isPending
+                                {action.isExecuting
                                     ? 'Saving...'
                                     : 'Save Workspace'}
                             </Button>

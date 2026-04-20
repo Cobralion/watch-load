@@ -8,7 +8,7 @@ export const createWorkspaceSchema = z.object({
     description: z
         .string()
         .max(100, 'Description must not be longer than 100 characters.')
-        .optional(),
+        .default(''),
     slug: z
         .string()
         .min(3, 'Slug must be at least 3 characters long.')
@@ -28,5 +28,5 @@ export const manageWorkspaceSchema = z.object({
     description: z
         .string()
         .max(100, 'Description must not be longer than 100 characters.')
-        .optional(),
+        .default(''),
 });

@@ -25,8 +25,8 @@ export function EcgCard({ children }: React.ComponentProps<'div'>) {
                 position: 'top-right',
             });
         },
-        onError: (error) => {
-            toast.error(error.error.serverError, { position: 'top-right' });
+        onError: ({error}) => {
+            toast.error(error.serverError, { position: 'top-right' });
         },
     });
 

@@ -44,7 +44,7 @@ interface RoleSwitchCellProps {
 
 export const RoleSwitchCell = ({ row }: RoleSwitchCellProps) => {
     const member = row.original;
-    const { execute, isPending } = useAction(toggleAdmin, {
+    const { execute, isExecuting } = useAction(toggleAdmin, {
         onError: ({ error }) => {
             toast.error(error.serverError, { position: 'top-right' });
         },
@@ -61,7 +61,7 @@ export const RoleSwitchCell = ({ row }: RoleSwitchCellProps) => {
                     isAdmin: !member.isWorkspaceAdmin,
                 })
             }
-            disabled={isPending}
+            disabled={isExecuting}
         />
     );
 };
@@ -72,7 +72,7 @@ interface RemoveDropdownCellProps {
 
 export const RemoveDropdownCell = ({ row }: RemoveDropdownCellProps) => {
     const member = row.original;
-    const { execute, isPending } = useAction(removeUser, {
+    const { execute, isExecuting } = useAction(removeUser, {
         onError: ({ error }) => {
             toast.error(error.serverError, { position: 'top-right' });
         },
@@ -82,9 +82,9 @@ export const RemoveDropdownCell = ({ row }: RemoveDropdownCellProps) => {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-4 w-4 p-0">
+                <Button variant="ghost" className="h-6 w-6 p-0">
                     <span className="sr-only">Open menu</span>
-                    <MoreHorizontal className="h-2 w-2" />
+                    <MoreHorizontal className="h-3 w-3" />
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

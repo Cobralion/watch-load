@@ -32,7 +32,7 @@ export function AsyncUserSearch({
 
     const { execute, isExecuting, result } = useAction(searchUser, {
         onSuccess: ({ data }) => {
-            if (data && data.length > 0) {
+            if (data) {
                 setUsers(
                     data.map((u) => ({
                         id: u.id,

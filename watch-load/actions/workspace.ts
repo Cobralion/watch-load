@@ -140,6 +140,7 @@ export const addNewUser = actionClient
         revalidatePath(`/workspace/${slug}/settings`);
     });
 
+// TODO: allow users to delete them selves
 export const removeUser = actionClient
     .metadata({ actionName: 'removeUser' })
     .inputSchema(
@@ -245,7 +246,7 @@ export const toggleAdmin = actionClient
             );
         }
 
-        if (user.role === GlobalRole.ADMIN) {
+        if (user.role === GlobalRole.ADMIN && !isAdmin) {
             throw new ActionError(
                 "You cannot revoke a global administrator's rights."
             );
