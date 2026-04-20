@@ -14,7 +14,10 @@ import { revalidatePath } from 'next/cache';
 import { resolveWorkspaceFromId } from '@/lib/workspace';
 import * as z from 'zod';
 import { GlobalRole, WorkspaceRole } from '@/generated/prisma/enums';
-import { PrismaClientKnownRequestError } from '@/generated/prisma/internal/prismaNamespace';
+import {
+    BatchPayload,
+    PrismaClientKnownRequestError,
+} from '@/generated/prisma/internal/prismaNamespace';
 import { LocationOption } from '@/types/workspace';
 
 // TODO: implement redirect on ui if unauthorized
@@ -358,19 +361,17 @@ export const editLocation = actionClient
         if (role !== 'ADMIN') {
             throw new UnauthorizedError();
         }
+        let query: BatchPayload;
         try {
-            const query = await prisma.locationOption.update({
-                where: { id: parsedInput.id },
+            query = await prisma.locationOption.updateMany({
+                where: {
+                    id: parsedInput.id,
+                    workspaceId: parsedInput.workspaceId,
+                },
                 data: {
                     name: parsedInput.name,
                 },
             });
-
-            revalidatePath(`/workspace/${slug}/settings`);
-            return {
-                id: query.id,
-                name: query.name,
-            };
         } catch (error) {
             console.error(error);
             if (
@@ -383,6 +384,16 @@ export const editLocation = actionClient
             }
             throw new ActionError('Could not update location.');
         }
+
+        if (query.count === 0) {
+            throw new ActionError('Could not find location in this workspace.');
+        }
+
+        revalidatePath(`/workspace/${slug}/settings`);
+        return {
+            id: parsedInput.id,
+            name: parsedInput.name,
+        };
     });
 
 export const deleteLocation = actionClient
@@ -397,9 +408,13 @@ export const deleteLocation = actionClient
         if (role !== 'ADMIN') {
             throw new UnauthorizedError();
         }
+        let query: BatchPayload;
         try {
-            await prisma.locationOption.delete({
-                where: { id: parsedInput.id },
+            query = await prisma.locationOption.deleteMany({
+                where: {
+                    id: parsedInput.id,
+                    workspaceId: parsedInput.workspaceId,
+                },
             });
         } catch (error) {
             console.error(error);
@@ -412,6 +427,10 @@ export const deleteLocation = actionClient
                 );
             }
             throw new ActionError('Could not delete location.');
+        }
+
+        if (query.count === 0) {
+            throw new ActionError('Could not find location in this workspace.');
         }
 
         revalidatePath(`/workspace/${slug}/settings`);

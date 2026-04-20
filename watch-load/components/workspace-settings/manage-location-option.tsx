@@ -32,7 +32,7 @@ export default function ManageLocationOption({
         standardSchemaResolver(editLocationSchema),
         {
             formProps: {
-                defaultValues: {
+                values: {
                     id: locationOption.id,
                     workspaceId,
                     name: locationOption.name ?? '',
@@ -40,6 +40,7 @@ export default function ManageLocationOption({
             },
             actionProps: {
                 onSuccess: ({ data }) => {
+                    form.reset({ id: data.id, name: data.name, workspaceId });
                     toast.success(
                         `Location updated successfully to ${data.name}.`,
                         { position: 'top-right' }
@@ -61,6 +62,11 @@ export default function ManageLocationOption({
         }
     );
 
+    const cancel = () => {
+        form.reset();
+        cancelEditing();
+    };
+
     const { errors } = form.formState;
 
     return (
@@ -79,6 +85,11 @@ export default function ManageLocationOption({
                                 className="h-8"
                                 autoFocus
                                 disabled={action.isExecuting}
+                            />
+
+                            <Input
+                                type="hidden"
+                                {...form.register('workspaceId')}
                             />
                             {/* Inline validation error display */}
                             {errors.name && (
@@ -106,7 +117,7 @@ export default function ManageLocationOption({
                     <Button
                         size="icon"
                         variant="ghost"
-                        onClick={cancelEditing}
+                        onClick={cancel}
                         disabled={action.isExecuting}
                         className="shrink-0"
                     >

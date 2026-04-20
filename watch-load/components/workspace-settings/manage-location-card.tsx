@@ -26,11 +26,14 @@ export function LocationSettings({
 
     const { execute, isExecuting } = useAction(deleteLocation, {
         onSuccess: () => {
-            toast.success(`Location was successfully removed .`, {
+            setEditingId(null);
+            toast.success(`Location was successfully removed.`, {
                 position: 'top-right',
             });
         },
         onError: ({ error }) => {
+            setEditingId(null);
+
             if (error.serverError) {
                 toast.error(error.serverError, {
                     position: 'top-right',
@@ -46,7 +49,6 @@ export function LocationSettings({
     const handleDelete = (id: string) => {
         if (isExecuting) return;
         execute({ id, workspaceId });
-        setEditingId(null);
     };
 
     return (
