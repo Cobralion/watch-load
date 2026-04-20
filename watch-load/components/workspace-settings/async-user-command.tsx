@@ -60,7 +60,7 @@ export function AsyncUserSearch({
         }, 300);
 
         return () => clearTimeout(timer);
-    }, [query, execute]);
+    }, [workspaceId, query, execute]);
 
     const toggleSelection = (userId: string) => {
         if (selected === userId) {

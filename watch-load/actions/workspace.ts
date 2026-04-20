@@ -77,6 +77,11 @@ export const searchUser = actionClient
                     { name: { contains: query, mode: 'insensitive' } },
                     { username: { contains: query, mode: 'insensitive' } },
                 ],
+                memberships: {
+                    none: {
+                        workspaceId: workspaceId,
+                    },
+                },
             },
             take: 5,
         });
@@ -273,12 +278,10 @@ export const manageWorkspace = actionClient
 
         const hasChanged =
             name !== parsedInput.name ||
-            description !== parsedInput.description;
+            (description ?? '') !== (parsedInput.description ?? '');
 
         if (!hasChanged) {
-            throw new ActionError(
-                'There where no changes to name or description detected. Could not update workspace.'
-            );
+            return;
         }
 
         try {
