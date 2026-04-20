@@ -6,7 +6,7 @@ import { ActionError, UnauthorizedError } from '@/types/errors';
 import {
     createWorkspaceSchema,
     manageWorkspaceSchema,
-} from '@/lib/validations/dashboard';
+} from '@/lib/validations/workspace';
 import { revalidatePath } from 'next/cache';
 import { resolveWorkspaceFromId } from '@/lib/workspace';
 import * as z from 'zod';

@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
-import { createWorkspaceSchema } from '@/lib/validations/dashboard';
+import { createWorkspaceSchema } from '@/lib/validations/workspace';
 import { useHookFormAction } from '@next-safe-action/adapter-react-hook-form/hooks';
 import { createWorkspace } from '@/actions/workspace';
 import { toast } from 'sonner';

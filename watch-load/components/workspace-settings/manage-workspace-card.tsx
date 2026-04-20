@@ -3,7 +3,7 @@
 import { useHookFormAction } from '@next-safe-action/adapter-react-hook-form/hooks';
 import { manageWorkspace } from '@/actions/workspace';
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
-import { manageWorkspaceSchema } from '@/lib/validations/dashboard';
+import { manageWorkspaceSchema } from '@/lib/validations/workspace';
 import {
     Card,
     CardContent,
