@@ -1,138 +1,133 @@
 'use client';
-import { DataTable } from '@/components/ui/data-table';
-import { ColumnDef } from '@tanstack/react-table';
+import {
+    ColumnDef,
+    flexRender,
+    getCoreRowModel,
+    getPaginationRowModel,
+    getSortedRowModel,
+    SortingState,
+    useReactTable,
+} from '@tanstack/react-table';
+
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { FORMAT_DATE } from '@/lib/utils';
-import EditTrailsDialog, {
-    useTrailsDialogState,
-} from '@/components/workspace/trails-edit-dialog';
-import { ArrowUpDown } from 'lucide-react';
+import { useState } from 'react';
 
-export type EcgData = {
-    id: string;
-    trailsId: string | null;
-    heartRate: number;
-    afib: string;
-    timestamp: Date;
-    samplingFrequency: number;
-};
+interface DataTableProps<TData, TValue> {
+    columns: ColumnDef<TData, TValue>[];
+    data: TData[];
+}
 
-export default function EcgDataTable({ ecgData }: { ecgData: EcgData[] }) {
-    const { isOpen, toggleModal, data, setData } = useTrailsDialogState();
+export function EcgDataTable<TData, TValue>({
+    columns,
+    data,
+}: DataTableProps<TData, TValue>) {
+    const [pagination, setPagination] = useState({
+        pageIndex: 0,
+        pageSize: 10,
+    });
+    const [sorting, setSorting] = useState<SortingState>([])
+    ;
+    const table = useReactTable({
+        data,
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+        onPaginationChange: setPagination,
+        onSortingChange: setSorting,
+        getSortedRowModel: getSortedRowModel(),
+        state: {
+            pagination,
+            sorting,
+        },
+    });
 
-    const columns: ColumnDef<EcgData>[] = [
-        {
-            accessorKey: 'id',
-            header: ({ column }) => {
-                return (
-                    <Button
-                        variant="ghost"
-                        onClick={() =>
-                            column.toggleSorting(column.getIsSorted() === 'asc')
-                        }
-                    >
-                        ID
-                        <ArrowUpDown className="ml-2 h-4 w-4" />
-                    </Button>
-                );
-            },
-        },
-        {
-            accessorKey: 'trailsId',
-            header: ({ column }) => {
-                return (
-                    <Button
-                        variant="ghost"
-                        onClick={() =>
-                            column.toggleSorting(column.getIsSorted() === 'asc')
-                        }
-                    >
-                        Trails ID
-                        <ArrowUpDown className="ml-2 h-4 w-4" />
-                    </Button>
-                );
-            },
-            cell: ({ row }) => {
-                const original = row.original;
-                const trailsId = row.original.trailsId;
-                const isSet =
-                    trailsId !== null &&
-                    trailsId !== undefined &&
-                    trailsId.length > 0;
-
-                return (
-                    <>
-                        <div className="flex justify-between gap-3">
-                            {isSet ? (
-                                <span className="text-primary font-medium">
-                                    {original?.trailsId}
-                                </span>
-                            ) : (
-                                <span className="text-muted-foreground text-sm italic">
-                                    Unassigned
-                                </span>
-                            )}
-                            <Button
-                                variant="secondary"
-                                size="sm"
-                                className="h-7 cursor-pointer px-3 text-xs"
-                                onClick={() => {
-                                    setData(original);
-                                    toggleModal();
-                                }}
-                            >
-                                Edit
-                            </Button>
-                        </div>
-                    </>
-                );
-            },
-        },
-        {
-            accessorKey: 'heartRate',
-            header: 'HF',
-        },
-        {
-            accessorKey: 'afib',
-            header: 'Atrial fibrillation',
-        },
-        {
-            accessorKey: 'timestamp',
-            header: ({ column }) => {
-                return (
-                    <Button
-                        variant="ghost"
-                        onClick={() =>
-                            column.toggleSorting(column.getIsSorted() === 'asc')
-                        }
-                    >
-                        Measured at
-                        <ArrowUpDown className="ml-2 h-4 w-4" />
-                    </Button>
-                );
-            },
-            cell: ({ row }) => {
-                const date = new Date(row.getValue('timestamp'));
-
-                const formatted = FORMAT_DATE.format(date);
-
-                return <span>{formatted}</span>;
-            },
-        },
-        {
-            accessorKey: 'samplingFrequency',
-            header: 'Sampling frequency',
-        },
-    ];
     return (
-        <>
-            <DataTable columns={columns} data={ecgData} />
-            <EditTrailsDialog
-                key={data?.id}
-                isOpen={isOpen}
-                toggleModal={toggleModal}
-                data={data}
-            />
-        </>
+        <div>
+            <div className="rounded-md border">
+                <Table>
+                    <TableHeader>
+                        {table.getHeaderGroups().map((headerGroup) => (
+                            <TableRow key={headerGroup.id}>
+                                {headerGroup.headers.map((header) => {
+                                    return (
+                                        <TableHead key={header.id}>
+                                            {header.isPlaceholder
+                                                ? null
+                                                : flexRender(
+                                                      header.column.columnDef
+                                                          .header,
+                                                      header.getContext()
+                                                  )}
+                                        </TableHead>
+                                    );
+                                })}
+                            </TableRow>
+                        ))}
+                    </TableHeader>
+                    <TableBody>
+                        {table.getRowModel().rows?.length ? (
+                            table.getRowModel().rows.map((row) => (
+                                <TableRow
+                                    key={row.id}
+                                    data-state={
+                                        row.getIsSelected() && 'selected'
+                                    }
+                                >
+                                    {row.getVisibleCells().map((cell) => (
+                                        <TableCell key={cell.id}>
+                                            {flexRender(
+                                                cell.column.columnDef.cell,
+                                                cell.getContext()
+                                            )}
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell
+                                    colSpan={columns.length}
+                                    className="h-24 text-center"
+                                >
+                                    No results.
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </div>
+
+            <div className="flex items-center justify-end space-x-2 py-4">
+                <div className="flex mr-5">
+                    <span>
+                        Page {pagination.pageIndex + 1} / {table.getPageCount()}
+                    </span>
+                </div>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => table.previousPage()}
+                    disabled={!table.getCanPreviousPage()}
+                >
+                    Previous
+                </Button>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => table.nextPage()}
+                    disabled={!table.getCanNextPage()}
+                >
+                    Next
+                </Button>
+            </div>
+        </div>
     );
 }

@@ -3,7 +3,7 @@
 import { syncHeartData } from '@/lib/withings/heart';
 import { auth } from '@/lib/auth';
 import { TrailsChangeActionState } from '@/types/action-states';
-import { EcgData } from '@/components/workspace/ecg-data-table';
+import { EcgData } from '@/components/workspace/ecg-data-columns';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { actionClient } from '@/lib/safe-action';

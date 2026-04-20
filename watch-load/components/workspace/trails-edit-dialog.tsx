@@ -11,7 +11,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { DialogState } from '@/types/dialog/dialog-state';
-import { EcgData } from '@/components/workspace/ecg-data-table';
+import { EcgData } from '@/components/workspace/ecg-data-columns';
 import { create } from 'zustand';
 import { useState, useTransition } from 'react';
 import { editTrailsId } from '@/actions/heart';

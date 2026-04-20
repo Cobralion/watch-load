@@ -3,7 +3,11 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import ManageWorkspaceCard, {
     WorkspaceUserWithRole,
-} from '@/components/workspace/manage-workspace-card';
+} from '@/components/workspace-settings/manage-workspace-card';
+import ManageWorkspaceUserCard from '@/components/workspace-settings/manage-workspace-user-card';
+import ManageWorkspaceUserDataTable from '@/components/workspace-settings/manage-workspace-user-data-table';
+import { columns } from '@/components/workspace-settings/manage-workspace-user-columns';
+import { WorkspaceMember } from '@/types/workspace';
 
 export default async function WorkspaceSettingsPage({
     params,
@@ -15,34 +19,23 @@ export default async function WorkspaceSettingsPage({
         await resolveWorkspaceFromSlug(workspaceSlug);
 
     if (role !== 'ADMIN') {
-        redirect('/workspace/' + workspaceSlug);
+        redirect(`/workspace/${workspaceSlug}`);
     }
 
     const membershipsQuery = await prisma.membership.findMany({
         where: { workspaceId: workspace.id },
         include: { user: true },
     });
-    const allUsersQuery = await prisma.user.findMany({});
 
-    const users = membershipsQuery.map(
-        (x): WorkspaceUserWithRole => ({
-            id: x.userId,
-            name: x.user.name,
-            username: x.user.username,
-            workspaceRole: x.workspaceRole,
+    const data = membershipsQuery.map(
+        (membership): WorkspaceMember => ({
+            id: membership.userId,
+            name: membership.user.name ?? membership.user.username,
+            username: membership.user.username,
+            isWorkspaceAdmin:
+                membership.workspaceRole === 'WORKSPACE_ADMIN',
         })
     );
-    const allUsers = allUsersQuery.map(
-        (x): WorkspaceUserWithRole => ({
-            id: x.id,
-            name: x.name,
-            username: x.username,
-            workspaceRole: null,
-        })
-    );
-
-    console.log('Users: ', users);
-    console.log('allUsers: ', allUsers);
 
     return (
         <>
@@ -50,12 +43,20 @@ export default async function WorkspaceSettingsPage({
                 Workspace settings
             </h1>
             <div className="m-4 flex w-1/2 flex-col gap-6 pt-6">
-                <ManageWorkspaceCard
-                    workspace={workspace}
-                    users={users}
-                    allUsers={allUsers}
-                    currentUserId={user?.id}
-                ></ManageWorkspaceCard>
+                {/*<ManageWorkspaceCard*/}
+                {/*    workspace={workspace}*/}
+                {/*    users={users}*/}
+                {/*    allUsers={allUsers}*/}
+                {/*    currentUserId={user?.id}*/}
+                {/*></ManageWorkspaceCard>*/}
+
+                <ManageWorkspaceUserCard>
+                    <ManageWorkspaceUserDataTable
+                        columns={columns}
+                        data={data}
+                        workspaceId={workspace.id}
+                    ></ManageWorkspaceUserDataTable>
+                </ManageWorkspaceUserCard>
             </div>
         </>
     );

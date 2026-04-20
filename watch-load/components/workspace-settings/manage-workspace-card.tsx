@@ -44,11 +44,11 @@ export default function ManageWorkspaceCard({
 }) {
     const { form, action, handleSubmitWithAction, resetFormAndAction } =
         useHookFormAction(
-            manageWorkspace,
+            manageWorkspace.bind(null, workspace.id),
             standardSchemaResolver(manageWorkspaceSchema),
             {
                 formProps: {
-                    defaultValues: {
+                    values: {
                         name: workspace.name,
                         description: workspace.description ?? '',
                         adminIds: users
@@ -63,23 +63,25 @@ export default function ManageWorkspaceCard({
                             .filter(
                                 (u) =>
                                     u.workspaceRole !==
-                                        WorkspaceRole.WORKSPACE_ADMIN &&
-                                    u.id !== currentUserId
+                                        WorkspaceRole.WORKSPACE_ADMIN
                             )
                             .map((u) => u.id),
                     },
                 },
                 actionProps: {
-                    onSuccess: () => {
-                        resetFormAndAction();
-                    },
                 },
             }
         );
 
     const currentUser = users.find((u) => u.id === currentUserId);
-    const currentUserIsAdmin =
-        currentUser?.workspaceRole === WorkspaceRole.WORKSPACE_ADMIN;
+
+    const onSubmit = form.handleSubmit((data) => {
+        const submitData = {
+            ...data,
+            adminIds: [...data.adminIds, currentUserId],
+        };
+        action.execute(submitData);
+    });
 
     return (
         <Card>
@@ -90,7 +92,7 @@ export default function ManageWorkspaceCard({
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <form onSubmit={handleSubmitWithAction}>
+                <form onSubmit={onSubmit}>
                     <FieldGroup>
                         <Field>
                             <FieldLabel htmlFor="new-workspace-workspace-name">
@@ -133,9 +135,7 @@ export default function ManageWorkspaceCard({
                             fieldName="adminIds"
                             allUsers={allUsers}
                             currentUserId={currentUserId}
-                            lockedUser={
-                                currentUserIsAdmin ? currentUser : undefined
-                            }
+                            lockedUser={currentUser}
                             form={form}
                             errorField={form.formState.errors.adminIds}
                         />
@@ -146,9 +146,6 @@ export default function ManageWorkspaceCard({
                             fieldName="memberIds"
                             allUsers={allUsers}
                             currentUserId={currentUserId}
-                            lockedUser={
-                                !currentUserIsAdmin ? currentUser : undefined
-                            }
                             form={form}
                             errorField={form.formState.errors.memberIds}
                         />

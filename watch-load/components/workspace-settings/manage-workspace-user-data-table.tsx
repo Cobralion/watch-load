@@ -1,9 +1,9 @@
 'use client';
+
 import {
     ColumnDef,
     flexRender,
     getCoreRowModel,
-    getPaginationRowModel,
     getSortedRowModel,
     SortingState,
     useReactTable,
@@ -18,40 +18,52 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
+import { Command, CommandEmpty, CommandInput, CommandList } from '@/components/ui/command';
+import { AsyncUserSearch } from '@/components/workspace-settings/async-user-command';
+import { AddMemberDialog } from '@/components/workspace-settings/new-user-dialog-box';
 import { useState } from 'react';
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
+    workspaceId: string;
 }
 
-export function DataTable<TData, TValue>({
+export default function ManageWorkspaceUserDataTable<TData, TValue>({
     columns,
     data,
+    workspaceId,
 }: DataTableProps<TData, TValue>) {
-    const [pagination, setPagination] = useState({
-        pageIndex: 0,
-        pageSize: 10,
-    });
-    const [sorting, setSorting] = useState<SortingState>([])
-    ;
+    // TODO: add sorting
+    const [sorting, setSorting] = useState<SortingState>([
+        { id: 'name', desc: true },
+    ]);
     const table = useReactTable({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        onPaginationChange: setPagination,
-        onSortingChange: setSorting,
         getSortedRowModel: getSortedRowModel(),
         state: {
-            pagination,
             sorting,
         },
     });
 
     return (
         <div>
-            <div className="rounded-md border">
+            <div className="flex justify-end py-3">
+                <AddMemberDialog workspaceId={workspaceId} />
+            </div>
+            <div className="overflow-hidden rounded-md border">
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -103,30 +115,6 @@ export function DataTable<TData, TValue>({
                         )}
                     </TableBody>
                 </Table>
-            </div>
-
-            <div className="flex items-center justify-end space-x-2 py-4">
-                <div className="flex mr-5">
-                    <span>
-                        Page {pagination.pageIndex + 1} / {table.getPageCount()}
-                    </span>
-                </div>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
-                >
-                    Previous
-                </Button>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
-                >
-                    Next
-                </Button>
             </div>
         </div>
     );

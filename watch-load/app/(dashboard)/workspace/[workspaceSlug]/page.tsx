@@ -1,7 +1,7 @@
 import {
     resolveWorkspaceFromSlug,
 } from '@/lib/workspace';
-import EcgDataTable, { EcgData } from '@/components/workspace/ecg-data-table';
+import EcgDataColumns, { EcgData } from '@/components/workspace/ecg-data-columns';
 import { prisma } from '@/lib/prisma';
 import { EcgCard } from '@/components/workspace/ecg-card';
 
@@ -43,7 +43,7 @@ export default async function WorkspaceDashboard({
             <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
             <div className="m-4 flex flex-col gap-6 pt-6">
                 <EcgCard>
-                    <EcgDataTable ecgData={data}></EcgDataTable>
+                    <EcgDataColumns ecgData={data}></EcgDataColumns>
                 </EcgCard>
             </div>
         </>

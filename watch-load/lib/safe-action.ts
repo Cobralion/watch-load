@@ -3,6 +3,7 @@ import * as z from 'zod';
 import { auth } from '@/lib/auth';
 import { ActionError } from '@/types/errors';
 import { GlobalRole } from '@/generated/prisma/enums';
+import { isRedirectError } from 'next/dist/client/components/redirect-error';
 
 // TODO: infer from prisma schema
 const requiredRoleSchema = z.enum(['USER', 'ADMIN']).optional();
@@ -15,6 +16,11 @@ export type ActionMetadata = z.infer<typeof metadataSchema>;
 
 function handleServerError(err: Error): string {
     console.error(err);
+
+    if(isRedirectError(err)) {
+        throw err;
+    }
+
     if (err instanceof ActionError) {
         return err.message;
     }

@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/field';
 import { Controller } from 'react-hook-form';
 import { Fragment } from 'react';
-import { WorkspaceUserWithRole } from '@/components/workspace/manage-workspace-card';
+import { WorkspaceUserWithRole } from '@/components/workspace-settings/manage-workspace-card';
 
 export default function MemberCombobox({
     label,

@@ -56,13 +56,6 @@ class NoAccessTokenError extends Error {
     }
 }
 
-class ActionError extends Error {
-    constructor(message: string, options?: ErrorOptions) {
-        super(message, options);
-        this.name = 'ActionError';
-    }
-}
-
 class WorkspaceError extends Error {
     status: number;
 
@@ -70,6 +63,28 @@ class WorkspaceError extends Error {
         super(message);
         this.name = 'WorkspaceError';
         this.status = status;
+    }
+}
+
+class ActionError extends Error {
+    constructor(message: string, options?: ErrorOptions) {
+        super(message, options);
+        this.name = 'ActionError';
+    }
+}
+
+
+class NotFoundError extends ActionError {
+    constructor(resource: string) {
+        super(`${resource} not found`);
+        this.name = 'NotFoundError';
+    }
+}
+
+class UnauthorizedError extends ActionError {
+    constructor() {
+        super('You are not authorized to perform this action');
+        this.name = 'UnauthorizedError';
     }
 }
 
@@ -83,6 +98,8 @@ export {
     SyncHeartError,
     APIFetchError,
     NoAccessTokenError,
-    ActionError,
     WorkspaceError,
+    ActionError,
+    NotFoundError,
+    UnauthorizedError,
 };
