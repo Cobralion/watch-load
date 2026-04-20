@@ -13,15 +13,14 @@ import { Label } from '@/components/ui/label';
 import { DialogState } from '@/types/dialog/dialog-state';
 import { EcgData } from '@/components/workspace/ecg-data-columns';
 import { create } from 'zustand';
-import { useState, useTransition } from 'react';
-import { editTrailsId } from '@/actions/heart';
+import { useState } from 'react';
+import { editTrialsId } from '@/actions/heart';
 import { FORMAT_DATE } from '@/lib/utils';
-import { TrailsChangeActionState } from '@/types/action-states';
 import { useAction } from 'next-safe-action/hooks';
 import { useWorkspace } from '@/app/(dashboard)/workspace/[workspaceSlug]/workspace-provider';
 import { toast } from 'sonner';
 
-export const useTrailsDialogState = create<DialogState<EcgData>>((set) => ({
+export const useTrialsDialogState = create<DialogState<EcgData>>((set) => ({
     isOpen: false,
     toggleModal: () =>
         set((state: DialogState<EcgData>) => ({ isOpen: !state.isOpen })),
@@ -32,8 +31,8 @@ export const useTrailsDialogState = create<DialogState<EcgData>>((set) => ({
 export default function EditTrailsDialog(
     props: Pick<DialogState<EcgData>, 'isOpen' | 'data' | 'toggleModal'>
 ) {
-    const [trailsId, setTrailsId] = useState<string>(
-        props.data?.trailsId ?? ''
+    const [trialsId, setTrialsId] = useState<string>(
+        props.data?.trialsId ?? ''
     );
     const workspace = useWorkspace();
     // const [error, setError] = useState<TrailsChangeActionState | null>(null);
@@ -57,7 +56,7 @@ export default function EditTrailsDialog(
     //     });
     // };
 
-    const { execute, result, isExecuting } = useAction(editTrailsId, {
+    const { execute, result, isExecuting } = useAction(editTrialsId, {
         onSuccess: () => {
             props.toggleModal();
         },
@@ -67,7 +66,7 @@ export default function EditTrailsDialog(
             }
 
             if (error.validationErrors) {
-                error.validationErrors.trailId?._errors?.forEach((err) =>
+                error.validationErrors.trialsId?._errors?.forEach((err) =>
                     toast.error(err, { position: 'top-right' })
                 );
             }
@@ -78,9 +77,9 @@ export default function EditTrailsDialog(
         <Dialog open={props.isOpen} onOpenChange={props.toggleModal}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Edit trails ID</DialogTitle>
+                    <DialogTitle>Edit trials ID</DialogTitle>
                     <DialogDescription>
-                        Edit the trails ID for the ECG measurement from
+                        Edit the trials ID for the ECG measurement from
                         <span>
                             {' '}
                             {FORMAT_DATE.format(props.data?.timestamp)}
@@ -90,12 +89,12 @@ export default function EditTrailsDialog(
                 <div className="grid gap-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="name" className="text-right">
-                            Trails ID
+                            Trials ID
                         </Label>
                         <Input
                             id="name"
-                            defaultValue={trailsId}
-                            onChange={(e) => setTrailsId(e.target.value)}
+                            defaultValue={trialsId}
+                            onChange={(e) => setTrialsId(e.target.value)}
                             className="col-span-3"
                             aria-invalid={result.serverError ? 'true' : 'false'}
                         />
@@ -119,7 +118,7 @@ export default function EditTrailsDialog(
                             type="submit"
                             onClick={() =>
                                 execute({
-                                    trailId: trailsId,
+                                    trialsId: trialsId,
                                     id: props.data!.id,
                                     workspaceId: workspace.workspace.id,
                                 })

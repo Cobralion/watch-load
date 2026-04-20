@@ -32,6 +32,9 @@ async function GET(request: NextRequest) {
     try {
         const result = await prisma.heartMeasurement.findMany({
             where: { workspaceId },
+            include: {
+                location: true,
+            },
         });
         const header = [
             'Id',
@@ -42,7 +45,8 @@ async function GET(request: NextRequest) {
             'SamplingFrequency',
             'Timestamp',
             'Modified',
-            'TrailsId',
+            'TrialsId',
+            'Location',
             'Signal',
         ];
 
@@ -50,7 +54,7 @@ async function GET(request: NextRequest) {
             header.join(','),
             ...result.map(
                 (e) =>
-                    `${e.id},${e.signalId},${e.deviceId},${e.heartRate},${e.afib},${e.samplingFrequency},${e.timestamp.toISOString()},${e.modified.toISOString()},${e.trailsId},"${e.signal}"`
+                    `${e.id},${e.signalId},${e.deviceId},${e.heartRate},${e.afib},${e.samplingFrequency},${e.timestamp.toISOString()},${e.modified.toISOString()},${e.trialsId},${e.location?.name},"${e.signal}"`
             ),
         ].join('\n');
 

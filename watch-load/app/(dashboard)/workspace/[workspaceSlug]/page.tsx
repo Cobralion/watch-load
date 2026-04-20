@@ -18,7 +18,7 @@ async function getData(workspaceId: string): Promise<EcgData[]> {
     return queryResults.map(
         (result): EcgData => ({
             id: result.id,
-            trailsId: result.trailsId,
+            trialsId: result.trialsId,
             afib: result.afib ?? 'UNKNOWN',
             timestamp: result.timestamp,
             heartRate: result.heartRate,

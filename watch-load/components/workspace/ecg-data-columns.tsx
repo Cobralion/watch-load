@@ -3,14 +3,14 @@ import { EcgDataTable } from '@/components/workspace/ecg-data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { FORMAT_DATE } from '@/lib/utils';
-import EditTrailsDialog, {
-    useTrailsDialogState,
-} from '@/components/workspace/trails-edit-dialog';
+import EditTrialsDialog, {
+    useTrialsDialogState,
+} from '@/components/workspace/trials-edit-dialog';
 import { ArrowUpDown } from 'lucide-react';
 
 export type EcgData = {
     id: string;
-    trailsId: string | null;
+    trialsId: string | null;
     heartRate: number;
     afib: string;
     timestamp: Date;
@@ -18,7 +18,7 @@ export type EcgData = {
 };
 
 export default function EcgDataColumns({ ecgData }: { ecgData: EcgData[] }) {
-    const { isOpen, toggleModal, data, setData } = useTrailsDialogState();
+    const { isOpen, toggleModal, data, setData } = useTrialsDialogState();
 
     const columns: ColumnDef<EcgData>[] = [
         {
@@ -38,7 +38,7 @@ export default function EcgDataColumns({ ecgData }: { ecgData: EcgData[] }) {
             },
         },
         {
-            accessorKey: 'trailsId',
+            accessorKey: 'trialsId',
             header: ({ column }) => {
                 return (
                     <Button
@@ -47,25 +47,25 @@ export default function EcgDataColumns({ ecgData }: { ecgData: EcgData[] }) {
                             column.toggleSorting(column.getIsSorted() === 'asc')
                         }
                     >
-                        Trails ID
+                        Trials ID
                         <ArrowUpDown className="ml-2 h-4 w-4" />
                     </Button>
                 );
             },
             cell: ({ row }) => {
                 const original = row.original;
-                const trailsId = row.original.trailsId;
+                const trialsId = row.original.trialsId;
                 const isSet =
-                    trailsId !== null &&
-                    trailsId !== undefined &&
-                    trailsId.length > 0;
+                    trialsId !== null &&
+                    trialsId !== undefined &&
+                    trialsId.length > 0;
 
                 return (
                     <>
                         <div className="flex justify-between gap-3">
                             {isSet ? (
                                 <span className="text-primary font-medium">
-                                    {original?.trailsId}
+                                    {original?.trialsId}
                                 </span>
                             ) : (
                                 <span className="text-muted-foreground text-sm italic">
@@ -127,7 +127,7 @@ export default function EcgDataColumns({ ecgData }: { ecgData: EcgData[] }) {
     return (
         <>
             <EcgDataTable columns={columns} data={ecgData} />
-            <EditTrailsDialog
+            <EditTrialsDialog
                 key={data?.id}
                 isOpen={isOpen}
                 toggleModal={toggleModal}

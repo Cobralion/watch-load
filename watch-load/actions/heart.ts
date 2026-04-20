@@ -1,9 +1,6 @@
 'use server';
 
 import { syncHeartData } from '@/lib/withings/heart';
-import { auth } from '@/lib/auth';
-import { TrailsChangeActionState } from '@/types/action-states';
-import { EcgData } from '@/components/workspace/ecg-data-columns';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { actionClient } from '@/lib/safe-action';
@@ -11,7 +8,6 @@ import { resolveWorkspaceFromId } from '@/lib/workspace';
 import * as z from 'zod';
 import { ActionError, NoAccessTokenError } from '@/types/errors';
 import { BatchPayload } from '@/generated/prisma/internal/prismaNamespace';
-import { notFound } from 'next/navigation';
 
 export const syncHeartAction = actionClient
     .metadata({ actionName: 'syncHeartAction' })
@@ -41,15 +37,15 @@ export const syncHeartAction = actionClient
         revalidatePath(`/workspace/${slug}`);
     });
 
-export const editTrailsId = actionClient
-    .metadata({ actionName: 'editTrailsId' })
+export const editTrialsId = actionClient
+    .metadata({ actionName: 'editTrialsId' })
     .inputSchema(
         z.object({
             id: z.string(),
             workspaceId: z.string(),
-            trailId: z
+            trialsId: z
                 .string()
-                .min(1, { message: 'Trails ID cannot be empty.' }),
+                .min(1, { message: 'Trials Id cannot be empty.' }),
         })
     )
     .action(async ({ parsedInput }): Promise<void> => {
@@ -65,15 +61,15 @@ export const editTrailsId = actionClient
                     id: parsedInput.id,
                     workspaceId: parsedInput.workspaceId,
                 },
-                data: { trailsId: parsedInput.trailId },
+                data: { trialsId: parsedInput.trialsId },
             });
         } catch (e) {
             console.error(e);
-            throw new ActionError('Could not update trails id.');
+            throw new ActionError('Could not update trials id.');
         }
 
         if (!batchPayload || batchPayload.count === 0) {
-            throw new ActionError('Could not update trails id.');
+            throw new ActionError('Could not update trials id.');
         }
 
         revalidatePath(`/workspace/${slug}`);
