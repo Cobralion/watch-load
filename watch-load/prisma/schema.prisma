@@ -36,7 +36,7 @@ model User {
   id          String       @id @default(cuid())
   username    String       @unique
   password    String
-  role        GlobalRole
+  role        GlobalRole   @default(USER)
   name        String?
   createdAt   DateTime     @default(now()) @map("created_at")
   updatedAt   DateTime     @updatedAt @map("updated_at")
@@ -56,6 +56,7 @@ model Workspace {
   withingsConnections WithingsConnection[]
   memberships         Membership[]
   heartMeasurements   HeartMeasurement[]
+  capturedAtOptions   CapturedAtOption[]
 
   @@map("workspaces")
 }
@@ -98,10 +99,12 @@ model HeartMeasurement {
   afib              Afib
   signal            Int[]
   samplingFrequency Int      @map("sampling_frequency")
-  timestamp         DateTime
-  modified          DateTime
-  trailsId          String?  @map("trails_id")
-  capturedAt        String?  @map("captured_at")
+  timestamp         DateTime @map("timestamp")
+  modified          DateTime @map("modified")
+  trialsId          String?  @map("trials_id")
+
+  capturedAtId String?           @map("captured_at_id")
+  capturedAt   CapturedAtOption? @relation(fields: [capturedAtId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -111,4 +114,20 @@ model HeartMeasurement {
 
   @@index([workspaceId, deviceId, timestamp(sort: Desc)])
   @@map("heart_measurements")
+}
+
+model CapturedAtOption {
+  id   String @id @default(cuid())
+  name String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  workspaceId String    @map("workspace_id")
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  measurements HeartMeasurement[]
+
+  @@unique([workspaceId, name])
+  @@map("captured_at_options")
 }
