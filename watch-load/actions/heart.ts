@@ -41,8 +41,8 @@ export const editTrialsId = actionClient
     .metadata({ actionName: 'editTrialsId' })
     .inputSchema(
         z.object({
-            id: z.string(),
-            workspaceId: z.string(),
+            id: z.cuid(),
+            workspaceId: z.cuid(),
             trialsId: z
                 .string()
                 .min(1, { message: 'Trials Id cannot be empty.' }),
@@ -74,3 +74,49 @@ export const editTrialsId = actionClient
 
         revalidatePath(`/workspace/${slug}`);
     });
+
+export const editLocation = actionClient
+    .metadata({ actionName: 'editLocation' })
+    .inputSchema(
+        z.object({
+            id: z.cuid(),
+            workspaceId: z.cuid(),
+            locationId: z.cuid(),
+        })
+    )
+    .action(
+        async ({
+            parsedInput: { id, workspaceId, locationId },
+        }): Promise<{
+            id: string;
+            locationId: string;
+        }> => {
+            const {
+                workspace: { slug },
+            } = await resolveWorkspaceFromId(workspaceId);
+
+            let batchPayload: BatchPayload | null = null;
+            try {
+                batchPayload = await prisma.heartMeasurement.updateMany({
+                    where: {
+                        id,
+                        workspaceId,
+                    },
+                    data: { locationId },
+                });
+            } catch (e) {
+                console.error(e);
+                throw new ActionError('Could not update location.');
+            }
+
+            if (!batchPayload || batchPayload.count === 0) {
+                throw new ActionError('Could not update location.');
+            }
+
+            revalidatePath(`/workspace/${slug}`);
+            return {
+                id,
+                locationId,
+            };
+        }
+    );

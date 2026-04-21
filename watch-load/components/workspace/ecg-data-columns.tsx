@@ -6,124 +6,194 @@ import { FORMAT_DATE } from '@/lib/utils';
 import EditTrialsDialog, {
     useTrialsDialogState,
 } from '@/components/workspace/trials-edit-dialog';
-import { ArrowUpDown } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
+import { LocationOption } from '@/types/workspace';
+import LocationSelect from '@/components/workspace/location-select';
+import { useWorkspace } from '@/app/(dashboard)/workspace/[workspaceSlug]/workspace-provider';
+import { useMemo } from 'react';
 
 export type EcgData = {
     id: string;
     trialsId: string | null;
+    location: LocationOption | null;
     heartRate: number;
     afib: string;
     timestamp: Date;
     samplingFrequency: number;
 };
 
-export default function EcgDataColumns({ ecgData }: { ecgData: EcgData[] }) {
+export default function EcgDataColumns({
+    ecgData,
+    possibleWorkspaceLocations,
+}: {
+    ecgData: EcgData[];
+    possibleWorkspaceLocations: LocationOption[];
+}) {
     const { isOpen, toggleModal, data, setData } = useTrialsDialogState();
+    const { workspace } = useWorkspace();
 
-    const columns: ColumnDef<EcgData>[] = [
-        {
-            accessorKey: 'id',
-            header: ({ column }) => {
-                return (
-                    <Button
-                        variant="ghost"
-                        onClick={() =>
-                            column.toggleSorting(column.getIsSorted() === 'asc')
-                        }
-                    >
-                        ID
-                        <ArrowUpDown className="ml-2 h-4 w-4" />
-                    </Button>
-                );
-            },
-        },
-        {
-            accessorKey: 'trialsId',
-            header: ({ column }) => {
-                return (
-                    <Button
-                        variant="ghost"
-                        onClick={() =>
-                            column.toggleSorting(column.getIsSorted() === 'asc')
-                        }
-                    >
-                        Trials ID
-                        <ArrowUpDown className="ml-2 h-4 w-4" />
-                    </Button>
-                );
-            },
-            cell: ({ row }) => {
-                const original = row.original;
-                const trialsId = row.original.trialsId;
-                const isSet =
-                    trialsId !== null &&
-                    trialsId !== undefined &&
-                    trialsId.length > 0;
+    const columns = useMemo<ColumnDef<EcgData>[]>(
+        () => [
+            {
+                accessorKey: 'id',
+                header: ({ column }) => {
+                    const isSorted = column.getIsSorted();
+                    const SortIcon =
+                        isSorted === 'asc'
+                            ? ArrowUp
+                            : isSorted === 'desc'
+                              ? ArrowDown
+                              : ArrowUpDown;
 
-                return (
-                    <>
-                        <div className="flex justify-between gap-3">
-                            {isSet ? (
-                                <span className="text-primary font-medium">
-                                    {original?.trialsId}
-                                </span>
-                            ) : (
-                                <span className="text-muted-foreground text-sm italic">
-                                    Unassigned
-                                </span>
-                            )}
-                            <Button
-                                variant="secondary"
-                                size="sm"
-                                className="h-7 cursor-pointer px-3 text-xs"
-                                onClick={() => {
-                                    setData(original);
-                                    toggleModal();
-                                }}
-                            >
-                                Edit
-                            </Button>
-                        </div>
-                    </>
-                );
+                    return (
+                        <Button
+                            variant="ghost"
+                            onClick={() =>
+                                column.toggleSorting(isSorted === 'asc')
+                            }
+                        >
+                            ID
+                            <SortIcon className="ml-2 h-4 w-4" />
+                        </Button>
+                    );
+                },
             },
-        },
-        {
-            accessorKey: 'heartRate',
-            header: 'HF',
-        },
-        {
-            accessorKey: 'afib',
-            header: 'Atrial fibrillation',
-        },
-        {
-            accessorKey: 'timestamp',
-            header: ({ column }) => {
-                return (
-                    <Button
-                        variant="ghost"
-                        onClick={() =>
-                            column.toggleSorting(column.getIsSorted() === 'asc')
-                        }
-                    >
-                        Measured at
-                        <ArrowUpDown className="ml-2 h-4 w-4" />
-                    </Button>
-                );
-            },
-            cell: ({ row }) => {
-                const date = new Date(row.getValue('timestamp'));
+            {
+                accessorKey: 'trialsId',
+                header: ({ column }) => {
+                    const isSorted = column.getIsSorted();
+                    const SortIcon =
+                        isSorted === 'asc'
+                            ? ArrowUp
+                            : isSorted === 'desc'
+                              ? ArrowDown
+                              : ArrowUpDown;
 
-                const formatted = FORMAT_DATE.format(date);
+                    return (
+                        <Button
+                            variant="ghost"
+                            onClick={() =>
+                                column.toggleSorting(isSorted === 'asc')
+                            }
+                        >
+                            ID
+                            <SortIcon className="ml-2 h-4 w-4" />
+                        </Button>
+                    );
+                },
+                cell: ({ row }) => {
+                    const original = row.original;
+                    const trialsId = row.original.trialsId;
+                    const isSet =
+                        trialsId !== null &&
+                        trialsId !== undefined &&
+                        trialsId.length > 0;
 
-                return <span>{formatted}</span>;
+                    return (
+                        <>
+                            <div className="flex justify-between gap-3">
+                                {isSet ? (
+                                    <span className="text-primary font-medium">
+                                        {original?.trialsId}
+                                    </span>
+                                ) : (
+                                    <span className="text-muted-foreground text-sm italic">
+                                        Unassigned
+                                    </span>
+                                )}
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    className="h-7 cursor-pointer px-3 text-xs"
+                                    onClick={() => {
+                                        setData(original);
+                                        toggleModal();
+                                    }}
+                                >
+                                    Edit
+                                </Button>
+                            </div>
+                        </>
+                    );
+                },
             },
-        },
-        {
-            accessorKey: 'samplingFrequency',
-            header: 'Sampling frequency',
-        },
-    ];
+            {
+                accessorKey: 'location',
+                header: ({ column }) => {
+                    const isSorted = column.getIsSorted();
+                    const SortIcon =
+                        isSorted === 'asc'
+                            ? ArrowUp
+                            : isSorted === 'desc'
+                              ? ArrowDown
+                              : ArrowUpDown;
+
+                    return (
+                        <Button
+                            variant="ghost"
+                            onClick={() =>
+                                column.toggleSorting(isSorted === 'asc')
+                            }
+                        >
+                            ID
+                            <SortIcon className="ml-2 h-4 w-4" />
+                        </Button>
+                    );
+                },
+                cell: ({ row }) => {
+                    const original = row.original;
+                    return (
+                        <LocationSelect
+                            id={original.id}
+                            workspaceId={workspace.id}
+                            locationId={original.location?.id}
+                            possibleWorkspaceLocations={
+                                possibleWorkspaceLocations
+                            }
+                        />
+                    );
+                },
+            },
+            {
+                accessorKey: 'heartRate',
+                header: 'HF',
+            },
+            {
+                accessorKey: 'afib',
+                header: 'Atrial fibrillation',
+            },
+            {
+                accessorKey: 'timestamp',
+                header: ({ column }) => {
+                    return (
+                        <Button
+                            variant="ghost"
+                            onClick={() =>
+                                column.toggleSorting(
+                                    column.getIsSorted() === 'asc'
+                                )
+                            }
+                        >
+                            Measured at
+                            <ArrowUpDown className="ml-2 h-4 w-4" />
+                        </Button>
+                    );
+                },
+                cell: ({ row }) => {
+                    const date = new Date(row.getValue('timestamp'));
+
+                    const formatted = FORMAT_DATE.format(date);
+
+                    return <span>{formatted}</span>;
+                },
+            },
+            {
+                accessorKey: 'samplingFrequency',
+                header: 'Sampling frequency',
+            },
+        ],
+        [toggleModal, setData, workspace.id, possibleWorkspaceLocations]
+    );
     return (
         <>
             <EcgDataTable columns={columns} data={ecgData} />

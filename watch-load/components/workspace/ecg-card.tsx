@@ -34,7 +34,7 @@ export function EcgCard({ children }: React.ComponentProps<'div'>) {
         <Card>
             <CardHeader>
                 <CardTitle>ECG Annotation Workspace</CardTitle>
-                <CardDescription>Card Description</CardDescription>
+                <CardDescription>Here you can annotation your wearable ECGs.</CardDescription>
                 <CardAction className="flex gap-2">
                     <Button
                         className="cursor-pointer"
