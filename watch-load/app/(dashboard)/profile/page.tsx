@@ -6,7 +6,7 @@ import ChangePassword from '@/components/profile/change-password';
 export default function ProfilePage() {
     return (
         <div className="flex min-h-screen items-start justify-center">
-            <div className="w-full max-w-lg space-y-6">
+            <div className="m-4 flex w-1/2 flex-col gap-6 pt-6">
                 {/* Page title */}
                 <div>
                     <h1 className="text-2xl font-semibold">Profile</h1>

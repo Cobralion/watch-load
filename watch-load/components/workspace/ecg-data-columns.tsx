@@ -76,7 +76,7 @@ export default function EcgDataColumns({
                                 column.toggleSorting(isSorted === 'asc')
                             }
                         >
-                            ID
+                            Trials ID
                             <SortIcon className="ml-2 h-4 w-4" />
                         </Button>
                     );
@@ -135,7 +135,7 @@ export default function EcgDataColumns({
                                 column.toggleSorting(isSorted === 'asc')
                             }
                         >
-                            ID
+                            Location
                             <SortIcon className="ml-2 h-4 w-4" />
                         </Button>
                     );
