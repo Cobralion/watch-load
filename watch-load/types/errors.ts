@@ -73,17 +73,48 @@ class ActionError extends Error {
     }
 }
 
-class NotFoundError extends ActionError {
-    constructor(resource: string) {
-        super(`${resource} not found`);
-        this.name = 'NotFoundError';
+abstract class StatusActionError extends ActionError {
+    status: number;
+    constructor(name: string, status: number, message: string, options?: ErrorOptions) {
+        super(message, options);
+        this.name = name;
+        this.status = status;
     }
 }
 
-class UnauthorizedError extends ActionError {
+class NotFoundError extends StatusActionError {
     constructor() {
-        super('You are not authorized to perform this action');
-        this.name = 'UnauthorizedError';
+        super('NotFoundError', 404, 'Not Found');
+    }
+}
+
+class UnauthorizedError extends StatusActionError {
+    constructor() {
+        super('UnauthorizedError',401,'Unauthorized');
+    }
+}
+
+class ForbiddenError extends StatusActionError {
+    constructor() {
+        super('ForbiddenError', 403, 'Forbidden');
+    }
+}
+
+class BadRequestError extends StatusActionError {
+    constructor() {
+        super('BadRequestError', 400, 'Bad request');
+    }
+}
+
+class BadGatewayError extends StatusActionError {
+    constructor() {
+        super('BadGatewayError', 502, 'Bad Gateway');
+    }
+}
+
+class InternalServerError extends StatusActionError {
+    constructor() {
+        super('InternalServerError', 500, 'Internal Server Error');
     }
 }
 
@@ -99,6 +130,11 @@ export {
     NoAccessTokenError,
     WorkspaceError,
     ActionError,
+    StatusActionError,
     NotFoundError,
     UnauthorizedError,
+    ForbiddenError,
+    BadRequestError,
+    BadGatewayError,
+    InternalServerError
 };
