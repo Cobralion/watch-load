@@ -5,6 +5,7 @@ import { StatusActionError } from '@/types/errors';
 import {
     resolveWorkspaceFromId,
 } from '@/lib/workspace';
+import {cookies} from "next/headers";
 
 export async function GET(req: NextRequest) {
     const session = await auth();
@@ -27,7 +28,8 @@ export async function GET(req: NextRequest) {
         return new Response('Bad Request', { status: 400 });
     }
 
-    const originalState = req.cookies.get('withings_oauth_state')?.value;
+    const cookieStore = await cookies();
+    const originalState = cookieStore.get('withings_oauth_state')?.value;
     if (!originalState || originalState !== state) {
         console.error(
             `State mismatch in Withings OAuth callback. Potential CSRF attack detected.`
@@ -36,7 +38,7 @@ export async function GET(req: NextRequest) {
     }
     req.cookies.delete('withings_oauth_state');
 
-    const workspaceId = req.cookies.get('withings_oauth_workspace')?.value;
+    const workspaceId = cookieStore.get('withings_oauth_workspace')?.value;
     if (!workspaceId) {
         console.error(`WorkspaceId cookie missing.`);
         return new Response('Bad Request', { status: 400 });

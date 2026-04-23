@@ -4,9 +4,10 @@ import { resolveWorkspaceRawNoAuthFromId } from '@/lib/workspace';
 import { auth } from '@/lib/auth';
 import * as crypto from 'crypto';
 import { env } from '@/env';
+import { cookies } from 'next/headers';
 
 // TODO: to action
-async function GET(request: NextRequest, response: NextResponse) {
+async function GET(request: NextRequest) {
     const session = await auth();
     if (!session) {
         return NextResponse.redirect('/login');
@@ -33,14 +34,16 @@ async function GET(request: NextRequest, response: NextResponse) {
 
     const state = crypto.randomBytes(32).toString('hex');
 
-    response.cookies.set('withings_oauth_state', state, {
+    const cookieStore = await cookies();
+
+    cookieStore.set('withings_oauth_state', state, {
         httpOnly: true,
         secure: env.NODE_ENV === 'production',
         path: '/api/withings/callback',
         maxAge: 60 * 5, // 5 minutes
     });
 
-    response.cookies.set('withings_oauth_workspace', workspaceId, {
+    cookieStore.set('withings_oauth_workspace', workspaceId, {
         httpOnly: true,
         secure: env.NODE_ENV === 'production',
         path: '/api/withings/callback',
