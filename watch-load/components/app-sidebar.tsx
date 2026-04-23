@@ -15,6 +15,7 @@ import {
 import { Watch } from 'lucide-react';
 import { APPLICATION_NAME, APPLICATION_VERSION } from '@/constants/constants';
 import { usePathname } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 type Workspace = {
     id: string;
@@ -28,6 +29,7 @@ export function AppSidebar({
     workspaces,
     ...props
 }: React.ComponentProps<typeof Sidebar> & { workspaces: Workspace[] }) {
+    const { data } = useSession();
     const pathname = usePathname();
 
     return (
@@ -64,6 +66,17 @@ export function AppSidebar({
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                     </SidebarMenu>
+                    {(data?.user?.role === 'ADMIN') && (
+                        <SidebarMenu className="gap-2">
+                            <SidebarMenuItem key="admin">
+                                <SidebarMenuButton asChild>
+                                    <a href="/admin" className="font-medium">
+                                        Admin Panel
+                                    </a>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        </SidebarMenu>
+                    )}
                 </SidebarGroup>
 
                 {workspaces.map((ws) => (

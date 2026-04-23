@@ -1,0 +1,13 @@
+import { AdminPanelCard } from '@/components/admin/admin-panel-card';
+
+
+export default async function Page() {
+    return (
+        <>
+            <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+            <div className="m-4 flex w-1/2 flex-col gap-6 pt-6">
+                <AdminPanelCard></AdminPanelCard>
+            </div>
+        </>
+    );
+}
