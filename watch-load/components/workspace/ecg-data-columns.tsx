@@ -165,17 +165,23 @@ export default function EcgDataColumns({
             {
                 accessorKey: 'timestamp',
                 header: ({ column }) => {
+                    const isSorted = column.getIsSorted();
+                    const SortIcon =
+                        isSorted === 'asc'
+                            ? ArrowUp
+                            : isSorted === 'desc'
+                              ? ArrowDown
+                              : ArrowUpDown;
+
                     return (
                         <Button
                             variant="ghost"
                             onClick={() =>
-                                column.toggleSorting(
-                                    column.getIsSorted() === 'asc'
-                                )
+                                column.toggleSorting(isSorted === 'asc')
                             }
                         >
                             Measured at
-                            <ArrowUpDown className="ml-2 h-4 w-4" />
+                            <SortIcon className="ml-2 h-4 w-4" />
                         </Button>
                     );
                 },
