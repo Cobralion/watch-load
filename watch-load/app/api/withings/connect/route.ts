@@ -2,9 +2,11 @@ import { getWithingsAuthUrl } from '@/lib/withings/oauth';
 import { NextRequest, NextResponse } from 'next/server';
 import { resolveWorkspaceRawNoAuthFromId } from '@/lib/workspace';
 import { auth } from '@/lib/auth';
+import * as crypto from 'crypto';
+import { env } from '@/env';
 
 // TODO: to action
-async function GET(request: NextRequest) {
+async function GET(request: NextRequest, response: NextResponse) {
     const session = await auth();
     if (!session) {
         return NextResponse.redirect('/login');
@@ -29,7 +31,23 @@ async function GET(request: NextRequest) {
 
     if (role !== 'ADMIN') return new Response('Forbidden', { status: 403 });
 
-    const authUrl = await getWithingsAuthUrl(workspaceId, session.user.id);
+    const state = crypto.randomBytes(32).toString('hex');
+
+    response.cookies.set('withings_oauth_state', state, {
+        httpOnly: true,
+        secure: env.NODE_ENV === 'production',
+        path: '/api/withings/callback',
+        maxAge: 60 * 5, // 5 minutes
+    });
+
+    response.cookies.set('withings_oauth_workspace', workspaceId, {
+        httpOnly: true,
+        secure: env.NODE_ENV === 'production',
+        path: '/api/withings/callback',
+        maxAge: 60 * 5, // 5 minutes
+    });
+
+    const authUrl = await getWithingsAuthUrl(state);
     return NextResponse.redirect(authUrl);
 }
 

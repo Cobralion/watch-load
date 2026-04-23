@@ -3,6 +3,7 @@ import * as z from 'zod';
 
 export const env = createEnv({
     server: {
+        NODE_ENV: z.enum(['development', 'production', 'test']),
         DATABASE_URL: z.url(),
         AUTH_SECRET: z.string().min(1),
         ENCRYPTION_KEY: z.string().length(64),

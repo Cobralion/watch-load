@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { handleWithingsCallback } from '@/lib/withings/oauth';
 import { auth } from '@/lib/auth';
 import { StatusActionError } from '@/types/errors';
+import {
+    resolveWorkspaceFromId,
+} from '@/lib/workspace';
 
 export async function GET(req: NextRequest) {
     const session = await auth();
@@ -15,19 +18,44 @@ export async function GET(req: NextRequest) {
 
     if (error) {
         // TODO: redirect the user to the connect site and show them the error
-        return new Response(`A error occurred while authenticating: ${error}`, { status: 400 });
+        return new Response(`A error occurred while authenticating: ${error}`, {
+            status: 400,
+        });
     }
 
     if (!code || !state) {
         return new Response('Bad Request', { status: 400 });
     }
 
-    let slug: string;
+    const originalState = req.cookies.get('withings_oauth_state')?.value;
+    if (!originalState || originalState !== state) {
+        console.error(
+            `State mismatch in Withings OAuth callback. Potential CSRF attack detected.`
+        );
+        return new Response('Forbidden', { status: 403 });
+    }
+    req.cookies.delete('withings_oauth_state');
+
+    const workspaceId = req.cookies.get('withings_oauth_workspace')?.value;
+    if (!workspaceId) {
+        console.error(`WorkspaceId cookie missing.`);
+        return new Response('Bad Request', { status: 400 });
+    }
+    req.cookies.delete('withings_oauth_workspace');
+    const {
+        workspace: { slug },
+        role,
+    } = await resolveWorkspaceFromId(workspaceId);
+
+    if (role !== 'ADMIN') {
+        return new Response('Forbidden', { status: 403 });
+    }
+
     try {
-        slug = await handleWithingsCallback(code, state);
+        await handleWithingsCallback(code, workspaceId);
     } catch (error) {
-        if(error instanceof StatusActionError) {
-            if(error.status === 401) {
+        if (error instanceof StatusActionError) {
+            if (error.status === 401) {
                 return NextResponse.redirect(new URL(`/login`, req.url));
             }
             return new Response(error.message, { status: error.status });

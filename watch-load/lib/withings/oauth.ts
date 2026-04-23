@@ -7,54 +7,32 @@ import {
     WITHINGS_AUTHORIZATION_URL,
     WITHINGS_OAUTH_URL,
 } from '@/lib/withings/api-urls';
-import {
-    resolveWorkspaceFromSlug,
-} from '@/lib/workspace';
 import { RequestTokenResponse } from '@/types/withings';
 import { encryptToken } from '@/lib/encryption';
 import {
     BadGatewayError,
     BadRequestError,
-    ForbiddenError,
     InternalServerError,
 } from '@/types/errors';
 
 
 export async function handleWithingsCallback(
     code: string,
-    state: string
+    workspaceId: string
 ) {
-    const payload = await verifyStateJWT(state);
-
-    if (!payload) {
-        throw new ForbiddenError();
-    }
-
-    const result = await resolveWorkspaceFromSlug(
-        payload.workspaceId
-    );
-
-    const {
-        workspace: { slug },
-        role,
-    } = result;
-
-    if (role !== 'ADMIN') throw new ForbiddenError();
-
-    // Check if there is already a connected device
     const existingDevice = await prisma.withingsConnection.findFirst({
-        where: { workspaceId: payload.workspaceId },
+        where: { workspaceId },
     });
 
     if (existingDevice) {
         const result = await disconnectDevice(
             existingDevice,
-            payload.workspaceId
+            workspaceId
         );
         if (!result) {
             console.error(
                 'Failed to revoke old Withings connection for workspace ' +
-                    payload.workspaceId
+                    workspaceId
             );
             throw new BadRequestError();
         }
@@ -104,7 +82,7 @@ export async function handleWithingsCallback(
         // Create device and link to workspace
         await prisma.withingsConnection.create({
             data: {
-                workspaceId: payload.workspaceId,
+                workspaceId: workspaceId,
                 accessToken: encryptToken(body.access_token),
                 refreshToken: encryptToken(body.refresh_token),
                 expiresAt: expiresAt,
@@ -115,13 +93,10 @@ export async function handleWithingsCallback(
         console.error('Failed to save Withings device:', err);
         throw new InternalServerError();
     }
-
-    return slug;
 }
 
 export async function getWithingsAuthUrl(
-    workspaceId: string,
-    userId: string,
+    state: string,
     mode: string = ''
 ) {
     const params = new URLSearchParams({
@@ -129,7 +104,7 @@ export async function getWithingsAuthUrl(
         client_id: env.WITHINGS_CLIENT_ID,
         redirect_uri: env.WITHINGS_REDIRECT_URI,
         scope: 'user.metrics,user.activity',
-        state: await createStateJWT(workspaceId, userId),
+        state: state,
         mode: mode,
     });
 
