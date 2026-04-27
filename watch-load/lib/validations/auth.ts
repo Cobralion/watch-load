@@ -6,6 +6,11 @@ const passwordValidation = z
     .regex(/[^a-zA-Z0-9]/, 'Password must contain at least one symbol')
     .regex(/[A-Z]/, 'Password must contain at least one uppercase letter');
 
+export const usernameSchema = z
+    .string()
+    .min(2, { message: 'Username must be at least 2 characters.' })
+    .max(10, { message: 'Username must not be more than 10 characters.' });
+
 export const changePasswordSchema = z
     .object({
         currentPassword: passwordValidation,
@@ -22,10 +27,7 @@ export const changePasswordSchema = z
     });
 
 export const loginSchema = z.object({
-    username: z
-        .string()
-        .min(2, { message: 'Username must be at least 2 characters.' })
-        .max(10, { message: 'Username must not be more than 10 characters.' }),
+    username: usernameSchema,
     password: passwordValidation,
 });
 

@@ -64,8 +64,7 @@ export default function ManageWorkspaceCard({
                     <FieldGroup>
                         <Field>
                             <FieldLabel htmlFor="new-workspace-workspace-name">
-                                <span>Workspace name</span>
-                                <span className="text-red-500">*</span>
+                                Workspace name
                             </FieldLabel>
                             <Input
                                 {...form.register('name')}
