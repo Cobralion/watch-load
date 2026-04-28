@@ -11,8 +11,8 @@ import { GlobalRole } from '@/generated/prisma/enums';
 import { randomBytes } from 'crypto';
 import { ActionError } from '@/types/errors';
 import { env } from '@/env';
-import { createHash } from 'node:crypto';
 import { Prisma } from '@/generated/prisma/client';
+import { sha256Hex } from '@/lib/utils';
 
 export const createUser = actionClient
     .metadata({ actionName: 'createUser', requiredRole: 'ADMIN' })
@@ -20,9 +20,7 @@ export const createUser = actionClient
     .outputSchema(createUserOutputSchema)
     .action(async ({ parsedInput, ctx }): Promise<CreateUserOutput> => {
         const resetToken = randomBytes(32).toString('hex');
-        const hashedToken = createHash('sha256')
-            .update(resetToken)
-            .digest('hex');
+        const hashedToken = sha256Hex(resetToken);
         const role = parsedInput.admin ? GlobalRole.ADMIN : GlobalRole.USER;
 
         let user: {

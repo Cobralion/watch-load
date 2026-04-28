@@ -31,5 +31,17 @@ export const loginSchema = z.object({
     password: passwordValidation,
 });
 
+export const resetPasswordSchema = z
+    .object({
+        username: usernameSchema,
+        resetToken: z.string(),
+        password: passwordValidation,
+        confirmPassword: passwordValidation,
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+        message: 'Password and confirm password must match.',
+        path: ['confirmPassword'],
+    });
+
 export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
 export type LoginFormData = z.infer<typeof loginSchema>;

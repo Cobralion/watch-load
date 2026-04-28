@@ -18,85 +18,95 @@ import {
 import { useHookFormAction } from '@next-safe-action/adapter-react-hook-form/hooks';
 import { Input } from '@/components/ui/input';
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
-import { useForm } from 'react-hook-form';
-import { LoginFormData, loginSchema } from '@/lib/validations/auth';
-import { useRouter } from 'next/navigation';
-import { login } from '@/actions/auth';
+import { resetPasswordSchema } from '@/lib/validations/auth';
+import { resetPassword } from '@/actions/auth';
 
-export function LoginForm({
-    className,
-    ...props
-}: React.ComponentProps<'div'>) {
+export interface PasswordResetFormProps {
+    username: string;
+    resetToken: string;
+}
+
+export function PasswordResetForm({ username, resetToken }: PasswordResetFormProps) {
     const { form, action, handleSubmitWithAction } = useHookFormAction(
-        login,
-        standardSchemaResolver(loginSchema),
+        resetPassword,
+        standardSchemaResolver(resetPasswordSchema),
         {
             formProps: {
                 defaultValues: {
-                    username: '',
+                    username: username,
+                    resetToken: resetToken,
                     password: '',
+                    confirmPassword: '',
                 },
             },
         }
     );
+    // TODO: add success message
 
     return (
-        <div className={cn('flex flex-col gap-6', className)} {...props}>
+        <div className="flex flex-col gap-6">
             <Card>
                 <CardHeader>
-                    <CardTitle>Login to your account</CardTitle>
+                    <CardTitle>Reset password</CardTitle>
                     <CardDescription>
-                        Enter your username and password below to login.
+                        Choose a password for your account.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmitWithAction}>
                         <FieldGroup>
-                            <Field
-                                key="username"
-                                data-invalid={!!form.formState.errors.username}
-                            >
-                                <FieldLabel htmlFor="form-login-username">
+                            <Field>
+                                <FieldLabel htmlFor="form-reset-username">
                                     Username
                                 </FieldLabel>
                                 <Input
-                                    {...form.register('username')}
-                                    id="form-login-username"
+                                    value={username}
+                                    id="form-reset-username"
                                     type="text"
-                                    aria-invalid={
-                                        !!form.formState.errors.username
-                                    }
-                                    autoComplete="username"
+                                    disabled
                                 />
-                                {form.formState.errors.username && (
-                                    <FieldError
-                                        errors={[
-                                            form.formState.errors.username,
-                                        ]}
-                                    />
-                                )}
                             </Field>
 
-                            <Field
-                                key="password"
-                                data-invalid={!!form.formState.errors.password}
-                            >
-                                <FieldLabel htmlFor="form-login-password">
+                            <Field>
+                                <FieldLabel htmlFor="form-reset-password">
                                     Password
                                 </FieldLabel>
                                 <Input
                                     {...form.register('password')}
-                                    id="form-login-password"
+                                    id="form-reset-password"
                                     type="password"
                                     aria-invalid={
                                         !!form.formState.errors.password
                                     }
-                                    autoComplete="current-password"
+                                    autoComplete="new-password"
                                 />
                                 {form.formState.errors.password && (
                                     <FieldError
                                         errors={[
                                             form.formState.errors.password,
+                                        ]}
+                                    />
+                                )}
+                            </Field>
+
+                            <Field>
+                                <FieldLabel htmlFor="form-reset-confirm-password">
+                                    Confirm Password
+                                </FieldLabel>
+                                <Input
+                                    {...form.register('confirmPassword')}
+                                    id="form-reset-confirm-password"
+                                    type="password"
+                                    aria-invalid={
+                                        !!form.formState.errors.confirmPassword
+                                    }
+                                    autoComplete="new-password"
+                                />
+                                {form.formState.errors.confirmPassword && (
+                                    <FieldError
+                                        errors={[
+                                            form.formState.errors
+                                                .confirmPassword,
                                         ]}
                                     />
                                 )}
@@ -114,8 +124,8 @@ export function LoginForm({
                                     disabled={action.isPending}
                                 >
                                     {action.isPending
-                                        ? 'Logging in...'
-                                        : 'Login'}
+                                        ? 'Resetting password...'
+                                        : 'Reset password'}
                                 </Button>
                             </Field>
                         </FieldGroup>

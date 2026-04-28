@@ -7,15 +7,14 @@ export const proxy = auth((req: NextAuthRequest) => {
 
     // User is not authenticated
     if (!req.auth) {
-        if (req.nextUrl.pathname !== '/login') {
+        if (req.nextUrl.pathname !== '/login' && req.nextUrl.pathname !== '/reset-password') {
             return Response.redirect(loginPage);
         }
     }
 
     // User is authenticated
     if (req.auth) {
-        if (req.nextUrl.pathname === '/login') {
-            const dashboard = new URL('/workspace', req.nextUrl.origin);
+        if (req.nextUrl.pathname === '/login' || req.nextUrl.pathname === '/reset-password') {
             return Response.redirect(dashboard);
         }
 
