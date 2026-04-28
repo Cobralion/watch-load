@@ -8,6 +8,10 @@ class ServerCredentialsError extends CredentialsSignin {
     code = 'server_error';
 }
 
+class ResetCredentialsError extends CredentialsSignin {
+    code = 'reset_error';
+}
+
 class EncryptionError extends Error {
     constructor(message: string, options?: ErrorOptions) {
         super(message, options);
@@ -121,6 +125,7 @@ class InternalServerError extends StatusActionError {
 export {
     InvalidCredentialsError,
     ServerCredentialsError,
+    ResetCredentialsError,
     EncryptionError,
     RefreshTokenError,
     HeartListError,

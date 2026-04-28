@@ -7,3 +7,11 @@ export const createUserSchema = z.object({
     username: usernameSchema,
     admin: z.boolean(),
 });
+
+export const createUserOutputSchema = z.object({
+    username: usernameSchema,
+    role: z.enum(['USER', 'ADMIN']),
+    resetUrl: z.url(),
+});
+
+export type CreateUserOutput = z.infer<typeof createUserOutputSchema>;

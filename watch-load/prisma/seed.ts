@@ -9,7 +9,7 @@ async function main() {
     console.log('Seeding database...');
 
     // --- USERS ---
-    const admin = await prisma.user.upsert({
+    await prisma.user.upsert({
         where: { username: 'admin' },
         update: {},
         create: {
@@ -19,6 +19,8 @@ async function main() {
                 '$2a$12$v61otLTs7yf/NtH9a4.EA.dQCfA9qZwC5gy6jR0A.LQ.aQI1FsQ5y',
             role: 'ADMIN',
             name: 'Jonny Tester',
+            resetToken: null,
+            resetTokenExpiresAt: new Date(),
         },
     });
 
@@ -32,6 +34,8 @@ async function main() {
                 '$2a$12$VSYVchlRN2bDTm/v9iQhW.iejCdpgByY416gMe9GNoY7GW4pH627C',
             role: 'USER',
             name: 'Jimmy User',
+            resetToken: null,
+            resetTokenExpiresAt: new Date(),
         },
     });
 
@@ -45,6 +49,8 @@ async function main() {
                 '$2a$12$TkBN1iu95ZSoMt3ROtuOWebQOqkZcXOXvsiXzOmdLOGkI38psUz/6',
             role: 'USER',
             name: 'James User',
+            resetToken: null,
+            resetTokenExpiresAt: new Date(),
         },
     });
 
@@ -58,6 +64,8 @@ async function main() {
                 '$2a$12$YevL//FqxhoK0b4pVdfTq.jmV9ImnmffrffNdYpaQacsuq25OXptC',
             role: 'USER',
             name: 'Jane User',
+            resetToken: null,
+            resetTokenExpiresAt: new Date(),
         },
     });
 

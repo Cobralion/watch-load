@@ -4,7 +4,7 @@ import { loginSchema } from '@/lib/validations/auth';
 import { signIn } from '@/lib/auth';
 import { AuthError, CredentialsSignin } from 'next-auth';
 import { publicActionClient } from '@/lib/safe-action';
-import { ActionError } from '@/types/errors';
+import { ActionError, ResetCredentialsError } from '@/types/errors';
 import { redirect } from 'next/navigation';
 
 export const login = publicActionClient
@@ -22,6 +22,9 @@ export const login = publicActionClient
         } catch (error) {
             console.error('Login action error: ', error);
             if (error instanceof AuthError) {
+                if (error instanceof ResetCredentialsError) {
+                    throw new ActionError('You have to reset your password. Please ask your administrator for password reset link.');
+                }
                 if (error instanceof CredentialsSignin) {
                     throw new ActionError('Invalid username or password.');
                 }

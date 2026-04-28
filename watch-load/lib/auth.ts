@@ -3,13 +3,16 @@ import Credentials from 'next-auth/providers/credentials';
 import { prisma } from '@/lib/prisma';
 import {
     InvalidCredentialsError,
+    ResetCredentialsError,
     ServerCredentialsError,
 } from '@/types/errors';
 import bcrypt from 'bcryptjs';
 import { RequiredRole } from '@/lib/safe-action';
+import { env } from '@/env';
+import { GlobalRole } from '@/generated/prisma/enums';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-    debug: true, // TODO: change to false in production
+    debug: env.NODE_ENV !== 'production',
     providers: [
         Credentials({
             name: 'credentials',
@@ -60,10 +63,14 @@ async function authorize(
 
     let result: {
         id: string;
-        name: string | null;
         username: string;
-        password: string;
-        role: string;
+        password: string | null;
+        role: GlobalRole;
+        name: string | null;
+        resetToken: string | null;
+        resetTokenExpiresAt: Date;
+        createdAt: Date;
+        updatedAt: Date;
     } | null = null;
     try {
         result = await prisma.user.findUnique({
@@ -79,6 +86,11 @@ async function authorize(
     if (!result) {
         console.error('[AUTH] Invalid credentials - user not found');
         throw new InvalidCredentialsError();
+    }
+
+    if(!result.password || result.resetToken) {
+        console.error('[AUTH] User must reset password.');
+        throw new ResetCredentialsError();
     }
 
     // TODO: compare against dummy if user is not found for security
