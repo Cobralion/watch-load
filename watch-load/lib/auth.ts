@@ -7,7 +7,6 @@ import {
     ServerCredentialsError,
 } from '@/types/errors';
 import bcrypt from 'bcryptjs';
-import { RequiredRole } from '@/lib/safe-action';
 import { env } from '@/env';
 import { GlobalRole } from '@/generated/prisma/enums';
 
@@ -44,8 +43,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 });
 
 async function authorize(
-    credentials: Partial<Record<'username' | 'password', unknown>>,
-    request: Request
+    credentials: Partial<Record<'username' | 'password', unknown>>
 ): Promise<User | null> {
     if (!credentials) {
         console.error('[AUTH] No credentials provided');
@@ -63,15 +61,15 @@ async function authorize(
 
     let result: {
         id: string;
+        name: string | null;
         username: string;
         password: string | null;
         role: GlobalRole;
-        name: string | null;
         resetToken: string | null;
-        resetTokenExpiresAt: Date;
+        resetTokenExpiresAt: Date | null;
         createdAt: Date;
         updatedAt: Date;
-    } | null = null;
+    } | null;
     try {
         result = await prisma.user.findUnique({
             where: {
@@ -88,7 +86,7 @@ async function authorize(
         throw new InvalidCredentialsError();
     }
 
-    if(!result.password || result.resetToken) {
+    if (!result.password || result.resetToken) {
         console.error('[AUTH] User must reset password.');
         throw new ResetCredentialsError();
     }

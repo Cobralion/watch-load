@@ -20,7 +20,9 @@ interface ConnectedDevicesPageProps {
     readonly params: Promise<{ workspaceSlug: string }>;
 }
 
-export default async function ConnectedDevicesPage({ params }: ConnectedDevicesPageProps) {
+export default async function ConnectedDevicesPage({
+    params,
+}: ConnectedDevicesPageProps) {
     const { workspaceSlug } = await params;
     const { workspace, role } = await resolveWorkspaceFromSlug(workspaceSlug);
 

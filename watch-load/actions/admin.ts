@@ -18,7 +18,7 @@ export const createUser = actionClient
     .metadata({ actionName: 'createUser', requiredRole: 'ADMIN' })
     .inputSchema(createUserSchema)
     .outputSchema(createUserOutputSchema)
-    .action(async ({ parsedInput, ctx }): Promise<CreateUserOutput> => {
+    .action(async ({ parsedInput }): Promise<CreateUserOutput> => {
         const resetToken = randomBytes(32).toString('hex');
         const hashedToken = sha256Hex(resetToken);
         const role = parsedInput.admin ? GlobalRole.ADMIN : GlobalRole.USER;

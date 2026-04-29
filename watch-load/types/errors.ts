@@ -79,7 +79,12 @@ class ActionError extends Error {
 
 abstract class StatusActionError extends ActionError {
     status: number;
-    constructor(name: string, status: number, message: string, options?: ErrorOptions) {
+    constructor(
+        name: string,
+        status: number,
+        message: string,
+        options?: ErrorOptions
+    ) {
         super(message, options);
         this.name = name;
         this.status = status;
@@ -94,7 +99,7 @@ class NotFoundError extends StatusActionError {
 
 class UnauthorizedError extends StatusActionError {
     constructor() {
-        super('UnauthorizedError',401,'Unauthorized');
+        super('UnauthorizedError', 401, 'Unauthorized');
     }
 }
 
@@ -141,5 +146,5 @@ export {
     ForbiddenError,
     BadRequestError,
     BadGatewayError,
-    InternalServerError
+    InternalServerError,
 };

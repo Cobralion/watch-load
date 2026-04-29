@@ -45,7 +45,9 @@ export default function AdminUserCredentialsDialog({
                     </DialogClose>
                     <Button
                         variant="ghost"
-                        onClick={async () => await navigator.clipboard.writeText(text)}
+                        onClick={async () =>
+                            await navigator.clipboard.writeText(text)
+                        }
                     >
                         Copy
                     </Button>

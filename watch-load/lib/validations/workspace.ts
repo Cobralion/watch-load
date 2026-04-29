@@ -1,5 +1,4 @@
 import * as z from 'zod';
-import { createLocation } from '@/actions/workspace';
 
 export const createWorkspaceSchema = z.object({
     name: z

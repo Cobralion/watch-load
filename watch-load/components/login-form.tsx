@@ -11,16 +11,15 @@ import {
 } from '@/components/ui/card';
 import {
     Field,
+    FieldError,
     FieldGroup,
     FieldLabel,
-    FieldError,
 } from '@/components/ui/field';
 import { useHookFormAction } from '@next-safe-action/adapter-react-hook-form/hooks';
 import { Input } from '@/components/ui/input';
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
-import { useForm } from 'react-hook-form';
-import { LoginFormData, loginSchema } from '@/lib/validations/auth';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { loginSchema } from '@/lib/validations/auth';
+import { useSearchParams } from 'next/navigation';
 import { login } from '@/actions/auth';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { CircleCheck } from 'lucide-react';

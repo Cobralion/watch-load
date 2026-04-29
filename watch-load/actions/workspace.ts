@@ -18,7 +18,6 @@ import {
     BatchPayload,
     PrismaClientKnownRequestError,
 } from '@/generated/prisma/internal/prismaNamespace';
-import { LocationOption } from '@/types/workspace';
 
 // TODO: implement redirect on ui if unauthorized
 export const createWorkspace = actionClient

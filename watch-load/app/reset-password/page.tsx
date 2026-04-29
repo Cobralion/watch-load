@@ -2,22 +2,22 @@ import { ResetPasswordForm } from '@/components/reset-password-form';
 import { prisma } from '@/lib/prisma';
 import { sha256Hex } from '@/lib/utils';
 import ResetPasswordError from '@/components/reset-password-error';
-import { LoginForm } from '@/components/login-form';
 
 interface PageProps {
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function Page({ searchParams }: PageProps) {
-
     let { username, reset_token } = await searchParams;
 
     if (!username || !reset_token) {
-        return (<div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
-            <div className="w-full max-w-sm">
-                <ResetPasswordError message="Invalid reset link." />
+        return (
+            <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+                <div className="w-full max-w-sm">
+                    <ResetPasswordError message="Invalid reset link." />
+                </div>
             </div>
-        </div>);
+        );
     }
 
     username = Array.isArray(username) ? username[0] : username;
@@ -52,5 +52,4 @@ export default async function Page({ searchParams }: PageProps) {
             </div>
         </div>
     );
-
 }

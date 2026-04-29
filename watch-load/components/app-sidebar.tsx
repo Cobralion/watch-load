@@ -66,7 +66,7 @@ export function AppSidebar({
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                     </SidebarMenu>
-                    {(data?.user?.role === 'ADMIN') && (
+                    {data?.user?.role === 'ADMIN' && (
                         <SidebarMenu className="gap-2">
                             <SidebarMenuItem key="admin">
                                 <SidebarMenuButton asChild>

@@ -2,10 +2,8 @@
 
 import {
     Card,
-    CardAction,
     CardContent,
     CardDescription,
-    CardFooter,
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
@@ -25,12 +23,9 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 import { Controller } from 'react-hook-form';
-import { toast } from 'sonner';
 import AdminUserCredentialsDialog from '@/components/admin/admin-user-credentials-dialog';
 
-interface AdminCreateUserCardProps {}
-
-export default function AdminCreateUserCard(props: AdminCreateUserCardProps) {
+export default function AdminCreateUserCard() {
     const [open, setOpen] = useState(false);
     const [credentials, setCredentials] = useState<{
         username: string;
@@ -57,7 +52,6 @@ export default function AdminCreateUserCard(props: AdminCreateUserCardProps) {
                         setOpen(true);
                         resetFormAndAction();
                     },
-                    onError: ({ error }) => {},
                 },
             }
         );

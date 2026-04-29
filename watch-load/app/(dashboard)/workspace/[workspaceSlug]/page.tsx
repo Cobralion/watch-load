@@ -23,10 +23,12 @@ async function getData(workspaceId: string): Promise<EcgData[]> {
         (result): EcgData => ({
             id: result.id,
             trialsId: result.trialsId,
-            location: result.location ? {
-                id: result.location?.id,
-                name: result.location?.name,
-            } : null,
+            location: result.location
+                ? {
+                      id: result.location?.id,
+                      name: result.location?.name,
+                  }
+                : null,
             afib: result.afib ?? 'UNKNOWN',
             timestamp: result.timestamp,
             heartRate: result.heartRate,
@@ -46,12 +48,11 @@ export default async function WorkspaceDashboard({
 
     const data = await getData(workspace.id);
 
-    const workspaceLocations: LocationOption[] = await prisma.locationOption.findMany({
-        where: { workspaceId: workspace.id },
-        select: { id: true, name: true },
-    });
-
-
+    const workspaceLocations: LocationOption[] =
+        await prisma.locationOption.findMany({
+            where: { workspaceId: workspace.id },
+            select: { id: true, name: true },
+        });
 
     return (
         <>

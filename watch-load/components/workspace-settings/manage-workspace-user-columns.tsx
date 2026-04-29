@@ -1,7 +1,6 @@
 'use client';
 
-import { ColumnDef } from '@tanstack/react-table';
-import { Row } from '@tanstack/react-table';
+import { ColumnDef, Row } from '@tanstack/react-table';
 import { Switch } from '@/components/ui/switch';
 import {
     DropdownMenu,
@@ -72,7 +71,7 @@ interface RemoveDropdownCellProps {
 
 export const RemoveDropdownCell = ({ row }: RemoveDropdownCellProps) => {
     const member = row.original;
-    const { execute, isExecuting } = useAction(removeUser, {
+    const { execute } = useAction(removeUser, {
         onError: ({ error }) => {
             toast.error(error.serverError, { position: 'top-right' });
         },

@@ -2,8 +2,8 @@
 
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { CircleAlert, CircleCheck } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { CircleAlert } from 'lucide-react';
+import { Alert, AlertTitle } from '@/components/ui/alert';
 
 export default function ResetPasswordError({ message }: { message: string }) {
     return (

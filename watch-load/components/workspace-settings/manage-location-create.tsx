@@ -1,27 +1,20 @@
 'use client';
 
-import { useAction, useOptimisticAction } from 'next-safe-action/hooks';
 import { createLocation } from '@/actions/workspace';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { useState } from 'react';
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { createLocationSchema } from '@/lib/validations/workspace';
 import { useHookFormAction } from '@next-safe-action/adapter-react-hook-form/hooks';
-import {
-    Field,
-    FieldError,
-    FieldGroup,
-    FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldError, FieldGroup } from '@/components/ui/field';
 
 export default function ManageLocationCreate({
     workspaceId,
 }: {
     workspaceId: string;
 }) {
-    const { form, action, handleSubmitWithAction, resetFormAndAction } =
+    const { form, handleSubmitWithAction, resetFormAndAction } =
         useHookFormAction(
             createLocation,
             standardSchemaResolver(createLocationSchema),
@@ -33,7 +26,7 @@ export default function ManageLocationCreate({
                     },
                 },
                 actionProps: {
-                    onSuccess: ({ data }) => {
+                    onSuccess: () => {
                         resetFormAndAction();
                     },
                     onError: ({ error }) => {

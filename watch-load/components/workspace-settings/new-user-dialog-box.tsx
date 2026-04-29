@@ -8,10 +8,10 @@ import {
     Dialog,
     DialogContent,
     DialogDescription,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-    DialogFooter,
 } from '@/components/ui/dialog';
 import { addNewUser } from '@/actions/workspace';
 
@@ -30,7 +30,6 @@ export function AddMemberDialog({ workspaceId }: AddMemberDialogProps) {
             setOpen(false);
             setSelectedUser(null);
         },
-        onError: ({ error }) => {},
     });
 
     const handleSubmit = () => {

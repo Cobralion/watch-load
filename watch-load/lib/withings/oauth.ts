@@ -15,7 +15,6 @@ import {
     InternalServerError,
 } from '@/types/errors';
 
-
 export async function handleWithingsCallback(
     code: string,
     workspaceId: string
@@ -25,10 +24,7 @@ export async function handleWithingsCallback(
     });
 
     if (existingDevice) {
-        const result = await disconnectDevice(
-            existingDevice,
-            workspaceId
-        );
+        const result = await disconnectDevice(existingDevice, workspaceId);
         if (!result) {
             console.error(
                 'Failed to revoke old Withings connection for workspace ' +
@@ -95,10 +91,7 @@ export async function handleWithingsCallback(
     }
 }
 
-export async function getWithingsAuthUrl(
-    state: string,
-    mode: string = ''
-) {
+export async function getWithingsAuthUrl(state: string, mode: string = '') {
     const params = new URLSearchParams({
         response_type: 'code',
         client_id: env.WITHINGS_CLIENT_ID,

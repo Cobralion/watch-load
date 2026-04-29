@@ -1,16 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
 import { searchUser } from '@/actions/workspace';
 import {
     Command,
-    CommandInput,
-    CommandList,
     CommandEmpty,
     CommandGroup,
+    CommandInput,
     CommandItem,
+    CommandList,
 } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 
@@ -50,6 +50,7 @@ export function AsyncUserSearch({
 
     useEffect(() => {
         if (query.trim() === '') {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setUsers([]);
             return;
         }

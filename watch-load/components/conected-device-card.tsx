@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/card';
 import { Activity, Watch } from 'lucide-react';
 import { disconnectDevices } from '@/actions/disconnect-devices';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useWorkspace } from '@/app/(dashboard)/workspace/[workspaceSlug]/workspace-provider';
 import { useAction } from 'next-safe-action/hooks';
 

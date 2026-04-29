@@ -9,10 +9,10 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
-    FieldGroup,
     Field,
-    FieldLabel,
     FieldError,
+    FieldGroup,
+    FieldLabel,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
@@ -48,83 +48,79 @@ export default function NewWorkspaceCard() {
         );
 
     return (
-            <Card>
-                <CardHeader>
-                    <CardTitle>Create Workspace</CardTitle>
-                    <CardDescription>
-                        Here you can create an new workspace.
-                    </CardDescription>
-                    <CardAction>
-                        <Button
-                            variant="destructive"
-                            onClick={() => resetFormAndAction()}
-                        >
-                            Reset Input
-                        </Button>
-                    </CardAction>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmitWithAction}>
-                        <FieldGroup>
-                            <Field>
-                                <FieldLabel htmlFor="new-workspace-workspace-name">
-                                    <span>Workspace name</span>
-                                    <span className="text-red-500">*</span>
-                                </FieldLabel>
-                                <Input
-                                    {...form.register('name')}
-                                    id="new-workspace-workspace-name"
-                                    placeholder="My Workspace"
-                                    required
-                                />
-                                <FieldError
-                                    errors={[form.formState.errors.name]}
-                                />
-                            </Field>
-                            <Field>
-                                <FieldLabel htmlFor="new-workspace-workspace-description">
-                                    <span>Workspace description</span>
-                                </FieldLabel>
-                                <Input
-                                    {...form.register('description')}
-                                    id="new-workspace-workspace-description"
-                                    placeholder=""
-                                />
-                                <FieldError
-                                    errors={[form.formState.errors.description]}
-                                />
-                            </Field>
-                            <Field>
-                                <FieldLabel htmlFor="new-workspace-workspace-slug">
-                                    <span>Workspace slug</span>
-                                    <span className="text-red-500">*</span>
-                                </FieldLabel>
-                                <Input
-                                    {...form.register('slug')}
-                                    id="new-workspace-workspace-slug"
-                                    placeholder="my-workspace"
-                                    required
-                                />
-                                <FieldError
-                                    errors={[form.formState.errors.slug]}
-                                />
-                            </Field>
-                            {action.result?.serverError && (
-                                <p className="text-sm font-medium text-red-500">
-                                    {action.result.serverError}
-                                </p>
-                            )}
+        <Card>
+            <CardHeader>
+                <CardTitle>Create Workspace</CardTitle>
+                <CardDescription>
+                    Here you can create an new workspace.
+                </CardDescription>
+                <CardAction>
+                    <Button
+                        variant="destructive"
+                        onClick={() => resetFormAndAction()}
+                    >
+                        Reset Input
+                    </Button>
+                </CardAction>
+            </CardHeader>
+            <CardContent>
+                <form onSubmit={handleSubmitWithAction}>
+                    <FieldGroup>
+                        <Field>
+                            <FieldLabel htmlFor="new-workspace-workspace-name">
+                                <span>Workspace name</span>
+                                <span className="text-red-500">*</span>
+                            </FieldLabel>
+                            <Input
+                                {...form.register('name')}
+                                id="new-workspace-workspace-name"
+                                placeholder="My Workspace"
+                                required
+                            />
+                            <FieldError errors={[form.formState.errors.name]} />
+                        </Field>
+                        <Field>
+                            <FieldLabel htmlFor="new-workspace-workspace-description">
+                                <span>Workspace description</span>
+                            </FieldLabel>
+                            <Input
+                                {...form.register('description')}
+                                id="new-workspace-workspace-description"
+                                placeholder=""
+                            />
+                            <FieldError
+                                errors={[form.formState.errors.description]}
+                            />
+                        </Field>
+                        <Field>
+                            <FieldLabel htmlFor="new-workspace-workspace-slug">
+                                <span>Workspace slug</span>
+                                <span className="text-red-500">*</span>
+                            </FieldLabel>
+                            <Input
+                                {...form.register('slug')}
+                                id="new-workspace-workspace-slug"
+                                placeholder="my-workspace"
+                                required
+                            />
+                            <FieldError errors={[form.formState.errors.slug]} />
+                        </Field>
+                        {action.result?.serverError && (
+                            <p className="text-sm font-medium text-red-500">
+                                {action.result.serverError}
+                            </p>
+                        )}
 
-                            <Field orientation="horizontal">
-                                <Button type="submit">
-                                    {action.isPending
-                                        ? 'Creating...'
-                                        : 'Create Workspace'}
-                                </Button>
-                            </Field>
-                        </FieldGroup>
-                    </form>
-                </CardContent>
-            </Card>
+                        <Field orientation="horizontal">
+                            <Button type="submit">
+                                {action.isPending
+                                    ? 'Creating...'
+                                    : 'Create Workspace'}
+                            </Button>
+                        </Field>
+                    </FieldGroup>
+                </form>
+            </CardContent>
+        </Card>
     );
 }

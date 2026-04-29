@@ -17,24 +17,6 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
-import {
-    Command,
-    CommandEmpty,
-    CommandInput,
-    CommandList,
-} from '@/components/ui/command';
-import { AsyncUserSearch } from '@/components/workspace-settings/async-user-command';
 import { AddMemberDialog } from '@/components/workspace-settings/new-user-dialog-box';
 import { useState } from 'react';
 
@@ -50,9 +32,8 @@ export default function ManageWorkspaceUserDataTable<TData, TValue>({
     workspaceId,
 }: DataTableProps<TData, TValue>) {
     // TODO: add sorting
-    const [sorting, setSorting] = useState<SortingState>([
-        { id: 'name', desc: true },
-    ]);
+    const [sorting] = useState<SortingState>([{ id: 'name', desc: true }]);
+    // eslint-disable-next-line react-hooks/incompatible-library
     const table = useReactTable({
         data,
         columns,

@@ -1,6 +1,5 @@
 'use client';
 
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -11,9 +10,9 @@ import {
 } from '@/components/ui/card';
 import {
     Field,
+    FieldError,
     FieldGroup,
     FieldLabel,
-    FieldError,
 } from '@/components/ui/field';
 import { useHookFormAction } from '@next-safe-action/adapter-react-hook-form/hooks';
 import { Input } from '@/components/ui/input';
@@ -26,7 +25,10 @@ export interface PasswordResetFormProps {
     resetToken: string;
 }
 
-export function ResetPasswordForm({ username, resetToken }: PasswordResetFormProps) {
+export function ResetPasswordForm({
+    username,
+    resetToken,
+}: PasswordResetFormProps) {
     const { form, action, handleSubmitWithAction } = useHookFormAction(
         resetPassword,
         standardSchemaResolver(resetPasswordSchema),

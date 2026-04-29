@@ -7,18 +7,27 @@ export const proxy = auth((req: NextAuthRequest) => {
 
     // User is not authenticated
     if (!req.auth) {
-        if (req.nextUrl.pathname !== '/login' && req.nextUrl.pathname !== '/reset-password') {
+        if (
+            req.nextUrl.pathname !== '/login' &&
+            req.nextUrl.pathname !== '/reset-password'
+        ) {
             return Response.redirect(loginPage);
         }
     }
 
     // User is authenticated
     if (req.auth) {
-        if (req.nextUrl.pathname === '/login' || req.nextUrl.pathname === '/reset-password') {
+        if (
+            req.nextUrl.pathname === '/login' ||
+            req.nextUrl.pathname === '/reset-password'
+        ) {
             return Response.redirect(dashboard);
         }
 
-        if(req.nextUrl.pathname === '/admin' && req.auth.user.role !== 'ADMIN') {
+        if (
+            req.nextUrl.pathname === '/admin' &&
+            req.auth.user.role !== 'ADMIN'
+        ) {
             return Response.redirect(dashboard);
         }
 

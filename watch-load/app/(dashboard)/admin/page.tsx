@@ -1,6 +1,5 @@
 import AdminCreateUserCard from '@/components/admin/admin-create-user-card';
 
-
 export default async function Page() {
     return (
         <div className="flex items-start gap-6">

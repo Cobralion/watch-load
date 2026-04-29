@@ -34,6 +34,7 @@ export function EcgDataTable<TData, TValue>({
         pageSize: 10,
     });
     const [sorting, setSorting] = useState<SortingState>([]);
+    // eslint-disable-next-line react-hooks/incompatible-library
     const table = useReactTable({
         data,
         columns,

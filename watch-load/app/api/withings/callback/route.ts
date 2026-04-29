@@ -2,10 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { handleWithingsCallback } from '@/lib/withings/oauth';
 import { auth } from '@/lib/auth';
 import { StatusActionError } from '@/types/errors';
-import {
-    resolveWorkspaceFromId,
-} from '@/lib/workspace';
-import {cookies} from "next/headers";
+import { resolveWorkspaceFromId } from '@/lib/workspace';
+import { cookies } from 'next/headers';
 
 export async function GET(req: NextRequest) {
     const session = await auth();

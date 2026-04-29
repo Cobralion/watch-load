@@ -86,8 +86,8 @@ export const resetPassword = publicActionClient
             throw new ActionError('Could not reset password.');
         }
 
-        const url = new URL('/login', env.APP_URL)
-        url.searchParams.set('username', username)
+        const url = new URL('/login', env.APP_URL);
+        url.searchParams.set('username', username);
         url.searchParams.set('reset_success', '1');
         redirect(url.pathname + url.search);
     });

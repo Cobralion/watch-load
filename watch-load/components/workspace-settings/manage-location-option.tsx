@@ -2,7 +2,7 @@
 
 import { LocationOption } from '@/types/workspace';
 import { Button } from '@/components/ui/button';
-import { Trash2, Pencil, Check, X, Loader2 } from 'lucide-react';
+import { Check, Loader2, Pencil, Trash2, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { useHookFormAction } from '@next-safe-action/adapter-react-hook-form/hooks';
