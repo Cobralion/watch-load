@@ -15,3 +15,25 @@ export const createUserOutputSchema = z.object({
 });
 
 export type CreateUserOutput = z.infer<typeof createUserOutputSchema>;
+
+export const toggleGlobalAdminSchema = z.object({
+    userId: z.string(),
+    isAdmin: z.boolean(),
+});
+
+export const removeGlobalUserSchema = z.object({
+    userId: z.string(),
+});
+
+export const generatePasswordResetLinkSchema = z.object({
+    userId: z.string(),
+});
+
+export const generatePasswordResetLinkOutputSchema = z.object({
+    username: usernameSchema,
+    resetUrl: z.url(),
+});
+
+export type GeneratePasswordResetLinkOutput = z.infer<
+    typeof generatePasswordResetLinkOutputSchema
+>;
