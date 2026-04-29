@@ -16,7 +16,7 @@ export const changePassword = actionClient
             select: { password: true },
         });
 
-        if (!user) {
+        if (!user || !user.password) {
             throw new ActionError("User doesn't exist.");
         }
 
