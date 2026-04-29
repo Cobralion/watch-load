@@ -2,11 +2,10 @@ import { getWithingsAuthUrl } from '@/lib/withings/oauth';
 import { NextRequest, NextResponse } from 'next/server';
 import { resolveWorkspaceRawNoAuthFromId } from '@/lib/workspace';
 import { auth } from '@/lib/auth';
-import * as crypto from 'crypto';
+import * as crypto from 'node:crypto';
 import { env } from '@/env';
 import { cookies } from 'next/headers';
 
-// TODO: to action
 async function GET(request: NextRequest) {
     const session = await auth();
     if (!session) {

@@ -1,5 +1,5 @@
 'use client';
-import { createContext, useContext, ReactNode } from 'react';
+import { createContext, useContext, ReactNode, useMemo } from 'react';
 import { WorkspaceContext } from '@/types/resolvedWorkspace';
 
 const Context = createContext<WorkspaceContext | null>(null);
@@ -10,10 +10,10 @@ export function WorkspaceProvider({
     isGlobalAdmin,
     children,
 }: WorkspaceContext & { children: ReactNode }) {
+    const contextValues = useMemo(() => ({ workspace, role, isGlobalAdmin }), [workspace, role, isGlobalAdmin]);
+
     return (
-        <Context.Provider value={{ workspace, role, isGlobalAdmin }}>
-            {children}
-        </Context.Provider>
+        <Context.Provider value={contextValues}>{children}</Context.Provider>
     );
 }
 

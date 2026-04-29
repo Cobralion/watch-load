@@ -8,7 +8,7 @@ import {
 } from '@/lib/validations/admin';
 import { prisma } from '@/lib/prisma';
 import { GlobalRole } from '@/generated/prisma/enums';
-import { randomBytes } from 'crypto';
+import { randomBytes } from 'node:crypto';
 import { ActionError } from '@/types/errors';
 import { env } from '@/env';
 import { Prisma } from '@/generated/prisma/client';

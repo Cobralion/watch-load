@@ -48,7 +48,6 @@ export default function NewWorkspaceCard() {
         );
 
     return (
-        <>
             <Card>
                 <CardHeader>
                     <CardTitle>Create Workspace</CardTitle>
@@ -127,6 +126,5 @@ export default function NewWorkspaceCard() {
                     </form>
                 </CardContent>
             </Card>
-        </>
     );
 }
