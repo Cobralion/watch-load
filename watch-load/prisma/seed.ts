@@ -20,7 +20,7 @@ async function main() {
             role: 'ADMIN',
             name: 'Jonny Tester',
             resetToken: null,
-            resetTokenExpiresAt: new Date(),
+            resetTokenExpiresAt: null,
         },
     });
 
@@ -35,7 +35,7 @@ async function main() {
             role: 'USER',
             name: 'Jimmy User',
             resetToken: null,
-            resetTokenExpiresAt: new Date(),
+            resetTokenExpiresAt: null,
         },
     });
 
@@ -50,7 +50,7 @@ async function main() {
             role: 'USER',
             name: 'James User',
             resetToken: null,
-            resetTokenExpiresAt: new Date(),
+            resetTokenExpiresAt: null,
         },
     });
 
@@ -65,7 +65,7 @@ async function main() {
             role: 'USER',
             name: 'Jane User',
             resetToken: null,
-            resetTokenExpiresAt: new Date(),
+            resetTokenExpiresAt: null,
         },
     });
 

@@ -30,7 +30,7 @@ export const createUser = actionClient
             id: string;
             password: string | null;
             resetToken: string | null;
-            resetTokenExpiresAt: Date;
+            resetTokenExpiresAt: Date | null;
             createdAt: Date;
             updatedAt: Date;
         };

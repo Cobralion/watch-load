@@ -20,20 +20,26 @@ import { Input } from '@/components/ui/input';
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { useForm } from 'react-hook-form';
 import { LoginFormData, loginSchema } from '@/lib/validations/auth';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { login } from '@/actions/auth';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { CircleCheck } from 'lucide-react';
 
 export function LoginForm({
     className,
     ...props
 }: React.ComponentProps<'div'>) {
+    const searchParams = useSearchParams();
+    const username = searchParams.get('username') || '';
+    const resetSuccess = searchParams.get('reset_success') === '1';
+
     const { form, action, handleSubmitWithAction } = useHookFormAction(
         login,
         standardSchemaResolver(loginSchema),
         {
             formProps: {
                 defaultValues: {
-                    username: '',
+                    username: username,
                     password: '',
                 },
             },
@@ -50,6 +56,16 @@ export function LoginForm({
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
+                    {resetSuccess && (
+                        <Alert className="mb-4 border-green-200 bg-green-50 text-green-800">
+                            <CircleCheck className="h-4 w-4 !text-green-600" />
+                            <AlertTitle>Password reset successful</AlertTitle>
+                            <AlertDescription className="text-green-700">
+                                You can now log in with your new password.
+                            </AlertDescription>
+                        </Alert>
+                    )}
+
                     <form onSubmit={handleSubmitWithAction}>
                         <FieldGroup>
                             <Field

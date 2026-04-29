@@ -9,6 +9,7 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { sha256Hex } from '@/lib/utils';
 import bcrypt from 'bcryptjs';
+import { env } from '@/env';
 
 export const login = publicActionClient
     .inputSchema(loginSchema)
@@ -47,20 +48,16 @@ export const resetPassword = publicActionClient
     .action(async ({ parsedInput }): Promise<void> => {
         const { username, password, resetToken } = parsedInput;
 
-        let user: {
-            id: string;
-            resetToken: string | null;
-            resetTokenExpiresAt: Date;
-        } | null;
-
+        const hashedToken = sha256Hex(resetToken);
+        let user: { id: string } | null = null;
         try {
             user = await prisma.user.findFirst({
-                where: { username: username },
-                select: {
-                    id: true,
-                    resetToken: true,
-                    resetTokenExpiresAt: true,
+                where: {
+                    username,
+                    resetToken: hashedToken,
+                    resetTokenExpiresAt: { gt: new Date() },
                 },
+                select: { id: true },
             });
         } catch (error) {
             console.error(error);
@@ -68,19 +65,8 @@ export const resetPassword = publicActionClient
         }
 
         if (!user) {
-            throw new ActionError('Could not reset password.');
-        }
-
-        if (user.resetTokenExpiresAt < new Date()) {
             throw new ActionError(
-                'Reset link expired. Ask your administrator for a new one.'
-            );
-        }
-
-        const resetTokenHash = sha256Hex(resetToken);
-        if (user.resetToken !== resetTokenHash) {
-            throw new ActionError(
-                'Reset link is not valid. Ask your administrator for a new one.'
+                'Reset link is invalid or expired. Ask your administrator for a new one.'
             );
         }
 
@@ -92,7 +78,7 @@ export const resetPassword = publicActionClient
                 data: {
                     password: passwordHash,
                     resetToken: null,
-                    resetTokenExpiresAt: new Date(),
+                    resetTokenExpiresAt: null,
                 },
             });
         } catch (error) {
@@ -100,5 +86,8 @@ export const resetPassword = publicActionClient
             throw new ActionError('Could not reset password.');
         }
 
-        redirect('/login');
+        const url = new URL('/login', env.APP_URL)
+        url.searchParams.set('username', username)
+        url.searchParams.set('reset_success', '1');
+        redirect(url.pathname + url.search);
     });

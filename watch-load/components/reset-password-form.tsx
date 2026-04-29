@@ -26,7 +26,7 @@ export interface PasswordResetFormProps {
     resetToken: string;
 }
 
-export function PasswordResetForm({ username, resetToken }: PasswordResetFormProps) {
+export function ResetPasswordForm({ username, resetToken }: PasswordResetFormProps) {
     const { form, action, handleSubmitWithAction } = useHookFormAction(
         resetPassword,
         standardSchemaResolver(resetPasswordSchema),
