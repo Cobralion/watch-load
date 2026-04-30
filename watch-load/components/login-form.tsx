@@ -1,6 +1,5 @@
 'use client';
 
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -19,18 +18,17 @@ import { useHookFormAction } from '@next-safe-action/adapter-react-hook-form/hoo
 import { Input } from '@/components/ui/input';
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { loginSchema } from '@/lib/validations/auth';
-import { useSearchParams } from 'next/navigation';
 import { login } from '@/actions/auth';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { CircleCheck } from 'lucide-react';
+import { use } from 'react';
 
-export function LoginForm({
-    className,
-    ...props
-}: React.ComponentProps<'div'>) {
-    const searchParams = useSearchParams();
-    const username = searchParams.get('username') || '';
-    const resetSuccess = searchParams.get('reset_success') === '1';
+export function LoginForm({searchParams}: {
+    searchParams: Promise<{ username?: string; reset_success?: string }>;
+}) {
+    const params = use(searchParams);
+    const username = params.username || '';
+    const resetSuccess = params.reset_success === '1';
 
     const { form, action, handleSubmitWithAction } = useHookFormAction(
         login,
@@ -46,7 +44,7 @@ export function LoginForm({
     );
 
     return (
-        <div className={cn('flex flex-col gap-6', className)} {...props}>
+        <div className="flex flex-col gap-6">
             <Card>
                 <CardHeader>
                     <CardTitle>Login to your account</CardTitle>
