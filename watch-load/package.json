@@ -2,6 +2,7 @@
     "name": "watch-load",
     "version": "0.1.0",
     "private": true,
+    "packageManager": "bun@1.3.10",
     "type": "module",
     "scripts": {
         "dev": "next dev",
@@ -71,5 +72,13 @@
     "lint-staged": {
         "*.{js,jsx,ts,tsx}": "eslint --fix",
         "*.{json,css,md}": "prettier --write"
-    }
+    },
+    "trustedDependencies": [
+        "@prisma/engines",
+        "esbuild",
+        "msw",
+        "prisma",
+        "sharp",
+        "unrs-resolver"
+    ]
 }

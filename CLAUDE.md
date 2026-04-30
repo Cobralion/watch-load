@@ -8,20 +8,20 @@ The app lives entirely inside `watch-load/` (the Next.js project). The `db/` dir
 
 ## Commands
 
-All commands must be run from inside `watch-load/` using **pnpm**.
+All commands must be run from inside `watch-load/` using **bun**.
 
 ```bash
-pnpm dev          # start dev server
-pnpm build        # production build
-pnpm lint         # ESLint
-pnpm format       # Prettier (write)
-pnpm format:check # Prettier (check only)
+bun dev           # start dev server
+bun build         # production build
+bun lint          # ESLint
+bun format        # Prettier (write)
+bun format:check  # Prettier (check only)
 ```
 
 Prisma:
 ```bash
-pnpx prisma migrate dev   # run migrations
-pnpx prisma generate      # regenerate client (output: generated/prisma/)
+bunx prisma migrate dev   # run migrations
+bunx prisma generate      # regenerate client (output: generated/prisma/)
 ```
 
 Database (from repo root):
