@@ -1,4 +1,4 @@
-import { WITHINGS_HEART_URL } from '@/lib/withings/api-urls';
+import { WITHINGS_HEART_URL } from '@/constants/constants.server';
 import {
     APIFetchError,
     HeartListError,

@@ -6,7 +6,7 @@ import { env } from '@/env/server';
 import {
     WITHINGS_AUTHORIZATION_URL,
     WITHINGS_OAUTH_URL,
-} from '@/lib/withings/api-urls';
+} from '@/constants/constants.server';
 import { RequestTokenResponse } from '@/types/withings';
 import { encryptToken } from '@/lib/encryption';
 import {
@@ -14,6 +14,7 @@ import {
     BadRequestError,
     InternalServerError,
 } from '@/types/errors';
+import { WITHINGS_REDIRECT_URI } from '@/constants/constants.server';
 
 export async function handleWithingsCallback(
     code: string,
@@ -47,7 +48,7 @@ export async function handleWithingsCallback(
                 signature: sig.signature,
                 grant_type: 'authorization_code',
                 code,
-                redirect_uri: env.WITHINGS_REDIRECT_URI,
+                redirect_uri: WITHINGS_REDIRECT_URI,
             }),
         });
     } catch (err) {
@@ -95,7 +96,7 @@ export async function getWithingsAuthUrl(state: string, mode: string = '') {
     const params = new URLSearchParams({
         response_type: 'code',
         client_id: env.WITHINGS_CLIENT_ID,
-        redirect_uri: env.WITHINGS_REDIRECT_URI,
+        redirect_uri: WITHINGS_REDIRECT_URI,
         scope: 'user.metrics,user.activity',
         state: state,
         mode: mode,

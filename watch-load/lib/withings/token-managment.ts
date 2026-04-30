@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { RefreshTokenError } from '@/types/errors';
-import { WITHINGS_OAUTH_URL } from '@/lib/withings/api-urls';
+import { WITHINGS_OAUTH_URL } from '@/constants/constants.server';
 import { env } from '@/env';
 import { createSignature } from '@/lib/withings/signing';
 import { decryptToken, encryptToken } from '@/lib/encryption';

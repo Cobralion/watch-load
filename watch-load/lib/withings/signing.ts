@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { env } from '@/env/server';
-import { WITHINGS_SIGNATURE_URL } from '@/lib/withings/api-urls';
+import { WITHINGS_SIGNATURE_URL } from '@/constants/constants.server';
 
 type Signature = {
     nonce: string;
