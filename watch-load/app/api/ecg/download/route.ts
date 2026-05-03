@@ -2,11 +2,12 @@ import { auth } from '@/lib/auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { resolveWorkspaceRawNoAuthFromId } from '@/lib/workspace';
+import { env } from '@/env';
 
 async function GET(request: NextRequest) {
     const session = await auth();
     if (!session) {
-        return NextResponse.redirect('/login');
+        return NextResponse.redirect(new URL('/login', env.APP_URL));
     }
 
     const searchParams = request.nextUrl.searchParams;

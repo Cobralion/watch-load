@@ -89,6 +89,7 @@ export const createUser = actionClient
             throw new ActionError(`Failed to create user.`);
         }
 
+        revalidatePath('/admin');
         return {
             username: user.username,
             role: user.role,

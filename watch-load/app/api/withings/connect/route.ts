@@ -9,7 +9,7 @@ import { cookies } from 'next/headers';
 async function GET(request: NextRequest) {
     const session = await auth();
     if (!session) {
-        return NextResponse.redirect('/login');
+        return NextResponse.redirect(new URL('/login', env.APP_URL));
     }
 
     const searchParams = request.nextUrl.searchParams;

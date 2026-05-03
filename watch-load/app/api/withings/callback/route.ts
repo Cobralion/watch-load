@@ -4,11 +4,12 @@ import { auth } from '@/lib/auth';
 import { StatusActionError } from '@/types/errors';
 import { resolveWorkspaceFromId } from '@/lib/workspace';
 import { cookies } from 'next/headers';
+import { env } from '@/env';
 
 export async function GET(req: NextRequest) {
     const session = await auth();
     if (!session) {
-        return NextResponse.redirect(new URL(`/login`, req.url));
+        return NextResponse.redirect(new URL(`/login`, env.APP_URL));
     }
 
     const error = req.nextUrl.searchParams.get('error');
@@ -56,7 +57,7 @@ export async function GET(req: NextRequest) {
     } catch (error) {
         if (error instanceof StatusActionError) {
             if (error.status === 401) {
-                return NextResponse.redirect(new URL(`/login`, req.url));
+                return NextResponse.redirect(new URL(`/login`, env.APP_URL));
             }
             return new Response(error.message, { status: error.status });
         }
@@ -64,6 +65,6 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.redirect(
-        new URL(`/workspace/${slug}/connected-devices`, req.url)
+        new URL(`/workspace/${slug}/connected-devices`, env.APP_URL)
     );
 }
