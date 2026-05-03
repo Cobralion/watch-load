@@ -30,6 +30,8 @@ jobs:
           context: ./watch-load
           file: ./watch-load/Dockerfile
           platforms: linux/amd64
+          build-args: |
+            APP_URL=http://localhost:3000
           push: true
           tags: |
             ghcr.io/${{ steps.owner.outputs.name }}/watch-load:latest

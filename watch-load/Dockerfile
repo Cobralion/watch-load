@@ -10,6 +10,9 @@ FROM base AS builder
 COPY package.json bun.lock ./
 COPY prisma ./prisma
 
+ARG APP_URL
+ENV APP_URL=$APP_URL
+
 RUN bun install --frozen-lockfile
 
 COPY . .
