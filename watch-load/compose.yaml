@@ -1,7 +1,7 @@
 services:
   watch-load:
-    build:
-      context: .
+    image: lindnerm13/watch-load:latest
+    restart: always
     secrets:
       - db-password
     env_file:
