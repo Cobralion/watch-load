@@ -1,0 +1,67 @@
+# Dependencies
+node_modules
+**/node_modules
+
+# Next.js build output
+.next
+**/.next
+out
+build
+dist
+
+# Bun / package manager logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+bun-debug.log*
+*.log
+
+# Environment files
+.env
+!.env.example
+
+# Git
+.git
+.gitignore
+
+# Docker / Compose files
+Dockerfile
+Dockerfile*
+.dockerignore
+docker-compose*
+compose.y*ml
+
+# IDE / editor files
+.idea
+.vscode
+.vs
+*.swp
+**/.classpath
+**/.project
+**/.settings
+
+# OS / tool files
+.DS_Store
+**/.cache
+**/.toolstarget
+**/*.*proj.user
+**/*.dbmdl
+**/*.jfm
+
+# Docs not needed in the image
+README.md
+README.Docker.md
+LICENSE
+CLAUDE.md
+TODO.md
+
+# Local-only/generated artifacts
+charts
+obj
+secrets.dev.yaml
+values.dev.yaml
+
+# Prisma seeding
+prisma/seed.ts
+prisma.config.ts

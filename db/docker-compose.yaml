@@ -1,13 +1,13 @@
 version: "3.8"
 services:
   db:
-    image: postgres:15.17-alpine
+    image: postgres:16-alpine
     container_name: postgres_container
     restart: always
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: admin
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: watch_load_db
     volumes:

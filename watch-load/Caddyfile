@@ -1,0 +1,3 @@
+{$APP_HOSTNAME} {
+    reverse_proxy watch-load:3000
+}

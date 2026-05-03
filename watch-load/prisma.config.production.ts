@@ -1,6 +1,3 @@
-if (process.env.NODE_ENV !== 'production') {
-    await import('dotenv/config');
-}
 import { defineConfig } from 'prisma/config';
 import fs from 'node:fs';
 
@@ -11,7 +8,6 @@ const dbPassword = process.env.DB_PASSWORD_FILE
 export default defineConfig({
     schema: 'prisma/schema.prisma',
     migrations: {
-        seed: 'bunx tsx prisma/seed.ts',
         path: 'prisma/migrations',
     },
     datasource: {

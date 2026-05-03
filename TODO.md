@@ -78,8 +78,5 @@
 - [ ] **Infer the `requiredRole` schema from the Prisma `GlobalRole` enum**
   `lib/safe-action.ts:8` — `requiredRoleSchema` is a manually maintained `z.enum(['USER', 'ADMIN'])`. It should be derived from the Prisma-generated `GlobalRole` enum so it stays in sync automatically.
 
-- [ ] **Move Withings API URL constants to a shared constants file**
-  `lib/withings/api-urls.ts:1` — The file exists solely to hold two URL constants. They should live in a broader `lib/constants.ts` (or similar) to avoid a single-purpose file.
-
 - [ ] **Decide whether `revalidatePath` after heart sync is still needed**
   `actions/heart.ts:36` — The `revalidatePath` call after syncing heart data was marked as potentially unnecessary. Verify whether Next.js cache invalidation is still required here or if it can be removed.

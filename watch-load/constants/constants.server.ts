@@ -1,6 +1,12 @@
+import fs from 'node:fs';
 import { env } from '@/env';
 
-const DB_URL = `postgresql://${env.DB_USER}:${env.DB_PASSWORD}@${env.DB_HOST}:${env.DB_PORT}/${env.DB_NAME}`;
+const dbPassword =
+    env.DB_PASSWORD_FILE
+        ? fs.readFileSync(env.DB_PASSWORD_FILE, "utf8").trim()
+        : process.env.DB_PASSWORD;
+
+const DB_URL = `postgresql://${env.DB_USER}:${dbPassword}@${env.DB_HOST}:5432/${env.DB_NAME}`;
 const WITHINGS_REDIRECT_URI = new URL(
     '/api/withings/callback',
     env.APP_URL

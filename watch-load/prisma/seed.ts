@@ -1,7 +1,12 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../generated/prisma/client';
+import fs from 'node:fs';
 
-const connectionString = `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
+const dbPassword = process.env.DB_PASSWORD_FILE
+    ? fs.readFileSync(process.env.DB_PASSWORD_FILE, 'utf8').trim()
+    : process.env.DB_PASSWORD;
+
+const connectionString = `postgresql://${process.env.DB_USER}:${dbPassword}@${process.env.DB_HOST}:5432/${process.env.DB_NAME}`;
 const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
