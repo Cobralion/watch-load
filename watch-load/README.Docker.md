@@ -44,13 +44,13 @@ cd watch-load/watch-load
 
 ### 2. Create the environment file
 
-Create an `.env` file:
+Create an `.env.production` file:
 
 ```bash
-touch .env
+touch .env.production
 ```
 
-Open `.env` and set:
+Open `.env.production` and set:
 
 ```dotenv
 # Public URL and hostname (must match your domain)
@@ -79,7 +79,7 @@ WITHINGS_CLIENT_SECRET=
 JWT_SECRET=
 ```
 
-> **Note:** `JWT_APP_ISSUER` and `JWT_APP_AUDIENCE` are set directly in `compose.yaml` (both default to `app`) and do not need to be in `.env`.
+> **Note:** `JWT_APP_ISSUER` and `JWT_APP_AUDIENCE` are set directly in `compose.yaml` (both default to `app`) and do not need to be in `.env.production`.
 
 ### 3. Create the database password secret
 
@@ -93,7 +93,7 @@ openssl rand -base64 32 > db-password.txt
 chmod 600 db-password.txt
 ```
 
-The path to this file (`./db-password.txt`) must match `DB_PASSWORD_FILE` in `.env`.
+The path to this file (`./db-password.txt`) must match `DB_PASSWORD_FILE` in `.env.production`.
 
 ### 4. Configure Caddy
 
@@ -168,7 +168,7 @@ Migrations are applied on every container start. This is safe because `migrate d
 
 ## Environment Variables Reference
 
-### Set in `.env`
+### Set in `.env.production`
 
 | Variable | Required | Description |
 |---|---|---|
@@ -377,23 +377,43 @@ docker compose down -v
 
 ---
 
-## Cross-Platform Builds
+## Building and Pushing the Image
 
-If your development machine uses a different CPU architecture than your production server (e.g., Apple Silicon → amd64 Linux), build with `--platform`:
+### Build and push in one step (recommended)
+
+Use `docker buildx` to build for the target server architecture and push directly to Docker Hub:
 
 ```bash
-docker build --platform=linux/amd64 -t watch-load:latest .
+docker buildx build --platform linux/amd64 -t <user>/watch-load:latest --push .
 ```
 
-Or push to a registry and pull on the server:
+Replace `<user>` with your Docker Hub username. This builds the image for `linux/amd64` (standard server architecture) and pushes it to `docker.io/<user>/watch-load:latest` in a single command. No intermediate `docker push` step is needed.
+
+### Pull and run on the server
+
+Once the image is pushed, update `compose.yaml` to use the pre-built image instead of building locally:
+
+```yaml
+# Replace the build: directive with:
+image: <user>/watch-load:latest
+```
+
+Then on the server:
 
 ```bash
-docker build --platform=linux/amd64 -t registry.example.com/watch-load:latest .
-docker push registry.example.com/watch-load:latest
-
-# On the server — update compose.yaml to use the image instead of build:
-# image: registry.example.com/watch-load:latest
+docker compose pull watch-load
 docker compose up -d
+```
+
+### Deploy an update
+
+```bash
+# On your dev machine — rebuild and push
+docker buildx build --platform linux/amd64 -t <user>/watch-load:latest --push .
+
+# On the server — pull and restart
+docker compose pull watch-load
+docker compose up -d watch-load
 ```
 
 ---
@@ -405,7 +425,7 @@ docker compose up -d
 - The app runs as the unprivileged `node` user inside the container.
 - TLS certificates are managed automatically by Caddy via Let's Encrypt.
 - Withings OAuth tokens are stored AES-256 encrypted in the database.
-- Keep `.env` and `db-password.txt` out of version control (they are in `.gitignore`).
+- Keep `.env.production` and `db-password.txt` out of version control (they are in `.gitignore`).
 
 ---
 
@@ -440,7 +460,7 @@ The app validates all required env vars on startup via `@t3-oss/env-nextjs`. If 
 ❌ Invalid environment variables: { ENCRYPTION_KEY: [ 'Required' ] }
 ```
 
-Check `.env` and ensure every required variable is set and non-empty.
+Check `.env.production` and ensure every required variable is set and non-empty.
 
 ### Generating secrets
 
