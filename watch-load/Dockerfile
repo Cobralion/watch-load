@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 ARG NODE_VERSION=24
-ARG BUN_VERSION=1
+ARG BUN_VERSION=1.3
 
 FROM oven/bun:$BUN_VERSION AS base
 WORKDIR /app
