@@ -43,7 +43,4 @@ db-password.txt
 *.tsbuildinfo
 next-env.d.ts
 
-# prisma
-/watch-load/generated/prisma
-
 
