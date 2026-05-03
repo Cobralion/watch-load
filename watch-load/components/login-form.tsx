@@ -23,7 +23,9 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { CircleCheck } from 'lucide-react';
 import { use } from 'react';
 
-export function LoginForm({searchParams}: {
+export function LoginForm({
+    searchParams,
+}: {
     searchParams: Promise<{ username?: string; reset_success?: string }>;
 }) {
     const params = use(searchParams);

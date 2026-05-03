@@ -8,12 +8,12 @@ This guide covers everything you need to deploy watch-load with Docker Compose, 
 
 The production stack is defined in `compose.yaml` and consists of four services:
 
-| Service | Image | Purpose |
-|---|---|---|
-| `watch-load` | Built from `Dockerfile` | Next.js app (port 3000, internal only) |
-| `caddy` | `caddy:2` | Reverse proxy with automatic HTTPS (ports 80 / 443) |
-| `db` | `postgres:16-alpine` | Postgres database (port 5432, internal only) |
-| `db-backup` | `prodrigestivill/postgres-backup-local:16` | Automated daily Postgres backups |
+| Service      | Image                                      | Purpose                                             |
+| ------------ | ------------------------------------------ | --------------------------------------------------- |
+| `watch-load` | Built from `Dockerfile`                    | Next.js app (port 3000, internal only)              |
+| `caddy`      | `caddy:2`                                  | Reverse proxy with automatic HTTPS (ports 80 / 443) |
+| `db`         | `postgres:16-alpine`                       | Postgres database (port 5432, internal only)        |
+| `db-backup`  | `prodrigestivill/postgres-backup-local:16` | Automated daily Postgres backups                    |
 
 The app never exposes port 3000 to the host. All traffic enters through Caddy, which terminates TLS and forwards requests to the `watch-load` container over the internal Docker network.
 
@@ -170,29 +170,29 @@ Migrations are applied on every container start. This is safe because `migrate d
 
 ### Set in `.env.production`
 
-| Variable | Required | Description |
-|---|---|---|
-| `APP_URL` | Yes | Full public URL, e.g. `https://your-domain.com` |
-| `APP_HOSTNAME` | Yes | Bare hostname, e.g. `your-domain.com` (used by Caddy) |
-| `DB_USER` | Yes | Postgres username |
-| `DB_NAME` | Yes | Postgres database name |
-| `DB_PASSWORD_FILE` | Yes | Path to the file containing the DB password |
-| `AUTH_SECRET` | Yes | NextAuth session signing secret |
-| `ENCRYPTION_KEY` | Yes | 64-hex-char AES-256 key for token encryption |
-| `WITHINGS_CLIENT_ID` | Yes | Withings OAuth app client ID |
-| `WITHINGS_CLIENT_SECRET` | Yes | Withings OAuth app client secret |
-| `JWT_SECRET` | Yes | Secret for internal JWT signing |
+| Variable                 | Required | Description                                           |
+| ------------------------ | -------- | ----------------------------------------------------- |
+| `APP_URL`                | Yes      | Full public URL, e.g. `https://your-domain.com`       |
+| `APP_HOSTNAME`           | Yes      | Bare hostname, e.g. `your-domain.com` (used by Caddy) |
+| `DB_USER`                | Yes      | Postgres username                                     |
+| `DB_NAME`                | Yes      | Postgres database name                                |
+| `DB_PASSWORD_FILE`       | Yes      | Path to the file containing the DB password           |
+| `AUTH_SECRET`            | Yes      | NextAuth session signing secret                       |
+| `ENCRYPTION_KEY`         | Yes      | 64-hex-char AES-256 key for token encryption          |
+| `WITHINGS_CLIENT_ID`     | Yes      | Withings OAuth app client ID                          |
+| `WITHINGS_CLIENT_SECRET` | Yes      | Withings OAuth app client secret                      |
+| `JWT_SECRET`             | Yes      | Secret for internal JWT signing                       |
 
 ### Hardcoded in `compose.yaml`
 
-| Variable | Value | Description |
-|---|---|---|
-| `NODE_ENV` | `production` | Enables Next.js production mode |
-| `AUTH_TRUST_HOST` | `true` | Required when running behind a reverse proxy |
-| `JWT_APP_ISSUER` | `app` | JWT issuer claim |
-| `JWT_APP_AUDIENCE` | `app` | JWT audience claim |
-| `DB_HOST` | `db` | Docker service name for Postgres |
-| `DB_PASSWORD_FILE` | `/run/secrets/db-password` | Docker secret mount path (inside container) |
+| Variable           | Value                      | Description                                  |
+| ------------------ | -------------------------- | -------------------------------------------- |
+| `NODE_ENV`         | `production`               | Enables Next.js production mode              |
+| `AUTH_TRUST_HOST`  | `true`                     | Required when running behind a reverse proxy |
+| `JWT_APP_ISSUER`   | `app`                      | JWT issuer claim                             |
+| `JWT_APP_AUDIENCE` | `app`                      | JWT audience claim                           |
+| `DB_HOST`          | `db`                       | Docker service name for Postgres             |
+| `DB_PASSWORD_FILE` | `/run/secrets/db-password` | Docker secret mount path (inside container)  |
 
 ---
 
@@ -202,11 +202,11 @@ The `db-backup` service runs `prodrigestivill/postgres-backup-local` and stores 
 
 ### Default retention policy
 
-| Period | Copies kept |
-|---|---|
-| Daily | 14 |
-| Weekly | 4 |
-| Monthly | 6 |
+| Period  | Copies kept |
+| ------- | ----------- |
+| Daily   | 14          |
+| Weekly  | 4           |
+| Monthly | 6           |
 
 Backups are gzip-compressed (`-Z9`) and scoped to the `public` schema. They run at midnight UTC (`@daily`).
 

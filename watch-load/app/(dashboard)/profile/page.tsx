@@ -1,6 +1,5 @@
 import { Separator } from '@/components/ui/separator';
 import { SessionProvider } from 'next-auth/react';
-import AccountInformation from '@/components/profile/account-information';
 import ChangePassword from '@/components/profile/change-password';
 
 export default function ProfilePage() {
@@ -19,7 +18,6 @@ export default function ProfilePage() {
 
                 {/* Account Information */}
                 <SessionProvider>
-                    <AccountInformation />
                     <ChangePassword />
                 </SessionProvider>
             </div>
