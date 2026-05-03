@@ -1,6 +1,6 @@
 services:
   watch-load:
-    image: lindnerm13/watch-load:latest
+    image: ghcr.io/cobralion/watch-load:latest
     restart: always
     secrets:
       - db-password

@@ -20,6 +20,7 @@ ENV SKIP_ENV_VALIDATION=1
 RUN bun run build
 
 FROM node:$NODE_VERSION AS runner
+LABEL org.opencontainers.image.source=https://github.com/Cobralion/watch-load
 WORKDIR /app
 
 ARG PRISMA_VERSION=7.4.2
