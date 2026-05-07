@@ -35,26 +35,6 @@ export default function EditTrailsDialog(
         props.data?.trialsId ?? ''
     );
     const workspace = useWorkspace();
-    // const [error, setError] = useState<TrailsChangeActionState | null>(null);
-    //
-    // const [saveTransition, startSaveTransition] = useTransition();
-    //
-    // const handleSave = async () => {
-    //     startSaveTransition(async () => {
-    //         const data = { ...props.data!, trailsId: trailsId }; // TODO: check that data is not null
-    //         if (trailsId === props.data?.trailsId) {
-    //             props.toggleModal();
-    //             return;
-    //         }
-    //
-    //         const result = await editTrailsId(data);
-    //         if (!result.success) {
-    //             setError(result);
-    //             return;
-    //         }
-    //         props.toggleModal();
-    //     });
-    // };
 
     const { execute, result, isExecuting } = useAction(editTrialsId, {
         onSuccess: () => {
