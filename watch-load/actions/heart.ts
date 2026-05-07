@@ -46,7 +46,8 @@ export const editTrialsId = actionClient
             trialsId: z
                 .string()
                 .trim()
-                .min(1, { message: 'Trials Id cannot be empty.' }),
+                .nullish()
+                .transform((v) => (v == null || v === '' ? null : v)),
         })
     )
     .action(async ({ parsedInput }): Promise<void> => {
