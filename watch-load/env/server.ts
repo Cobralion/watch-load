@@ -4,7 +4,7 @@ import * as z from 'zod';
 export const env = createEnv({
     server: {
         NODE_ENV: z.enum(['development', 'production', 'test']),
-        APP_URL: z.url(),
+        APP_URL: z.url().transform((v) => v.replace(/\/+$/, '')),
         DB_USER: z.string().min(1),
         DB_PASSWORD_FILE: z.string().optional(),
         DB_PASSWORD: z.string().optional(),
