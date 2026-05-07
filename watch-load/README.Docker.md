@@ -64,7 +64,7 @@ DB_NAME=watch_load_db
 # Path to the file that holds the database password (see step 3)
 DB_PASSWORD_FILE=./db-password.txt
 
-# NextAuth secret — generate with: openssl rand -base64 32
+# NextAuth secret — generate with: openssl rand -hex 32
 AUTH_SECRET=
 
 # AES-256 encryption key for Withings tokens — must be 64 hex characters
@@ -75,7 +75,7 @@ ENCRYPTION_KEY=
 WITHINGS_CLIENT_ID=
 WITHINGS_CLIENT_SECRET=
 
-# JWT signing secret — generate with: openssl rand -base64 32
+# JWT signing secret — generate with: openssl rand -hex 32
 JWT_SECRET=
 ```
 
@@ -87,7 +87,7 @@ Docker Compose reads the database password from a plain-text file, keeping it ou
 
 ```bash
 # Generate a strong random password
-openssl rand -base64 32 > db-password.txt
+openssl rand -hex 32 > db-password.txt
 
 # Restrict file permissions
 chmod 600 db-password.txt
@@ -290,7 +290,7 @@ VALUES ('<cuid>',
         '$2a$12$<your-hash-here>',
         'ADMIN',
         'Administrator',
-        NOW());
+         NOW());
 ```
 
 Verify the insert:

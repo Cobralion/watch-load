@@ -41,6 +41,7 @@ export function EcgDataTable<TData, TValue>({
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         onPaginationChange: setPagination,
+        autoResetPageIndex: false,
         onSortingChange: setSorting,
         getSortedRowModel: getSortedRowModel(),
         state: {

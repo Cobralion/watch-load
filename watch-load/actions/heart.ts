@@ -41,11 +41,13 @@ export const editTrialsId = actionClient
     .metadata({ actionName: 'editTrialsId' })
     .inputSchema(
         z.object({
-            id: z.cuid(),
-            workspaceId: z.cuid(),
+            id: z.cuid2(),
+            workspaceId: z.cuid2(),
             trialsId: z
                 .string()
-                .min(1, { message: 'Trials Id cannot be empty.' }),
+                .trim()
+                .nullish()
+                .transform((v) => (v == null || v === '' ? null : v)),
         })
     )
     .action(async ({ parsedInput }): Promise<void> => {
@@ -55,7 +57,6 @@ export const editTrialsId = actionClient
 
         let batchPayload: BatchPayload | null = null;
         try {
-            //TODO: maybe check that the measurement with given id belongs to the user?
             batchPayload = await prisma.heartMeasurement.updateMany({
                 where: {
                     id: parsedInput.id,
@@ -79,9 +80,9 @@ export const editLocation = actionClient
     .metadata({ actionName: 'editLocation' })
     .inputSchema(
         z.object({
-            id: z.cuid(),
-            workspaceId: z.cuid(),
-            locationId: z.cuid(),
+            id: z.cuid2(),
+            workspaceId: z.cuid2(),
+            locationId: z.cuid2(),
         })
     )
     .action(

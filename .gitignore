@@ -8,6 +8,9 @@
 !.yarn/releases
 !.yarn/versions
 
+# idea
+.idea/
+
 # testing
 /watch-load/coverage
 
