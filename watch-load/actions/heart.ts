@@ -96,6 +96,16 @@ export const editLocation = actionClient
                 workspace: { slug },
             } = await resolveWorkspaceFromId(workspaceId);
 
+            const location = await prisma.locationOption.findFirst({
+                where: { id: locationId, workspaceId },
+                select: { id: true },
+            });
+            if (!location) {
+                throw new ActionError(
+                    'Location does not exist in this workspace.'
+                );
+            }
+
             let batchPayload: BatchPayload | null = null;
             try {
                 batchPayload = await prisma.heartMeasurement.updateMany({
