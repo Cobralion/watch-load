@@ -6,9 +6,8 @@ import {
     ResetCredentialsError,
     ServerCredentialsError,
 } from '@/types/errors';
-import bcrypt from 'bcryptjs';
+import { verifyCredentials } from '@/lib/auth-credentials';
 import { env } from '@/env';
-import { GlobalRole } from '@/generated/prisma/enums';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     debug: env.NODE_ENV !== 'production',
@@ -59,17 +58,7 @@ async function authorize(
         throw new InvalidCredentialsError();
     }
 
-    let result: {
-        id: string;
-        name: string | null;
-        username: string;
-        password: string | null;
-        role: GlobalRole;
-        resetToken: string | null;
-        resetTokenExpiresAt: Date | null;
-        createdAt: Date;
-        updatedAt: Date;
-    } | null;
+    let result;
     try {
         result = await prisma.user.findUnique({
             where: {
@@ -81,27 +70,23 @@ async function authorize(
         throw new ServerCredentialsError();
     }
 
-    if (!result) {
-        console.error('[AUTH] Invalid credentials - user not found');
-        throw new InvalidCredentialsError();
+    try {
+        const user = await verifyCredentials(password, result);
+        return {
+            id: user.id,
+            name: user.name,
+            role: user.role,
+            username: user.username,
+        };
+    } catch (error) {
+        if (error instanceof InvalidCredentialsError) {
+            console.error('[AUTH] Invalid credentials');
+            throw error;
+        }
+        if (error instanceof ResetCredentialsError) {
+            console.error('[AUTH] User must reset password');
+            throw error;
+        }
+        throw error;
     }
-
-    if (!result.password || result.resetToken) {
-        console.error('[AUTH] User must reset password.');
-        throw new ResetCredentialsError();
-    }
-
-    // TODO: compare against dummy if user is not found for security
-    const isMatch = await bcrypt.compare(password, result.password);
-    if (!isMatch) {
-        console.error('[AUTH] Invalid credentials - wrong password');
-        throw new InvalidCredentialsError();
-    }
-
-    return {
-        id: result.id,
-        name: result.name,
-        role: result.role,
-        username: username,
-    };
 }
