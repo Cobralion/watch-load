@@ -3,6 +3,47 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { resolveWorkspaceRawNoAuthFromId } from '@/lib/workspace';
 import { env } from '@/env';
+import {
+    buildEcgExportFilename,
+    ECG_CSV_HEADERS,
+    formatCsvRow,
+    UTF8_BOM,
+} from '@/lib/csv';
+
+const EXPORT_BATCH_SIZE = 100;
+
+type MeasurementRow = Awaited<
+    ReturnType<typeof fetchMeasurementBatch>
+>[number];
+
+async function fetchMeasurementBatch(
+    workspaceId: string,
+    cursor: string | undefined
+) {
+    return prisma.heartMeasurement.findMany({
+        where: { workspaceId },
+        include: { location: true },
+        orderBy: { id: 'asc' },
+        take: EXPORT_BATCH_SIZE,
+        ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
+    });
+}
+
+function measurementToCsvRow(row: MeasurementRow): string {
+    return formatCsvRow([
+        row.id,
+        row.signalId,
+        row.deviceId,
+        row.heartRate,
+        row.afib,
+        row.samplingFrequency,
+        row.timestamp.toISOString(),
+        row.modified.toISOString(),
+        row.trialsId,
+        row.location?.name ?? '',
+        JSON.stringify(row.signal),
+    ]);
+}
 
 async function GET(request: NextRequest) {
     const session = await auth();
@@ -21,55 +62,69 @@ async function GET(request: NextRequest) {
         return new Response('Bad Request', { status: 400 });
     }
 
-    const result = await resolveWorkspaceRawNoAuthFromId(
+    const access = await resolveWorkspaceRawNoAuthFromId(
         session.user.id,
         session.user.role,
         workspaceId
     );
-    if (result instanceof NextResponse) {
-        return result;
+    if (access instanceof NextResponse) {
+        return access;
     }
 
-    try {
-        const result = await prisma.heartMeasurement.findMany({
-            where: { workspaceId },
-            include: {
-                location: true,
-            },
-        });
-        const header = [
-            'Id',
-            'SignalId',
-            'DeviceId',
-            'HeartRate',
-            'Afib',
-            'SamplingFrequency',
-            'Timestamp',
-            'Modified',
-            'TrialsId',
-            'Location',
-            'Signal',
-        ];
+    const { workspace } = access;
+    const filename = buildEcgExportFilename(workspace.slug);
+    const encoder = new TextEncoder();
 
-        const csvContent = [
-            header.join(','),
-            ...result.map(
-                (e) =>
-                    `${e.id},${e.signalId},${e.deviceId},${e.heartRate},${e.afib},${e.samplingFrequency},${e.timestamp.toISOString()},${e.modified.toISOString()},${e.trialsId},${e.location?.name},"${e.signal}"`
-            ),
-        ].join('\n');
+    const stream = new ReadableStream<Uint8Array>({
+        async start(controller) {
+            try {
+                controller.enqueue(encoder.encode(UTF8_BOM));
+                controller.enqueue(
+                    encoder.encode(
+                        `${formatCsvRow([...ECG_CSV_HEADERS])}\n`
+                    )
+                );
 
-        return new Response(csvContent, {
-            status: 200,
-            headers: {
-                'Content-Type': 'text/csv',
-                'Content-Disposition': 'attachment; filename="ecgs-export.csv"',
-            },
-        });
-    } catch (error) {
-        console.error(error);
-        return new Response('Internal Server Error', { status: 500 });
-    }
+                let cursor: string | undefined;
+
+                while (true) {
+                    const batch = await fetchMeasurementBatch(
+                        workspace.id,
+                        cursor
+                    );
+
+                    if (batch.length === 0) {
+                        break;
+                    }
+
+                    let chunk = '';
+                    for (const row of batch) {
+                        chunk += `${measurementToCsvRow(row)}\n`;
+                    }
+                    controller.enqueue(encoder.encode(chunk));
+
+                    cursor = batch[batch.length - 1].id;
+
+                    if (batch.length < EXPORT_BATCH_SIZE) {
+                        break;
+                    }
+                }
+
+                controller.close();
+            } catch (error) {
+                console.error(error);
+                controller.error(error);
+            }
+        },
+    });
+
+    return new Response(stream, {
+        status: 200,
+        headers: {
+            'Content-Type': 'text/csv; charset=utf-8',
+            'Content-Disposition': `attachment; filename="${filename}"`,
+        },
+    });
 }
 
 export { GET };
