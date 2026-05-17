@@ -1,6 +1,6 @@
 # dependencies
-/watch-load/node_modules
-/watch-load/.pnp
+node_modules
+/.pnp
 .pnp.*
 .yarn/*
 !.yarn/patches
@@ -12,14 +12,14 @@
 .idea/
 
 # testing
-/watch-load/coverage
+/coverage
 
 # next.js
-/watch-load/.next/
-/watch-load/out/
+/.next/
+/out/
 
 # production
-/watch-load/build
+/build
 
 # misc
 .DS_Store

@@ -1,14 +1,14 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: postgres_container
+    container_name: db
     restart: always
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: watch_load_db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
       - local_pgdata:/var/lib/postgresql/data
         

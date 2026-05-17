@@ -28,6 +28,7 @@ export async function GET(req: NextRequest) {
     }
 
     const cookieStore = await cookies();
+    const oauthCookiePath = '/api/withings/callback';
     const originalState = cookieStore.get('withings_oauth_state')?.value;
     if (!originalState || originalState !== state) {
         console.error(
@@ -35,14 +36,19 @@ export async function GET(req: NextRequest) {
         );
         return new Response('Forbidden', { status: 403 });
     }
-    req.cookies.delete('withings_oauth_state');
 
     const workspaceId = cookieStore.get('withings_oauth_workspace')?.value;
+
+    cookieStore.delete({ name: 'withings_oauth_state', path: oauthCookiePath });
+    cookieStore.delete({
+        name: 'withings_oauth_workspace',
+        path: oauthCookiePath,
+    });
+
     if (!workspaceId) {
         console.error(`WorkspaceId cookie missing.`);
         return new Response('Bad Request', { status: 400 });
     }
-    req.cookies.delete('withings_oauth_workspace');
     const {
         workspace: { slug },
         role,

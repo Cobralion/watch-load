@@ -27,8 +27,8 @@ jobs:
 
       - uses: docker/build-push-action@v6
         with:
-          context: ./watch-load
-          file: ./watch-load/Dockerfile
+          context: .
+          file: ./Dockerfile
           platforms: linux/amd64
           build-args: |
             APP_URL=http://localhost:3000

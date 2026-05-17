@@ -1,10 +1,13 @@
 import * as z from 'zod';
 
-const passwordValidation = z
+const passwordPolicySchema = z
     .string()
     .min(8, 'Password must be at least 8 characters')
     .regex(/[^a-zA-Z0-9]/, 'Password must contain at least one symbol')
     .regex(/[A-Z]/, 'Password must contain at least one uppercase letter');
+
+/** Existing passwords at login or change-password — policy is not re-checked client-side. */
+const existingPasswordSchema = z.string().min(1, 'Password is required.');
 
 export const usernameSchema = z
     .string()
@@ -13,9 +16,9 @@ export const usernameSchema = z
 
 export const changePasswordSchema = z
     .object({
-        currentPassword: passwordValidation,
-        newPassword: passwordValidation,
-        confirmPassword: passwordValidation,
+        currentPassword: existingPasswordSchema,
+        newPassword: passwordPolicySchema,
+        confirmPassword: passwordPolicySchema,
     })
     .refine((data) => data.newPassword !== data.currentPassword, {
         message: 'New password must be different from current password.',
@@ -28,15 +31,15 @@ export const changePasswordSchema = z
 
 export const loginSchema = z.object({
     username: usernameSchema,
-    password: passwordValidation,
+    password: existingPasswordSchema,
 });
 
 export const resetPasswordSchema = z
     .object({
         username: usernameSchema,
         resetToken: z.string(),
-        password: passwordValidation,
-        confirmPassword: passwordValidation,
+        password: passwordPolicySchema,
+        confirmPassword: passwordPolicySchema,
     })
     .refine((data) => data.password === data.confirmPassword, {
         message: 'Password and confirm password must match.',
