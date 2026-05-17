@@ -7,9 +7,7 @@ const passwordPolicySchema = z
     .regex(/[A-Z]/, 'Password must contain at least one uppercase letter');
 
 /** Existing passwords at login or change-password — policy is not re-checked client-side. */
-const existingPasswordSchema = z
-    .string()
-    .min(1, 'Password is required.');
+const existingPasswordSchema = z.string().min(1, 'Password is required.');
 
 export const usernameSchema = z
     .string()

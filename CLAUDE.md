@@ -19,12 +19,14 @@ bun format:check  # Prettier (check only)
 ```
 
 Prisma:
+
 ```bash
 bunx prisma migrate dev   # run migrations
 bunx prisma generate      # regenerate client (output: generated/prisma/)
 ```
 
 Database (from repo root):
+
 ```bash
 docker compose -f db/docker-compose.yaml up -d   # start Postgres on port 5432
 ```
@@ -70,9 +72,9 @@ Actions live in `actions/` and are always `'use server'` files. Zod schemas for 
 
 Two independent role axes:
 
-| Axis | Values |
-|------|--------|
-| Global (`GlobalRole`) | `ADMIN`, `USER` |
+| Axis                        | Values                              |
+| --------------------------- | ----------------------------------- |
+| Global (`GlobalRole`)       | `ADMIN`, `USER`                     |
 | Workspace (`WorkspaceRole`) | `WORKSPACE_ADMIN`, `WORKSPACE_USER` |
 
 `lib/workspace.ts` exposes `resolveWorkspaceFromSlug` / `resolveWorkspaceFromId` (React-cached). These resolve a `ResolvedWorkspace` that normalizes workspace role to `'ADMIN' | 'USER'` — global admins always get `'ADMIN'` regardless of their membership row. Server actions call these helpers to enforce access control.

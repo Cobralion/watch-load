@@ -12,9 +12,7 @@ import {
 
 const EXPORT_BATCH_SIZE = 100;
 
-type MeasurementRow = Awaited<
-    ReturnType<typeof fetchMeasurementBatch>
->[number];
+type MeasurementRow = Awaited<ReturnType<typeof fetchMeasurementBatch>>[number];
 
 async function fetchMeasurementBatch(
     workspaceId: string,
@@ -80,9 +78,7 @@ async function GET(request: NextRequest) {
             try {
                 controller.enqueue(encoder.encode(UTF8_BOM));
                 controller.enqueue(
-                    encoder.encode(
-                        `${formatCsvRow([...ECG_CSV_HEADERS])}\n`
-                    )
+                    encoder.encode(`${formatCsvRow([...ECG_CSV_HEADERS])}\n`)
                 );
 
                 let cursor: string | undefined;

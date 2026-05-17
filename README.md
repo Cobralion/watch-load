@@ -41,25 +41,25 @@ watch-load lets research teams connect a Withings smartwatch to a workspace, syn
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Framework | Next.js 16 (App Router) |
-| Runtime | Node.js 24.11.0 / Bun |
-| Language | TypeScript 5 |
-| UI | React 19, shadcn/ui, Tailwind CSS v4 |
-| Auth | NextAuth v5 (beta) — credentials provider |
-| Authorization | CASL |
-| Server Actions | next-safe-action |
-| Validation | Zod 4 |
-| ORM | Prisma 7 with `@prisma/adapter-pg` |
-| Database | PostgreSQL 16 |
-| Forms | React Hook Form |
-| Tables | TanStack Table v8 |
-| State | Zustand |
-| Notifications | Sonner |
-| Icons | Lucide React |
-| Package Manager | Bun |
-| Linting/Formatting | ESLint 9, Prettier 3 |
+| Layer              | Technology                                |
+| ------------------ | ----------------------------------------- |
+| Framework          | Next.js 16 (App Router)                   |
+| Runtime            | Node.js 24.11.0 / Bun                     |
+| Language           | TypeScript 5                              |
+| UI                 | React 19, shadcn/ui, Tailwind CSS v4      |
+| Auth               | NextAuth v5 (beta) — credentials provider |
+| Authorization      | CASL                                      |
+| Server Actions     | next-safe-action                          |
+| Validation         | Zod 4                                     |
+| ORM                | Prisma 7 with `@prisma/adapter-pg`        |
+| Database           | PostgreSQL 16                             |
+| Forms              | React Hook Form                           |
+| Tables             | TanStack Table v8                         |
+| State              | Zustand                                   |
+| Notifications      | Sonner                                    |
+| Icons              | Lucide React                              |
+| Package Manager    | Bun                                       |
+| Linting/Formatting | ESLint 9, Prettier 3                      |
 
 ---
 
@@ -73,9 +73,9 @@ Handled by NextAuth v5 (`lib/auth.ts`) with a credentials provider (username + p
 
 Two independent role axes are in use:
 
-| Axis | Values |
-|---|---|
-| Global (`GlobalRole`) | `ADMIN`, `USER` |
+| Axis                        | Values                              |
+| --------------------------- | ----------------------------------- |
+| Global (`GlobalRole`)       | `ADMIN`, `USER`                     |
 | Workspace (`WorkspaceRole`) | `WORKSPACE_ADMIN`, `WORKSPACE_USER` |
 
 `lib/workspace.ts` exposes `resolveWorkspaceFromSlug` / `resolveWorkspaceFromId` (React-cached server helpers). These return a `ResolvedWorkspace` that normalizes workspace role to `'ADMIN' | 'USER'` — global admins always receive `'ADMIN'` regardless of their membership row. All server actions use these helpers to enforce access control. Client-side permission checks use CASL.
@@ -102,14 +102,14 @@ OAuth tokens are stored AES-256 encrypted in the database (`lib/encryption.ts`).
 
 ### Data Models
 
-| Model | Purpose |
-|---|---|
-| `User` | Application user — username, hashed password, global role, password-reset token |
-| `Workspace` | Isolated tenant — name, slug, description |
-| `Membership` | Join table linking users to workspaces with a workspace-level role |
-| `WithingsConnection` | Encrypted OAuth tokens for a workspace's connected Withings device |
-| `HeartMeasurement` | Individual ECG recording — heart rate, AFib status, raw signal array, sampling frequency |
-| `LocationOption` | Workspace-defined location labels that can be assigned to measurements |
+| Model                | Purpose                                                                                  |
+| -------------------- | ---------------------------------------------------------------------------------------- |
+| `User`               | Application user — username, hashed password, global role, password-reset token          |
+| `Workspace`          | Isolated tenant — name, slug, description                                                |
+| `Membership`         | Join table linking users to workspaces with a workspace-level role                       |
+| `WithingsConnection` | Encrypted OAuth tokens for a workspace's connected Withings device                       |
+| `HeartMeasurement`   | Individual ECG recording — heart rate, AFib status, raw signal array, sampling frequency |
+| `LocationOption`     | Workspace-defined location labels that can be assigned to measurements                   |
 
 ---
 
@@ -225,19 +225,19 @@ The application is available at `http://localhost:3000`.
 
 All variables live in `watch-load/.env`. They are validated at startup via `@t3-oss/env-nextjs` in `env/server.ts` and `env/client.ts`.
 
-| Variable | Required | Description |
-|---|---|---|
-| `DATABASE_URL` | Yes | Full PostgreSQL connection string (e.g. `postgresql://postgres:admin@localhost:5432/watch_load_db`) |
-| `AUTH_SECRET` | Yes | Random secret used by NextAuth to sign session tokens |
-| `ENCRYPTION_KEY` | Yes | 64 hex characters (= 32 bytes) used for AES-256 encryption of Withings tokens |
-| `JWT_APP_ISSUER` | Yes | JWT issuer claim — set to `watch-load` |
-| `JWT_APP_AUDIENCE` | Yes | JWT audience claim — set to `watch-load` |
-| `JWT_SECRET` | Yes | Secret for signing internal state JWTs (Withings OAuth flow) |
-| `WITHINGS_CLIENT_ID` | Yes | OAuth client ID from the Withings developer portal |
-| `WITHINGS_CLIENT_SECRET` | Yes | OAuth client secret from the Withings developer portal |
-| `WITHINGS_REDIRECT_URI` | Yes | OAuth callback URL — `http://localhost:3000/api/withings/callback` in development |
-| `APP_URL` | Yes | Public base URL of the application (no trailing slash) — e.g. `http://localhost:3000` |
-| `NODE_ENV` | Yes | `development` or `production` |
+| Variable                 | Required | Description                                                                                         |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`           | Yes      | Full PostgreSQL connection string (e.g. `postgresql://postgres:admin@localhost:5432/watch_load_db`) |
+| `AUTH_SECRET`            | Yes      | Random secret used by NextAuth to sign session tokens                                               |
+| `ENCRYPTION_KEY`         | Yes      | 64 hex characters (= 32 bytes) used for AES-256 encryption of Withings tokens                       |
+| `JWT_APP_ISSUER`         | Yes      | JWT issuer claim — set to `watch-load`                                                              |
+| `JWT_APP_AUDIENCE`       | Yes      | JWT audience claim — set to `watch-load`                                                            |
+| `JWT_SECRET`             | Yes      | Secret for signing internal state JWTs (Withings OAuth flow)                                        |
+| `WITHINGS_CLIENT_ID`     | Yes      | OAuth client ID from the Withings developer portal                                                  |
+| `WITHINGS_CLIENT_SECRET` | Yes      | OAuth client secret from the Withings developer portal                                              |
+| `WITHINGS_REDIRECT_URI`  | Yes      | OAuth callback URL — `http://localhost:3000/api/withings/callback` in development                   |
+| `APP_URL`                | Yes      | Public base URL of the application (no trailing slash) — e.g. `http://localhost:3000`               |
+| `NODE_ENV`               | Yes      | `development` or `production`                                                                       |
 
 To generate a valid `ENCRYPTION_KEY`:
 
@@ -263,32 +263,32 @@ openssl rand -hex 32
 
 All commands must be run from inside `watch-load/`.
 
-| Command | Description |
-|---|---|
-| `bun dev` | Start the Next.js development server |
-| `bun build` | Production build |
-| `bun start` | Start the production server |
-| `bun lint` | Run ESLint |
-| `bun format` | Run Prettier (writes changes) |
-| `bun format:check` | Run Prettier (check only, no writes) |
-| `bun start:deploy` | Run pending Prisma migrations, then start the server (used in Docker) |
-| `bunx prisma migrate dev` | Apply pending migrations and update the Prisma client |
-| `bunx prisma generate` | Regenerate the Prisma client without running migrations |
+| Command                   | Description                                                           |
+| ------------------------- | --------------------------------------------------------------------- |
+| `bun dev`                 | Start the Next.js development server                                  |
+| `bun build`               | Production build                                                      |
+| `bun start`               | Start the production server                                           |
+| `bun lint`                | Run ESLint                                                            |
+| `bun format`              | Run Prettier (writes changes)                                         |
+| `bun format:check`        | Run Prettier (check only, no writes)                                  |
+| `bun start:deploy`        | Run pending Prisma migrations, then start the server (used in Docker) |
+| `bunx prisma migrate dev` | Apply pending migrations and update the Prisma client                 |
+| `bunx prisma generate`    | Regenerate the Prisma client without running migrations               |
 
 ---
 
 ## Application Pages
 
-| Route | Access | Description |
-|---|---|---|
-| `/login` | Public | Username/password login |
-| `/reset-password` | Public (with valid token) | Set a new password after receiving a reset link |
-| `/dashboard` | Authenticated | Home screen; create new workspaces |
-| `/admin` | Global `ADMIN` only | Create users, manage global roles |
-| `/profile` | Authenticated | Change your own password |
-| `/workspace/[slug]` | Workspace member | ECG data table for the workspace; sync measurements |
-| `/workspace/[slug]/connected-devices` | Workspace admin | Connect, view, and disconnect Withings devices |
-| `/workspace/[slug]/settings` | Workspace admin | Edit workspace metadata, manage members, manage location labels |
+| Route                                 | Access                    | Description                                                     |
+| ------------------------------------- | ------------------------- | --------------------------------------------------------------- |
+| `/login`                              | Public                    | Username/password login                                         |
+| `/reset-password`                     | Public (with valid token) | Set a new password after receiving a reset link                 |
+| `/dashboard`                          | Authenticated             | Home screen; create new workspaces                              |
+| `/admin`                              | Global `ADMIN` only       | Create users, manage global roles                               |
+| `/profile`                            | Authenticated             | Change your own password                                        |
+| `/workspace/[slug]`                   | Workspace member          | ECG data table for the workspace; sync measurements             |
+| `/workspace/[slug]/connected-devices` | Workspace admin           | Connect, view, and disconnect Withings devices                  |
+| `/workspace/[slug]/settings`          | Workspace admin           | Edit workspace metadata, manage members, manage location labels |
 
 ---
 
@@ -359,6 +359,7 @@ The `start:deploy` script (`bunx prisma migrate deploy && bun start`) is the con
 The Prisma schema lives at `watch-load/prisma/schema.prisma`. The generated client is output to `watch-load/generated/prisma/` (imported as `@/generated/prisma`).
 
 Key indexes:
+
 - `HeartMeasurement`: compound index on `(workspaceId, deviceId, timestamp DESC)` for efficient workspace-scoped queries sorted by time.
 - `WithingsConnection`: indexed on `workspaceId` for fast workspace lookups.
 

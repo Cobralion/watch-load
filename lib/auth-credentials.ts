@@ -1,8 +1,5 @@
 import bcrypt from 'bcryptjs';
-import {
-    InvalidCredentialsError,
-    ResetCredentialsError,
-} from '@/types/errors';
+import { InvalidCredentialsError, ResetCredentialsError } from '@/types/errors';
 import type { GlobalRole } from '@/generated/prisma/enums';
 
 /**
